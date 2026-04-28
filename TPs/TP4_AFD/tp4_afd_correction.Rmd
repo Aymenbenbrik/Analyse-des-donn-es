@@ -1,0 +1,319 @@
+---
+title: "TP4 — Analyse Factorielle Discriminante (LDA / QDA) — **CORRECTION**"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Correction"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+```{r packages}
+library(MASS); library(FactoMineR); library(factoextra)
+library(caret); library(ggplot2); library(dplyr); library(pROC)
+```
+
+# Partie 1 — Décomposition de la variance (Iris)
+
+```{r}
+data(iris)
+table(iris$Species)
+summary(iris)
+```
+
+```{r}
+# Calcul manuel de B et W
+X <- as.matrix(iris[, 1:4])
+n <- nrow(X)
+g <- colMeans(X)
+
+# Variance totale (biaisée, /n)
+Xc <- scale(X, center = TRUE, scale = FALSE)
+V <- crossprod(Xc) / n
+
+# B = sum_k (n_k/n) * (g_k - g)(g_k - g)^T
+species <- iris$Species
+g_k <- aggregate(X, by = list(species), FUN = mean)
+n_k <- as.numeric(table(species))
+B <- matrix(0, 4, 4)
+for (k in seq_along(n_k)) {
+  diff <- as.numeric(g_k[k, -1]) - g
+  B <- B + (n_k[k] / n) * (diff %*% t(diff))
+}
+
+# W = sum_k sum_{i in C_k} (1/n) (x_i - g_k)(x_i - g_k)^T
+W <- matrix(0, 4, 4)
+for (k in seq_along(n_k)) {
+  Xk <- X[species == levels(species)[k], ]
+  Xk_c <- scale(Xk, center = TRUE, scale = FALSE)
+  W <- W + crossprod(Xk_c) / n
+}
+
+# Vérification Huygens : V = B + W
+all.equal(V, B + W, tolerance = 1e-10)
+```
+
+```{r}
+cat("Tr(V) =", round(sum(diag(V)), 3), "\n")
+cat("Tr(B) =", round(sum(diag(B)), 3),
+    " (", round(100 * sum(diag(B)) / sum(diag(V)), 1), "% inter)\n")
+cat("Tr(W) =", round(sum(diag(W)), 3),
+    " (", round(100 * sum(diag(W)) / sum(diag(V)), 1), "% intra)\n")
+```
+
+**Q1.3** : ~84 % de l'inertie est *inter-groupes* sur Iris : les espèces sont
+**très bien séparées** par les variables morphométriques.
+
+# Partie 2 — AFD descriptive
+
+```{r}
+res.lda <- lda(Species ~ ., data = iris)
+res.lda$svd^2 / sum(res.lda$svd^2)
+```
+
+**Q2.2** : `K - 1 = 3 - 1 = 2` axes discriminants, conformément au théorème
+$\rang(\mathbf{B}) \leq K - 1$. LD1 capture ~99 % du pouvoir discriminant.
+
+```{r}
+res.lda$scaling
+```
+
+**Q2.4** : Sur LD1, les variables les plus contributrices sont
+`Petal.Length` et `Petal.Width` (en valeur absolue du coefficient).
+
+```{r}
+proj <- predict(res.lda)$x
+ggplot(data.frame(LD1 = proj[, 1], LD2 = proj[, 2], sp = iris$Species),
+       aes(LD1, LD2, color = sp)) +
+  geom_point(size = 2.5) +
+  stat_ellipse(level = 0.95) +
+  ggtitle("Plan factoriel discriminant — Iris") +
+  theme_minimal()
+```
+
+**Q2.6** : Les 3 espèces sont presque parfaitement séparées sur LD1.
+LD2 ne sépare que marginalement *versicolor* et *virginica*.
+
+# Partie 3 — Règle de classement (Iris)
+
+```{r}
+pred <- predict(res.lda)$class
+table(iris$Species, pred)
+mean(pred != iris$Species)
+```
+
+```{r}
+res.cv <- lda(Species ~ ., data = iris, CV = TRUE)
+table(iris$Species, res.cv$class)
+mean(res.cv$class != iris$Species)
+```
+
+**Q3.4** : Erreur en re-substitution = 2 %, en LOO ≈ 2 %. L'écart est minime
+ici car le jeu est bien séparable. La validation croisée donne **toujours**
+une erreur supérieure ou égale car elle évalue la **généralisation** (le modèle
+ne voit pas l'individu testé pendant l'apprentissage).
+
+# Partie 4 — QDA
+
+```{r}
+# Test d'homoscédasticité (manuel, pour éviter dépendance externe)
+cov_par_classe <- by(iris[, 1:4], iris$Species, cov)
+sapply(cov_par_classe, function(M) round(diag(M), 3))
+```
+
+Les diagonales montrent que les variances diffèrent entre espèces, surtout
+pour `Petal.Length` et `Petal.Width` → l'**homoscédasticité est douteuse**.
+
+```{r}
+res.qda <- qda(Species ~ ., data = iris)
+pred.qda <- predict(res.qda)$class
+table(iris$Species, pred.qda)
+mean(pred.qda != iris$Species)
+```
+
+```{r}
+res.qda.cv <- qda(Species ~ ., data = iris, CV = TRUE)
+mean(res.qda.cv$class != iris$Species)
+```
+
+**Q4.4** : LDA et QDA ont des performances très proches sur Iris.
+On préfère **LDA** par parcimonie (moins de paramètres) sauf si on a beaucoup
+de données par classe et des covariances clairement différentes.
+
+# Partie 5 — Credit scoring
+
+```{r}
+credit <- read.csv("credit_scoring.csv", stringsAsFactors = TRUE)
+rownames(credit) <- credit$ID; credit$ID <- NULL
+str(credit); table(credit$Defaut)
+```
+
+**Q5.2** : 380 Bons / 120 Défauts → ~24 % de défauts (déséquilibre modéré).
+
+```{r}
+num_cols <- sapply(credit, is.numeric)
+aggregate(credit[, num_cols], by = list(Defaut = credit$Defaut), FUN = mean)
+```
+
+**Q5.4** : Variables fortement discriminantes :
+- `Score_externe` (Bon ≈ 720 vs Défaut ≈ 580)
+- `Ratio_endett`  (0.25 vs 0.55)
+- `Anciennete_emp`(8 ans vs 3 ans)
+- `Revenu_kEUR`   (~46 vs ~30)
+- `Nb_incidents_12m` (0.3 vs 2.0)
+
+```{r}
+res <- lda(Defaut ~ ., data = credit)
+res$scaling
+```
+
+```{r}
+score <- predict(res)$x[, 1]
+ggplot(data.frame(score, Defaut = credit$Defaut),
+       aes(score, fill = Defaut)) +
+  geom_histogram(bins = 30, alpha = 0.7, position = "identity") +
+  scale_fill_manual(values = c("Bon" = "steelblue", "Defaut" = "tomato")) +
+  ggtitle("Distribution des scores LDA — par classe") +
+  theme_minimal()
+```
+
+# Partie 6 — Évaluation
+
+```{r}
+ctrl <- trainControl(method = "cv", number = 10,
+                      classProbs = TRUE, summaryFunction = twoClassSummary)
+fit <- train(Defaut ~ ., data = credit, method = "lda",
+             trControl = ctrl, metric = "ROC")
+fit
+```
+
+```{r}
+pred.lda <- predict(res)$class
+caret::confusionMatrix(pred.lda, credit$Defaut, positive = "Defaut")
+```
+
+```{r}
+prob <- predict(res)$posterior[, "Defaut"]
+roc.lda <- pROC::roc(credit$Defaut, prob, levels = c("Bon", "Defaut"))
+plot(roc.lda, main = "Courbe ROC — LDA")
+auc.val <- pROC::auc(roc.lda)
+cat("AUC =", round(auc.val, 3), "\n")
+```
+
+**Q6.4** : AUC ≈ 0.95–0.97 selon les runs. AUC = 0.5 = aléatoire ;
+AUC = 1 = classifieur parfait.
+
+```{r}
+seuils <- c(0.3, 0.4, 0.5, 0.6, 0.7)
+res_seuils <- sapply(seuils, function(s) {
+  pred_s <- factor(ifelse(prob > s, "Defaut", "Bon"),
+                    levels = c("Bon", "Defaut"))
+  cm <- caret::confusionMatrix(pred_s, credit$Defaut, positive = "Defaut")
+  c(Sens = cm$byClass["Sensitivity"],
+    Spec = cm$byClass["Specificity"],
+    Prec = cm$byClass["Pos Pred Value"],
+    F1   = cm$byClass["F1"])
+})
+colnames(res_seuils) <- paste0("seuil_", seuils)
+round(res_seuils, 3)
+```
+
+**Q6.5** : Pour une banque cherchant à **minimiser les défauts non détectés**
+(faux négatifs), on choisit un **seuil bas** (ex. 0.30) pour maximiser la
+sensibilité, au prix d'une chute de la spécificité (refuser plus de bons
+clients). Le compromis dépend du **coût relatif** d'un FN vs FP.
+
+# Partie 7 — Comparaison LDA vs QDA vs régression logistique
+
+```{r}
+res.qda <- qda(Defaut ~ ., data = credit)
+pred.qda <- predict(res.qda)$class
+prob.qda <- predict(res.qda)$posterior[, "Defaut"]
+
+res.glm <- glm(Defaut ~ ., data = credit, family = binomial)
+prob.glm <- predict(res.glm, type = "response")
+pred.glm <- factor(ifelse(prob.glm > 0.5, "Defaut", "Bon"),
+                    levels = c("Bon", "Defaut"))
+
+comparison <- data.frame(
+  Methode = c("LDA", "QDA", "Logistique"),
+  Accuracy = c(mean(pred.lda == credit$Defaut),
+               mean(pred.qda == credit$Defaut),
+               mean(pred.glm == credit$Defaut)),
+  AUC = c(as.numeric(pROC::auc(pROC::roc(credit$Defaut, prob,
+                                           levels = c("Bon","Defaut")))),
+          as.numeric(pROC::auc(pROC::roc(credit$Defaut, prob.qda,
+                                           levels = c("Bon","Defaut")))),
+          as.numeric(pROC::auc(pROC::roc(credit$Defaut, prob.glm,
+                                           levels = c("Bon","Defaut")))))
+)
+round(comparison[, -1], 3)
+```
+
+# Partie 8 — Synthèse métier
+
+**Q8.1 — Variables les plus discriminantes**
+
+```{r}
+coefs <- res$scaling[, 1]
+sds <- apply(credit[, num_cols], 2, sd)
+coef_std <- coefs * sds   # coefficients standardisés
+sort(abs(coef_std), decreasing = TRUE)
+```
+
+Les 3 plus discriminantes sont typiquement : **Score_externe**,
+**Ratio_endett**, **Nb_incidents_12m**.
+
+**Profil type d'un client à risque** (interprétation des coefficients) :
+
+- Score externe **bas** (~580 vs 720)
+- Ratio d'endettement **élevé** (>50 %)
+- **Plusieurs incidents** dans les 12 derniers mois
+- Ancienneté professionnelle **courte**
+- Revenu **modeste**, patrimoine **faible**
+
+**Recommandations** :
+
+1. **Ne pas accepter automatiquement** : le score LDA est continu et nécessite
+   un seuil métier ; un dossier limite (probabilité 0.4–0.6) doit être
+   réexaminé manuellement.
+2. **Calibrer le seuil** sur le coût métier (perte par défaut vs marge perdue
+   par refus d'un bon client).
+3. **Recalibrer périodiquement** : drift potentiel des comportements
+   (chômage, taux d'intérêt) affectant les distributions.
+
+**Limites de l'AFD pour ce cas** :
+
+- Hypothèse de **gaussianité** : les variables `Nb_credits` et
+  `Nb_incidents_12m` sont discrètes (Poisson) → écart à l'hypothèse.
+- Hypothèse d'**homoscédasticité** : Σ_Bons ≠ Σ_Défauts en pratique →
+  envisager QDA ou GBM/RandomForest.
+- Effets **non linéaires** ou **interactions** non capturés par LDA.
+
+# Conclusion
+
+| Méthode | Donnée   | Sortie           | Cadre algébrique | Quand utiliser ?         |
+|---------|----------|------------------|------------------|--------------------------|
+| ACP     | quanti   | structure latente | SVD de X centrée | exploration multivariée  |
+| AFC     | contingence | associations  | SVD avec métrique χ² | tableau croisé           |
+| ACM     | quali multi | typologie     | AFC du TDC       | enquêtes, questionnaires |
+| AFD     | quanti+cible | règle de classement | val. propres généralisées (B,W) | scoring supervisé |
+
+**Fil conducteur algébrique** : toutes ces méthodes sont des
+**SVD généralisées** d'un triplet $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$
+où le choix de la métrique $\mathbf{M}$ et de la pondération $\mathbf{D}_p$
+définit la méthode. Le **critère unificateur** est la décomposition
+d'**inertie** (Huygens) en parties expliquées et résiduelles.
+
+L'AFD ferme le cours en faisant la transition vers l'**apprentissage
+supervisé** : les concepts factoriels — projections, distances, inerties —
+restent au cœur des méthodes modernes (régularisation, embeddings, deep
+learning).

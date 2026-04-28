@@ -1,0 +1,304 @@
+---
+title: "TP4 — Analyse Factorielle Discriminante (LDA / QDA)"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Énoncé"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+# Objectifs
+
+À l'issue de ce TP vous saurez :
+
+1. Décomposer la variance en parts **inter** et **intra** ($\mathbf{V} = \mathbf{B} + \mathbf{W}$).
+2. Calculer les **axes discriminants** de Fisher (versant descriptif).
+3. Construire une **règle de classement linéaire** (LDA — versant décisionnel).
+4. Évaluer un classifieur par **matrice de confusion** et **validation croisée**.
+5. Comparer LDA et QDA (analyse discriminante quadratique).
+6. Appliquer l'AFD à un cas réel de **scoring crédit**.
+
+# Données
+
+- **`iris`** (built-in) : 150 fleurs × 4 variables + espèce (3 classes).
+- **`credit_scoring.csv`** : 500 dossiers × 8 variables financières + statut
+  (Bon / Défaut), généré pour ce TP.
+
+```{r packages}
+library(MASS)        # lda, qda, isoMDS
+library(FactoMineR)
+library(factoextra)
+library(caret)       # validation croisée, métriques
+library(ggplot2)
+library(dplyr)
+```
+
+# Partie 1 — Décomposition de la variance (Iris)
+
+## Q1.1 — Chargement et exploration
+
+```{r}
+data(iris)
+# TODO : str, summary, table(Species)
+```
+
+## Q1.2 — Calcul manuel de B et W
+
+Soit $\mathbf{X} \in \R^{150 \times 4}$ la matrice des variables et
+$Y$ l'espèce. Calculez **manuellement** la matrice $\mathbf{V}$ totale,
+la matrice $\mathbf{B}$ inter-classes et la matrice $\mathbf{W}$ intra-classes.
+
+Vérifiez que $\mathbf{V} = \mathbf{B} + \mathbf{W}$ (théorème de Huygens matriciel).
+
+```{r}
+# TODO :
+# X <- as.matrix(iris[, 1:4])
+# g <- colMeans(X)
+# V <- cov(X) * (nrow(X) - 1) / nrow(X)   # variance biaisée
+# Calculer g_k pour chaque espèce, B et W…
+# all.equal(V, B + W)
+```
+
+## Q1.3 — Trace et inerties
+
+Calculez $\Tr(\mathbf{V})$, $\Tr(\mathbf{B})$, $\Tr(\mathbf{W})$ et la part
+**inter** dans le total ($\Tr(\mathbf{B}) / \Tr(\mathbf{V})$).
+
+# Partie 2 — AFD descriptive
+
+## Q2.1 — LDA avec MASS
+
+Réalisez l'AFD de `Species` en fonction des 4 variables.
+
+```{r}
+# TODO : res.lda <- lda(Species ~ ., data = iris)
+#        res.lda$svd^2 / sum(res.lda$svd^2)   # part discriminante par axe
+```
+
+**Q2.2** Combien d'axes discriminants y a-t-il ? Justifiez par $K - 1$.
+
+## Q2.3 — Coefficients
+
+Affichez les coefficients des fonctions discriminantes (`scaling`).
+
+```{r}
+# TODO : res.lda$scaling
+```
+
+**Q2.4** Quelles variables contribuent le plus au premier axe discriminant ?
+
+## Q2.5 — Plan factoriel discriminant
+
+Projetez les 150 fleurs sur les 2 axes discriminants et coloriez par espèce.
+
+```{r}
+# TODO : proj <- predict(res.lda)$x
+#        ggplot avec proj et iris$Species
+```
+
+**Q2.6** Les 3 espèces sont-elles séparables sur LD1 ? Sur LD2 ?
+
+# Partie 3 — Règle de classement (cas iris)
+
+## Q3.1 — Prédiction
+
+Prédisez les espèces sur le jeu d'entraînement.
+
+```{r}
+# TODO : pred <- predict(res.lda)$class
+```
+
+## Q3.2 — Matrice de confusion
+
+```{r}
+# TODO : table(iris$Species, pred)
+#        mean(pred != iris$Species)
+```
+
+## Q3.3 — Validation croisée
+
+Comparez le taux d'erreur en re-substitution avec celui obtenu en
+**leave-one-out**.
+
+```{r}
+# TODO : res.cv <- lda(Species ~ ., data = iris, CV = TRUE)
+#        table(iris$Species, res.cv$class)
+#        mean(res.cv$class != iris$Species)
+```
+
+**Q3.4** L'écart est-il important ? Pourquoi est-il **toujours** plus grand en
+validation croisée ?
+
+# Partie 4 — Analyse discriminante quadratique (QDA)
+
+## Q4.1 — Test d'homoscédasticité
+
+Avant d'utiliser QDA, vérifiez si l'hypothèse $\Sigma_k = \Sigma$ est plausible.
+
+```{r}
+# TODO : library(biotools); boxM(iris[, 1:4], iris$Species)
+# OU comparer les matrices de cov par classe
+```
+
+## Q4.2 — QDA
+
+```{r}
+# TODO : res.qda <- qda(Species ~ ., data = iris)
+#        pred.qda <- predict(res.qda)$class
+#        table(iris$Species, pred.qda)
+```
+
+## Q4.3 — Comparaison LDA vs QDA
+
+Comparez les taux d'erreur en validation croisée LOO.
+
+```{r}
+# TODO : qda(Species ~ ., data = iris, CV = TRUE)
+```
+
+**Q4.4** Quel modèle préférez-vous ici ? Sur la base de quel critère ?
+
+# Partie 5 — Application : Credit scoring
+
+## Q5.1 — Chargement
+
+```{r}
+# TODO : credit <- read.csv("credit_scoring.csv", stringsAsFactors = TRUE)
+#        rownames(credit) <- credit$ID; credit$ID <- NULL
+#        str(credit); table(credit$Defaut)
+```
+
+**Q5.2** Combien de bons clients ? De défauts ? Quel est le **déséquilibre**
+des classes ?
+
+## Q5.3 — Statistiques par classe
+
+Comparez les moyennes des variables prédictives par classe (`Bon` vs `Defaut`).
+
+```{r}
+# TODO : aggregate(. ~ Defaut, data = credit, FUN = mean)
+```
+
+**Q5.4** Quelles variables semblent les plus discriminantes ?
+
+## Q5.5 — LDA
+
+Construisez le modèle LDA et examinez les coefficients.
+
+```{r}
+# TODO : res <- lda(Defaut ~ ., data = credit)
+#        res$scaling
+```
+
+## Q5.6 — Représentation factorielle (1D pour 2 classes)
+
+Tracez l'histogramme des scores LDA, par classe.
+
+```{r}
+# TODO : score <- predict(res)$x[, 1]
+#        ggplot(data.frame(score, Defaut = credit$Defaut)) +
+#           geom_histogram(...)
+```
+
+# Partie 6 — Évaluation et choix du seuil
+
+## Q6.1 — Validation croisée 10-fold
+
+Utilisez `caret` pour faire une 10-fold CV.
+
+```{r}
+# TODO :
+# ctrl <- trainControl(method = "cv", number = 10,
+#                       classProbs = TRUE, summaryFunction = twoClassSummary)
+# fit <- train(Defaut ~ ., data = credit, method = "lda",
+#              trControl = ctrl, metric = "ROC")
+# fit
+```
+
+## Q6.2 — Matrice de confusion
+
+```{r}
+# TODO : pred.lda <- predict(res)$class
+#        confusionMatrix(pred.lda, credit$Defaut, positive = "Defaut")
+```
+
+## Q6.3 — Courbe ROC et AUC
+
+```{r}
+# TODO : library(pROC)
+#        prob <- predict(res)$posterior[, "Defaut"]
+#        roc.lda <- roc(credit$Defaut, prob)
+#        plot(roc.lda); auc(roc.lda)
+```
+
+**Q6.4** Quelle valeur d'AUC obtenez-vous ? Que signifie une AUC de 0.5 ?
+de 1.0 ?
+
+## Q6.5 — Choix du seuil
+
+Le seuil par défaut est 0.5. Calculez la précision, le rappel et le F1
+pour différents seuils. Quel seuil choisiriez-vous pour une **banque** qui
+veut **minimiser le risque** (FN coûteux) ?
+
+```{r}
+# TODO : examiner sensibilité/spécificité pour seuils 0.3, 0.5, 0.7
+```
+
+# Partie 7 — LDA vs QDA vs autres méthodes
+
+## Q7.1 — QDA sur credit_scoring
+
+```{r}
+# TODO : res.qda <- qda(Defaut ~ ., data = credit)
+#        pred.qda <- predict(res.qda)$class
+#        confusionMatrix(pred.qda, credit$Defaut, positive = "Defaut")
+```
+
+## Q7.2 — Comparaison synthétique
+
+Construisez un tableau comparant LDA, QDA et — en bonus — un autre modèle
+(régression logistique avec `glm`).
+
+```{r}
+# TODO : tableau accuracy / sensibilité / spécificité / AUC
+```
+
+# Partie 8 — Mini-projet : interprétation métier
+
+**Q8.1** Pour la banque qui utilise ce modèle, livrez :
+
+1. La **liste des 3 variables** les plus discriminantes (par valeur absolue
+   du coefficient standardisé).
+2. Le **profil type** d'un client à risque.
+3. Une **recommandation** sur le seuil de décision : faut-il accepter
+   automatiquement les dossiers prédits « Bon » ?
+4. Les **limites** de l'AFD pour ce cas (linéarité, indépendance, taille
+   d'échantillon).
+
+# Conclusion
+
+**Question finale** : en 8–10 lignes, comparez les 4 méthodes vues dans le
+cours et dans les TPs :
+
+| Méthode | Données entrée | Sortie | Quand l'utiliser ? |
+|---------|---------------|--------|-------------------|
+| ACP     | quantitatives | structure latente | exploration descriptive |
+| AFC     | contingence   | associations | tableau croisé |
+| ACM     | qualitatives multiples | typologie | enquêtes |
+| AFD     | quanti + cible qual. | classement supervisé | prédiction de groupes |
+
+Quel est le **fil conducteur** algébrique entre ces 4 méthodes ?
+Donnez la réponse en termes de **SVD généralisée** et **inertie**.
+
+---
+
+*À rendre : un rapport HTML complet avec code, sorties et synthèse métier.*
