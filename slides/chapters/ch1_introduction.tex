@@ -144,10 +144,10 @@ s_j^2 &= \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)^2
 s_j   &= \sqrt{s_j^2} \quad\text{(écart-type)}
 \end{align*}
 
-\begin{remark}
+\begin{rema}
 On utilise ici la variance \alert{biaisée} (divisée par $n$),
 adaptée à l'analyse géométrique.
-\end{remark}
+\end{rema}
 \column{0.46\textwidth}
 \textbf{Quantiles et étendue}
 \begin{itemize}\small
@@ -183,14 +183,14 @@ Pour deux variables $\mathbf{x}^j, \mathbf{x}^k \in \R^n$ :
 \]
 \end{definition}
 
-\begin{proposition}[Propriétés de la corrélation]
+\begin{prop}[Propriétés de la corrélation]
 \begin{enumerate}
   \item $\Cor(\mathbf{x}^j, \mathbf{x}^k) \in [-1, 1]$ \hfill (Cauchy-Schwarz)
   \item $|\Cor| = 1 \iff \mathbf{x}^k$ est fonction \emph{affine} de $\mathbf{x}^j$
   \item $\Cor$ est invariante par changement d'unités linéaire (échelle, origine)
   \item $\Cor = 0 \not\Rightarrow$ indépendance (mesure uniquement la liaison \emph{linéaire})
 \end{enumerate}
-\end{proposition}
+\end{prop}
 
 \vspace{0.1cm}
 \begin{block}{Forme matricielle}
@@ -228,7 +228,7 @@ $\Leftrightarrow$ rendre les variables \alert{adimensionnelles}.
 \column{0.44\textwidth}
 \begin{block}{Pourquoi réduire ?}
 \begin{itemize}\small
-  \item Variables d'\alert{unités différentes} (kg, \euro, années)
+  \item Variables d'\alert{unités différentes} (kg, EUR, années)
   \item Variances très différentes
   \item Sans réduction, l'ACP est dominée par la variable de plus grande variance
 \end{itemize}
@@ -266,14 +266,14 @@ d_{\mathbf{M}}^2(\mathbf{x}_i, \mathbf{x}_{i'}) = (\mathbf{x}_i - \mathbf{x}_{i'
   \item $\mathbf{M} = \mathbf{D}_{1/x_{\bullet j}}$ : $\chi^2$ (AFC)
 \end{itemize}
 \column{0.49\textwidth}
-\begin{proposition}[Choix de la métrique]
+\begin{prop}[Choix de la métrique]
 Le choix de $\mathbf{M}$ \emph{définit} l'analyse :
 \begin{itemize}\small
   \item ACP normée $\equiv$ ACP centrée avec $\mathbf{M} = \mathbf{D}_{1/s^2}$
   \item AFC : tableau de profils, $\mathbf{M}_{\chi^2}$
   \item AFD : $\mathbf{M} = \mathbf{V}_{\text{intra}}^{-1}$
 \end{itemize}
-\end{proposition}
+\end{prop}
 
 \begin{block}{Pondération des individus}
 \small Chaque individu a un poids $p_i \geq 0$ tel que
@@ -296,19 +296,19 @@ I_{\mathcal{N}} = \sum_{i=1}^n p_i \, d_{\mathbf{M}}^2(\mathbf{x}_i, \mathbf{g})
 \]
 \end{definition}
 
-\begin{proposition}[Lien avec la trace]
+\begin{prop}[Lien avec la trace]
 Soit $\mathbf{V} = \sum_i p_i (\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top$
 la matrice de variance-covariance pondérée. Alors :
 \[
 \boxed{\,I_{\mathcal{N}} = \Tr(\mathbf{V} \mathbf{M}).\,}
 \]
-\end{proposition}
+\end{prop}
 
-\begin{remark}
+\begin{rema}
 Pour $\mathbf{M} = \mathbf{I}_p$ et $p_i = 1/n$ : $I_{\mathcal{N}} = \Tr(\mathbf{V}) = \sum_j s_j^2$,
 soit la \textbf{somme des variances} des variables. En ACP normée :
 $I_{\mathcal{N}} = \Tr(\mathbf{R}) = p$.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────

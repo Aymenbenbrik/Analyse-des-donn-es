@@ -70,10 +70,10 @@ avec
 \]
 \end{theorem}
 
-\begin{remark}[Lien avec Huygens]
+\begin{rema}[Lien avec Huygens]
 \small Prendre la trace : $\Tr(\mathbf{V}) = \Tr(\mathbf{B}) + \Tr(\mathbf{W})$, soit
 $I_{\text{tot}} = I_{\text{inter}} + I_{\text{intra}}$.
-\end{remark}
+\end{rema}
 
 \begin{block}{Vocabulaire}
 \small $\mathbf{B}$ \emph{(between)} mesure l'écart \alert{entre groupes},
@@ -136,10 +136,10 @@ vecteurs propres de $\mathbf{W}^{-1}\mathbf{B}$.
 La valeur de $J$ atteint à l'optimum est $\mu = \lambda_k$.
 \end{theorem}
 
-\begin{remark}[Nombre d'axes]
+\begin{rema}[Nombre d'axes]
 \small On a $\rang(\mathbf{B}) \leq K - 1$ : il existe au maximum $K-1$ axes
 discriminants non triviaux.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -166,10 +166,10 @@ les centres de gravité, modifiée par $\mathbf{W}^{-1}$ qui décorrèle et stan
 selon la dispersion intra-classes.
 \end{block}
 
-\begin{remark}
+\begin{rema}
 \small C'est exactement la \emph{linear discriminant function} introduite par
 Fisher en 1936 sur les iris d'Edgar Anderson.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -229,10 +229,10 @@ La frontière entre deux classes $k$ et $l$ est l'\textbf{hyperplan affine}
 La règle de classement est donc \alert{linéaire} (LDA = \emph{Linear} Discriminant Analysis).
 \end{theorem}
 
-\begin{remark}
+\begin{rema}
 \small Géométriquement, on projette $\mathbf{x}^*$ sur les axes discriminants
 puis on classe par la classe la plus proche : la procédure est équivalente.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -259,13 +259,13 @@ Si toutes les matrices de covariance sont \alert{égales}, la règle de Bayes
 \]
 \end{theorem}
 
-\begin{remark}[Lien Fisher / Bayes]
+\begin{rema}[Lien Fisher / Bayes]
 \small L'AFD est donc \alert{optimale} (au sens de Bayes) sous deux hypothèses :
 \begin{enumerate}\small
   \item lois \emph{conditionnelles} gaussiennes
   \item \emph{même} matrice de covariance $\Sigma_k = \Sigma$ pour tous les groupes
 \end{enumerate}
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -327,10 +327,10 @@ M_{kl} = |\{i : Y_i = k,\; \hat Y_i = l\}|,
   \item \alert{Leave-one-out} : version exacte mais coûteuse
 \end{itemize}
 
-\begin{remark}
+\begin{rema}
 \small On reporte aussi : précision, rappel et F1 par classe ; parfois la
 \textbf{courbe ROC} (cas $K=2$) ou son extension multi-classes (\textit{one-vs-rest}).
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────

@@ -60,15 +60,15 @@
 \metroset{block=fill}
 
 % ─── Théorèmes ──────────────────────────────────────────────
-\theoremstyle{definition}
-\newtheorem{definition}{Définition}
-\newtheorem{example}{Exemple}
-\newtheorem{remark}{Remarque}
+% beamer-metropolis prédéfinit definition/theorem/example/proof.
+% On rajoute proposition / lemma / corollary / remark en *unstarred*
+% avec des noms d'environnement non conflictuels.
 \theoremstyle{plain}
-\newtheorem{theorem}{Théorème}
-\newtheorem{proposition}{Proposition}
-\newtheorem{lemma}{Lemme}
-\newtheorem{corollary}{Corollaire}
+\newtheorem{prop}{Proposition}
+\newtheorem{lem}{Lemme}
+\newtheorem{coro}{Corollaire}
+\theoremstyle{remark}
+\newtheorem{rema}{Remarque}
 
 % ─── Style du code R/Python ─────────────────────────────────
 \lstdefinelanguage{Renh}{

@@ -102,10 +102,10 @@
 \newcommand{\U}{\mathbf{U}}
 \newcommand{\bSigma}{\mathbf{\Sigma}}
 \newcommand{\bLambda}{\mathbf{\Lambda}}
-\newcommand{\g}{\mathbf{g}}
-\newcommand{\x}{\mathbf{x}}
-\newcommand{\u}{\mathbf{u}}
-\newcommand{\v}{\mathbf{v}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bv}{\mathbf{v}}
 
 % --- En-têtes ------------------------------------------------
 \pagestyle{fancy}
@@ -233,8 +233,8 @@ fonction de prédiction).
 \begin{definition}[Tableau de données]
 On note $\X \in \R^{n \times p}$ le tableau où :
 \begin{itemize}
-  \item la ligne $i$ représente l'\textit{individu} $\x_i = (x_{i1}, \ldots, x_{ip})^\top$;
-  \item la colonne $j$ représente la \textit{variable} $\x^j = (x_{1j}, \ldots, x_{nj})^\top$.
+  \item la ligne $i$ représente l'\textit{individu} $\mathbf{x}_i = (x_{i1}, \ldots, x_{ip})^\top$;
+  \item la colonne $j$ représente la \textit{variable} $\mathbf{x}^j = (x_{1j}, \ldots, x_{nj})^\top$.
 \end{itemize}
 \end{definition}
 
@@ -249,7 +249,7 @@ Selon le type de variables, on choisit la méthode adaptée :
 \section{Statistiques descriptives univariées et bivariées}
 
 \subsection{Caractéristiques d'une variable quantitative}
-Pour la variable $\x^j$ on définit :
+Pour la variable $\mathbf{x}^j$ on définit :
 \[
 \bar{x}^j = \frac{1}{n}\sum_{i=1}^n x_{ij}, \quad
 s_j^2 = \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)^2, \quad
@@ -266,24 +266,24 @@ moments empiriques sans inférence.
 
 \begin{definition}[Covariance et corrélation empiriques]
 \[
-\Cov(\x^j, \x^k) = \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)(x_{ik} - \bar{x}^k),
+\Cov(\mathbf{x}^j, \mathbf{x}^k) = \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)(x_{ik} - \bar{x}^k),
 \quad
-\Cor(\x^j, \x^k) = \frac{\Cov(\x^j, \x^k)}{s_j s_k}.
+\Cor(\mathbf{x}^j, \mathbf{x}^k) = \frac{\Cov(\mathbf{x}^j, \mathbf{x}^k)}{s_j s_k}.
 \]
 \end{definition}
 
 \begin{proposition}[Propriétés de la corrélation]
-Pour toutes variables $\x^j, \x^k$ :
+Pour toutes variables $\mathbf{x}^j, \mathbf{x}^k$ :
 \begin{enumerate}
-  \item $\Cor(\x^j, \x^k) \in [-1, 1]$ (Cauchy-Schwarz);
-  \item $|\Cor| = 1 \Leftrightarrow \x^k$ est fonction affine de $\x^j$;
+  \item $\Cor(\mathbf{x}^j, \mathbf{x}^k) \in [-1, 1]$ (Cauchy-Schwarz);
+  \item $|\Cor| = 1 \Leftrightarrow \mathbf{x}^k$ est fonction affine de $\mathbf{x}^j$;
   \item $\Cor$ est invariante par changement d'unités linéaire;
   \item $\Cor = 0 \;\not\Rightarrow\;$ indépendance.
 \end{enumerate}
 \end{proposition}
 
 \subsection{Forme matricielle}
-On note $\X_c = \X - \1_n \bar{\x}^\top$ le tableau \textit{centré}. La
+On note $\X_c = \X - \1_n \bar{\mathbf{x}}^\top$ le tableau \textit{centré}. La
 matrice de variance-covariance est
 \[
 \V = \frac{1}{n} \X_c^\top \X_c \;\in\; \R^{p \times p}.
@@ -310,7 +310,7 @@ Le tableau \textit{centré-réduit} (ou \textit{standardisé}) est
 \end{theorem}
 
 \begin{proof}
-Pour $\X_c$, on a $\bar{\x}_c = 0$, donc $\V(\X_c) = \frac{1}{n}\X_c^\top\X_c = \V(\X)$.
+Pour $\X_c$, on a $\bar{\mathbf{x}}_c = 0$, donc $\V(\X_c) = \frac{1}{n}\X_c^\top\X_c = \V(\X)$.
 Pour $\Z$, par construction $\Var(z_j) = 1$ et $\Cov(z_j, z_k) = \Cor(x_j, x_k)$,
 ce qui donne $\V(\Z) = \mathbf{R}(\X)$.
 \end{proof}
@@ -319,9 +319,9 @@ ce qui donne $\V(\Z) = \mathbf{R}(\X)$.
 
 \begin{definition}[Métrique]
 Une \textit{métrique} sur $\R^p$ est une matrice $\M$ symétrique définie
-positive. La distance associée entre $\x_i$ et $\x_{i'}$ est
+positive. La distance associée entre $\mathbf{x}_i$ et $\mathbf{x}_{i'}$ est
 \[
-d_{\M}^2(\x_i, \x_{i'}) = (\x_i - \x_{i'})^\top \M (\x_i - \x_{i'}).
+d_{\M}^2(\mathbf{x}_i, \mathbf{x}_{i'}) = (\mathbf{x}_i - \mathbf{x}_{i'})^\top \M (\mathbf{x}_i - \mathbf{x}_{i'}).
 \]
 \end{definition}
 
@@ -334,24 +334,24 @@ d_{\M}^2(\x_i, \x_{i'}) = (\x_i - \x_{i'})^\top \M (\x_i - \x_{i'}).
 \end{itemize}
 
 \begin{definition}[Inertie totale d'un nuage]
-Soit $\mathcal{N} = \{(\x_i, p_i)\}_{i=1}^n$ avec $\sum_i p_i = 1$ et
-$\g = \sum_i p_i \x_i$ le centre de gravité. L'\textit{inertie totale}
-de $\mathcal{N}$ par rapport à $\g$ dans la métrique $\M$ est
+Soit $\mathcal{N} = \{(\mathbf{x}_i, p_i)\}_{i=1}^n$ avec $\sum_i p_i = 1$ et
+$\mathbf{g} = \sum_i p_i \mathbf{x}_i$ le centre de gravité. L'\textit{inertie totale}
+de $\mathcal{N}$ par rapport à $\mathbf{g}$ dans la métrique $\M$ est
 \[
-I_{\mathcal{N}} = \sum_{i=1}^n p_i\, d_{\M}^2(\x_i, \g).
+I_{\mathcal{N}} = \sum_{i=1}^n p_i\, d_{\M}^2(\mathbf{x}_i, \mathbf{g}).
 \]
 \end{definition}
 
 \begin{proposition}[Inertie et trace]
-Avec $\V = \sum_i p_i (\x_i - \g)(\x_i - \g)^\top$,
+Avec $\V = \sum_i p_i (\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top$,
 \[
 I_{\mathcal{N}} = \Tr(\V \M).
 \]
 \end{proposition}
 
 \begin{proof}
-Par cyclicité de la trace, $(\x_i - \g)^\top \M (\x_i - \g) = \Tr\bigl(\M (\x_i - \g)(\x_i - \g)^\top\bigr)$.
-En sommant pondéré sur $i$, $\sum_i p_i \Tr\bigl(\M (\x_i - \g)(\x_i - \g)^\top\bigr) = \Tr(\M \V) = \Tr(\V \M)$.
+Par cyclicité de la trace, $(\mathbf{x}_i - \mathbf{g})^\top \M (\mathbf{x}_i - \mathbf{g}) = \Tr\bigl(\M (\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top\bigr)$.
+En sommant pondéré sur $i$, $\sum_i p_i \Tr\bigl(\M (\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top\bigr) = \Tr(\M \V) = \Tr(\V \M)$.
 \end{proof}
 
 \section{Théorème de Huygens}
@@ -359,21 +359,21 @@ En sommant pondéré sur $i$, $\sum_i p_i \Tr\bigl(\M (\x_i - \g)(\x_i - \g)^\to
 \begin{theorem}[Huygens]
 Soit $\mathcal{N}$ un nuage partitionné en $K$ classes
 $\mathcal{C}_1, \ldots, \mathcal{C}_K$ de poids $P_k = \sum_{i \in \mathcal{C}_k} p_i$
-et de barycentres $\g_k$. Alors
+et de barycentres $\mathbf{g}_k$. Alors
 \[
-\underbrace{\sum_i p_i\, d^2(\x_i, \g)}_{I_{\text{tot}}}
+\underbrace{\sum_i p_i\, d^2(\mathbf{x}_i, \mathbf{g})}_{I_{\text{tot}}}
 =
-\underbrace{\sum_{k=1}^K \sum_{i \in \mathcal{C}_k} p_i\, d^2(\x_i, \g_k)}_{I_{\text{intra}}}
+\underbrace{\sum_{k=1}^K \sum_{i \in \mathcal{C}_k} p_i\, d^2(\mathbf{x}_i, \mathbf{g}_k)}_{I_{\text{intra}}}
 +
-\underbrace{\sum_{k=1}^K P_k\, d^2(\g_k, \g)}_{I_{\text{inter}}}.
+\underbrace{\sum_{k=1}^K P_k\, d^2(\mathbf{g}_k, \mathbf{g})}_{I_{\text{inter}}}.
 \]
 \end{theorem}
 
 \begin{proof}
-Pour tout $\x_i \in \mathcal{C}_k$, on écrit $\x_i - \g = (\x_i - \g_k) + (\g_k - \g)$.
+Pour tout $\mathbf{x}_i \in \mathcal{C}_k$, on écrit $\mathbf{x}_i - \mathbf{g} = (\mathbf{x}_i - \mathbf{g}_k) + (\mathbf{g}_k - \mathbf{g})$.
 Le développement de la norme donne
-$d^2(\x_i, \g) = d^2(\x_i, \g_k) + d^2(\g_k, \g) + 2\langle \x_i - \g_k, \g_k - \g\rangle_{\M}$.
-Par définition du barycentre $\g_k$, le double produit s'annule en sommant sur
+$d^2(\mathbf{x}_i, \mathbf{g}) = d^2(\mathbf{x}_i, \mathbf{g}_k) + d^2(\mathbf{g}_k, \mathbf{g}) + 2\langle \mathbf{x}_i - \mathbf{g}_k, \mathbf{g}_k - \mathbf{g}\rangle_{\M}$.
+Par définition du barycentre $\mathbf{g}_k$, le double produit s'annule en sommant sur
 $i \in \mathcal{C}_k$. La pondération sur les classes donne le résultat.
 \end{proof}
 
@@ -397,26 +397,26 @@ Soit $\mathbf{A} \in \R^{p \times p}$ symétrique réelle. Alors :
 \end{enumerate}
 On a la décomposition
 \[
-\mathbf{A} = \U\, \bLambda\, \U^\top = \sum_{k=1}^p \lambda_k\, \u_k \u_k^\top,
+\mathbf{A} = \U\, \bLambda\, \U^\top = \sum_{k=1}^p \lambda_k\, \mathbf{u}_k \mathbf{u}_k^\top,
 \]
 avec $\U$ orthogonale et $\bLambda = \mathrm{diag}(\lambda_1, \ldots, \lambda_p)$.
 \end{theorem}
 
 \begin{proof}[Idée de la démonstration]
 On procède par récurrence sur $p$. Pour $p=1$ trivial. Pour $p \geq 2$, on
-considère $\u_1$ unitaire maximisant $\u^\top \mathbf{A} \u$ : par compacité
-de la sphère, ce maximum existe et vaut $\lambda_1 = \u_1^\top \mathbf{A} \u_1$.
-La matrice $\mathbf{A}$ étant symétrique, $\u_1$ est vecteur propre associé.
-Sur l'orthogonal $\u_1^\perp$ on applique l'hypothèse de récurrence.
+considère $\mathbf{u}_1$ unitaire maximisant $\mathbf{u}^\top \mathbf{A} \mathbf{u}$ : par compacité
+de la sphère, ce maximum existe et vaut $\lambda_1 = \mathbf{u}_1^\top \mathbf{A} \mathbf{u}_1$.
+La matrice $\mathbf{A}$ étant symétrique, $\mathbf{u}_1$ est vecteur propre associé.
+Sur l'orthogonal $\mathbf{u}_1^\perp$ on applique l'hypothèse de récurrence.
 Les valeurs propres sont réelles car $\mathbf{A}$ est auto-adjointe sur $\R^p$.
 \end{proof}
 
 \section{Quotient de Rayleigh}
 
 \begin{definition}[Quotient de Rayleigh]
-Pour $\mathbf{A}$ symétrique et $\u \neq 0$ :
+Pour $\mathbf{A}$ symétrique et $\mathbf{u} \neq 0$ :
 \[
-R_{\mathbf{A}}(\u) = \frac{\u^\top \mathbf{A} \u}{\u^\top \u}.
+R_{\mathbf{A}}(\mathbf{u}) = \frac{\mathbf{u}^\top \mathbf{A} \mathbf{u}}{\mathbf{u}^\top \mathbf{u}}.
 \]
 \end{definition}
 
@@ -424,21 +424,21 @@ R_{\mathbf{A}}(\u) = \frac{\u^\top \mathbf{A} \u}{\u^\top \u}.
 Si $\lambda_1 \geq \cdots \geq \lambda_p$ sont les valeurs propres de
 $\mathbf{A}$ symétrique, alors
 \[
-\lambda_1 = \max_{\u \neq 0} R_{\mathbf{A}}(\u),\quad
-\lambda_p = \min_{\u \neq 0} R_{\mathbf{A}}(\u),\quad
-\lambda_k = \max_{\u \perp \u_1, \ldots, \u_{k-1}} R_{\mathbf{A}}(\u).
+\lambda_1 = \max_{\mathbf{u} \neq 0} R_{\mathbf{A}}(\mathbf{u}),\quad
+\lambda_p = \min_{\mathbf{u} \neq 0} R_{\mathbf{A}}(\mathbf{u}),\quad
+\lambda_k = \max_{\mathbf{u} \perp \mathbf{u}_1, \ldots, \mathbf{u}_{k-1}} R_{\mathbf{A}}(\mathbf{u}).
 \]
 \end{theorem}
 
 \begin{proof}
-On décompose $\u = \sum_j \alpha_j \u_j$ dans la base orthonormée des vecteurs
-propres. Alors $\u^\top \mathbf{A} \u = \sum_j \lambda_j \alpha_j^2$ et
-$\u^\top \u = \sum_j \alpha_j^2$. Le quotient s'écrit
+On décompose $\mathbf{u} = \sum_j \alpha_j \mathbf{u}_j$ dans la base orthonormée des vecteurs
+propres. Alors $\mathbf{u}^\top \mathbf{A} \mathbf{u} = \sum_j \lambda_j \alpha_j^2$ et
+$\mathbf{u}^\top \mathbf{u} = \sum_j \alpha_j^2$. Le quotient s'écrit
 \[
-R_{\mathbf{A}}(\u) = \frac{\sum_j \lambda_j \alpha_j^2}{\sum_j \alpha_j^2}
+R_{\mathbf{A}}(\mathbf{u}) = \frac{\sum_j \lambda_j \alpha_j^2}{\sum_j \alpha_j^2}
 \in [\lambda_p, \lambda_1].
 \]
-Le maximum $\lambda_1$ est atteint pour $\u = \u_1$. Pour le $k$-ième, on impose
+Le maximum $\lambda_1$ est atteint pour $\mathbf{u} = \mathbf{u}_1$. Pour le $k$-ième, on impose
 $\alpha_1 = \cdots = \alpha_{k-1} = 0$ et le maximum vaut $\lambda_k$.
 \end{proof}
 
@@ -465,8 +465,8 @@ Les valeurs propres communes non nulles sont $\lambda_k = \sigma_k^2$.
 \section{Théorème d'Eckart-Young}
 
 \begin{theorem}[Eckart-Young, 1936]
-Soit $\X = \sum_{k=1}^r \sigma_k \u_k \v_k^\top$ la SVD de $\X$. Pour tout
-$q \leq r$, la matrice $\X_q = \sum_{k=1}^q \sigma_k \u_k \v_k^\top$ est
+Soit $\X = \sum_{k=1}^r \sigma_k \mathbf{u}_k \mathbf{v}_k^\top$ la SVD de $\X$. Pour tout
+$q \leq r$, la matrice $\X_q = \sum_{k=1}^q \sigma_k \mathbf{u}_k \mathbf{v}_k^\top$ est
 l'unique matrice de rang $\leq q$ minimisant $\|\X - \mathbf{Y}\|_F$ :
 \[
 \X_q = \argmin_{\rang(\mathbf{Y}) \leq q} \|\X - \mathbf{Y}\|_F^2,
@@ -481,7 +481,7 @@ $q$, $\|\X - \mathbf{C}\|_F^2 = \sum_k \sigma_k^2(\X - \mathbf{C})$. La meilleur
 approximation est obtenue en projetant les composantes singulières dominantes :
 on garde les $q$ plus grandes $\sigma_k$ et leurs vecteurs associés. La preuve
 formelle utilise l'inégalité de Mirsky pour les normes unitairement invariantes.
-\end{proof>
+\end{proof}
 
 Ce théorème fonde toute la réduction de dimension : la \textit{meilleure
 approximation de rang $q$} d'un tableau est la projection sur les $q$
@@ -496,7 +496,7 @@ Soient $\M$ une métrique sur $\R^p$ et $\mathbf{D}_p$ une métrique sur $\R^n$
 \X = \U\, \bSigma\, \mathbf{V}^\top
 \]
 avec $\U^\top \mathbf{D}_p \U = \mathbf{I}$ et $\mathbf{V}^\top \M \mathbf{V} = \mathbf{I}$.
-Les axes $\v_k$ diagonalisent $\X^\top \mathbf{D}_p \X \M$.
+Les axes $\mathbf{v}_k$ diagonalisent $\X^\top \mathbf{D}_p \X \M$.
 \end{theorem}
 
 Ce cadre unifie l'ACP, l'AFC, l'ACM et l'AFD : chaque méthode correspond
@@ -513,25 +513,25 @@ $\M = \mathbf{I}_p$ (ACP non normée) ou $\M = \mathbf{D}_{1/s^2}$ (ACP normée)
 pondération $p_i = 1/n$. On note $\V = \frac{1}{n} \X_c^\top \X_c$.
 
 \begin{theorem}[Premier axe principal]
-Le premier axe principal $\u_1$ est la direction unitaire maximisant
+Le premier axe principal $\mathbf{u}_1$ est la direction unitaire maximisant
 l'inertie projetée :
 \[
-\u_1 = \argmax_{\|\u\|=1} \u^\top \V \u.
+\mathbf{u}_1 = \argmax_{\|\mathbf{u}\|=1} \mathbf{u}^\top \V \mathbf{u}.
 \]
 La solution est le vecteur propre dominant de $\V$ et le maximum vaut $\lambda_1$.
 \end{theorem}
 
 \begin{proof}
-Lagrangien : $\mathcal{L}(\u, \mu) = \u^\top \V \u - \mu(\u^\top \u - 1)$.
-La condition $\nabla_{\u} \mathcal{L} = 2(\V \u - \mu \u) = 0$ donne
-$\V \u = \mu \u$, et $\u^\top \V \u = \mu$. Le maximum est atteint pour
-$\mu = \lambda_1$ et $\u = \u_1$ (vecteur propre dominant).
-\end{proof>
+Lagrangien : $\mathcal{L}(\mathbf{u}, \mu) = \mathbf{u}^\top \V \mathbf{u} - \mu(\mathbf{u}^\top \mathbf{u} - 1)$.
+La condition $\nabla_{\mathbf{u}} \mathcal{L} = 2(\V \mathbf{u} - \mu \mathbf{u}) = 0$ donne
+$\V \mathbf{u} = \mu \mathbf{u}$, et $\mathbf{u}^\top \V \mathbf{u} = \mu$. Le maximum est atteint pour
+$\mu = \lambda_1$ et $\mathbf{u} = \mathbf{u}_1$ (vecteur propre dominant).
+\end{proof}
 
 \begin{definition}[Composantes principales]
-Le $k$-ième axe principal est $\u_k$ vecteur propre de $\V$ associé à $\lambda_k$.
-La $k$-ième composante principale est $\mathbf{c}_k = \X_c \u_k \in \R^n$.
-\end{definition>
+Le $k$-ième axe principal est $\mathbf{u}_k$ vecteur propre de $\V$ associé à $\lambda_k$.
+La $k$-ième composante principale est $\mathbf{c}_k = \X_c \mathbf{u}_k \in \R^n$.
+\end{definition}
 
 \begin{proposition}[Propriétés des composantes]
 \begin{enumerate}
@@ -540,34 +540,34 @@ La $k$-ième composante principale est $\mathbf{c}_k = \X_c \u_k \in \R^n$.
   \item $\Cov(\mathbf{c}_k, \mathbf{c}_l) = 0$ pour $k \neq l$;
   \item $\sum_k \lambda_k = \Tr(\V)$.
 \end{enumerate}
-\end{proposition>
+\end{proposition}
 
 \begin{proof}
-(1) Le tableau $\X_c$ est centré donc $\X_c \u_k$ est centré.
-(2) $\Var(\X_c \u_k) = \u_k^\top \V \u_k = \lambda_k \u_k^\top \u_k = \lambda_k$.
-(3) $\Cov(\X_c \u_k, \X_c \u_l) = \u_k^\top \V \u_l = \lambda_l \u_k^\top \u_l = 0$ (orthogonalité).
+(1) Le tableau $\X_c$ est centré donc $\X_c \mathbf{u}_k$ est centré.
+(2) $\Var(\X_c \mathbf{u}_k) = \mathbf{u}_k^\top \V \mathbf{u}_k = \lambda_k \mathbf{u}_k^\top \mathbf{u}_k = \lambda_k$.
+(3) $\Cov(\X_c \mathbf{u}_k, \X_c \mathbf{u}_l) = \mathbf{u}_k^\top \V \mathbf{u}_l = \lambda_l \mathbf{u}_k^\top \mathbf{u}_l = 0$ (orthogonalité).
 (4) $\sum_k \lambda_k = \Tr(\bLambda) = \Tr(\V)$ (par invariance cyclique).
-\end{proof>
+\end{proof}
 
 \section{Représentations graphiques et aides à l'interprétation}
 
 \paragraph{Coordonnées des individus :}
-$F_k(i) = \x_i^\top \u_k$ ; on les représente sur le plan factoriel $(F_1, F_2)$.
+$F_k(i) = \mathbf{x}_i^\top \mathbf{u}_k$ ; on les représente sur le plan factoriel $(F_1, F_2)$.
 
 \paragraph{Coordonnées des variables (cercle des corrélations) :}
 
 \begin{theorem}
-En ACP normée, $G_k(\x^j) = \sqrt{\lambda_k}\, u_{kj} = \Cor(\x^j, \mathbf{c}_k)$,
-et $\sum_k G_k(\x^j)^2 \leq 1$.
-\end{theorem>
+En ACP normée, $G_k(\mathbf{x}^j) = \sqrt{\lambda_k}\, u_{kj} = \Cor(\mathbf{x}^j, \mathbf{c}_k)$,
+et $\sum_k G_k(\mathbf{x}^j)^2 \leq 1$.
+\end{theorem}
 
 \begin{definition}[Aides à l'interprétation]
 Pour l'individu $i$ sur l'axe $k$ :
 \[
-\cos^2_k(i) = \frac{F_k(i)^2}{\|\x_i - \g\|^2}, \quad
+\cos^2_k(i) = \frac{F_k(i)^2}{\|\mathbf{x}_i - \mathbf{g}\|^2}, \quad
 \text{ctr}_k(i) = \frac{p_i F_k(i)^2}{\lambda_k}.
 \]
-\end{definition>
+\end{definition}
 
 \section{Choix du nombre d'axes}
 
@@ -593,7 +593,7 @@ fviz_pca_var(res, col.var = "contrib", repel = TRUE)
 Démontrer que l'ACP normée est équivalente à une ACP non normée du tableau
 préalablement standardisé. Conclure que diagonaliser $\mathbf{R}$ revient
 à diagonaliser $\V(\Z)$.
-\end{exercice>
+\end{exercice}
 
 %==============================================================
 \chapter{Analyse Factorielle des Correspondances (AFC)}
@@ -607,7 +607,7 @@ $f_{i\bullet}, f_{\bullet j}$.
 
 \begin{definition}[Profil ligne, profil colonne]
 $\mathbf{L}_i = (f_{ij}/f_{i\bullet})_j$, $\mathbf{C}_j = (f_{ij}/f_{\bullet j})_i$.
-\end{definition>
+\end{definition}
 
 \section{Distance du chi-deux}
 
@@ -616,14 +616,14 @@ $\mathbf{L}_i = (f_{ij}/f_{i\bullet})_j$, $\mathbf{C}_j = (f_{ij}/f_{\bullet j})
 d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_{i'}) = \sum_j \frac{1}{f_{\bullet j}}
 \left(\frac{f_{ij}}{f_{i\bullet}} - \frac{f_{i'j}}{f_{i'\bullet}}\right)^2.
 \]
-\end{definition>
+\end{definition}
 
 \begin{theorem}[Inertie totale = $\Phi^2$]
 \[
 I_{\text{tot}} = \sum_i f_{i\bullet}\, d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_\bullet)
 = \Phi^2 = \chi^2 / n.
 \]
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
 Le profil moyen ligne est $\mathbf{L}_\bullet = (f_{\bullet j})_j$. On a
@@ -638,7 +638,7 @@ I_{\text{tot}} = \sum_{i,j} \frac{(f_{ij} - f_{i\bullet} f_{\bullet j})^2}{f_{i\
 = \frac{1}{n}\sum_{i,j} \frac{(n_{ij} - n f_{i\bullet} f_{\bullet j})^2}{n f_{i\bullet} f_{\bullet j}}
 = \chi^2 / n.
 \]
-\end{proof>
+\end{proof}
 
 \section{Décomposition factorielle}
 
@@ -650,7 +650,7 @@ F_k(i) = \frac{1}{\sqrt{\lambda_k}}\sum_j \frac{f_{ij}}{f_{i\bullet}}\, G_k(j),
 \quad
 G_k(j) = \frac{1}{\sqrt{\lambda_k}}\sum_i \frac{f_{ij}}{f_{\bullet j}}\, F_k(i).
 \]
-\end{theorem>
+\end{theorem}
 
 Ces formules sont la \textit{lecture barycentrique} du biplot AFC : la position
 d'une ligne est, à un facteur près, le barycentre des positions des colonnes
@@ -675,32 +675,32 @@ fviz_ca_biplot(res, repel = TRUE)
 Soit $p$ variables qualitatives, $K = \sum_j K_j$ modalités. Le tableau
 disjonctif complet $\Z \in \{0,1\}^{n \times K}$ vérifie $z_{im} = 1$ ssi
 l'individu $i$ possède la modalité $m$.
-\end{definition>
+\end{definition}
 
 \begin{definition}[Tableau de Burt]
 $\mathbf{B} = \Z^\top \Z \in \N^{K \times K}$. Les blocs diagonaux contiennent
 les effectifs des modalités, les blocs hors-diagonaux les tables de contingence
 deux à deux.
-\end{definition>
+\end{definition}
 
 \section{ACM = AFC du TDC}
 
 \begin{theorem}[Inertie totale en ACM]
 $I_{\text{tot}} = K/p - 1$.
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
 L'AFC du TDC fait apparaître la marge ligne constante ($z_{i\bullet} = p$) et
 la marge colonne $z_{\bullet m} = n_m$. En appliquant la formule de l'inertie
 totale de l'AFC après simplification, on trouve $I_{\text{tot}} = K/p - 1$.
-\end{proof>
+\end{proof}
 
 \section{Tableau de Burt et correction de Benzécri}
 
 \begin{theorem}[Lien valeurs propres TDC / Burt]
 Soient $\lambda_k^Z$ les valeurs propres de l'AFC du TDC et $\lambda_k^B$
 celles de l'AFC du Burt. Alors $\lambda_k^B = (\lambda_k^Z)^2$.
-\end{theorem>
+\end{theorem}
 
 \paragraph{Correction de Benzécri.} Seuls les axes $\lambda_k > 1/p$ sont
 significatifs. La part d'inertie corrigée est
@@ -730,21 +730,21 @@ le théorème de Huygens.
 \section{Algorithme k-means}
 
 \begin{definition}[Critère k-means]
-$W(\mathcal{C}) = \sum_k \sum_{i \in \mathcal{C}_k} \|\x_i - \g_k\|^2 = n\, I_{\text{intra}}$.
-\end{definition>
+$W(\mathcal{C}) = \sum_k \sum_{i \in \mathcal{C}_k} \|\mathbf{x}_i - \mathbf{g}_k\|^2 = n\, I_{\text{intra}}$.
+\end{definition}
 
 \begin{theorem}[Convergence de Lloyd]
 La suite $W(\mathcal{C}^{(t)})$ est décroissante et minorée par 0, donc
 converge en un nombre fini d'itérations vers un minimum local de $W$.
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
 À chaque itération :
-- l'étape d'affectation diminue $W$ (chaque $\x_i$ est affecté au centre le plus proche);
-- l'étape de mise à jour minimise $\sum_{i \in \mathcal{C}_k} \|\x_i - \g\|^2$ en $\g = \g_k$ (centre de gravité).
+- l'étape d'affectation diminue $W$ (chaque $\mathbf{x}_i$ est affecté au centre le plus proche);
+- l'étape de mise à jour minimise $\sum_{i \in \mathcal{C}_k} \|\mathbf{x}_i - \mathbf{g}\|^2$ en $\mathbf{g} = \mathbf{g}_k$ (centre de gravité).
 $W$ ne peut prendre qu'un nombre fini de valeurs (il y a $K^n$ partitions),
 donc la suite stationnaire après un nombre fini d'étapes.
-\end{proof>
+\end{proof}
 
 \section{Classification ascendante hiérarchique (CAH)}
 
@@ -753,21 +753,21 @@ proches selon une stratégie de \textit{linkage} $\delta$.
 
 \begin{definition}[Indice de Ward]
 \[
-\delta_{\text{Ward}}(A, B) = \frac{|A| |B|}{|A| + |B|}\, d^2(\g_A, \g_B).
+\delta_{\text{Ward}}(A, B) = \frac{|A| |B|}{|A| + |B|}\, d^2(\mathbf{g}_A, \mathbf{g}_B).
 \]
-\end{definition>
+\end{definition}
 
 \begin{theorem}[Interprétation comme perte d'inertie]
 La fusion de $A$ et $B$ augmente l'inertie intra-classe de
 $\delta_{\text{Ward}}(A, B)$.
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
-Avant fusion : inertie intra de $A$ et $B$ égale à $\sum_{x \in A} \|x - \g_A\|^2 + \sum_{x \in B} \|x - \g_B\|^2$.
+Avant fusion : inertie intra de $A$ et $B$ égale à $\sum_{x \in A} \|x - \mathbf{g}_A\|^2 + \sum_{x \in B} \|x - \mathbf{g}_B\|^2$.
 Après fusion : inertie intra de $A \cup B$ vaut la somme précédente plus
-$\frac{|A| |B|}{|A| + |B|} d^2(\g_A, \g_B)$, par développement direct
+$\frac{|A| |B|}{|A| + |B|} d^2(\mathbf{g}_A, \mathbf{g}_B)$, par développement direct
 (formule de König). D'où le résultat.
-\end{proof>
+\end{proof}
 
 \section{HCPC : couplage ACP/AFC/ACM + classification}
 
@@ -802,61 +802,61 @@ $\mathcal{C}_1, \ldots, \mathcal{C}_K$ d'effectifs $n_k$.
 
 \begin{theorem}[Décomposition $\V = \B + \W$]
 \[
-\B = \frac{1}{n}\sum_k n_k (\g_k - \g)(\g_k - \g)^\top, \quad
-\W = \frac{1}{n}\sum_k \sum_{i \in \mathcal{C}_k} (\x_i - \g_k)(\x_i - \g_k)^\top.
+\B = \frac{1}{n}\sum_k n_k (\mathbf{g}_k - \mathbf{g})(\mathbf{g}_k - \mathbf{g})^\top, \quad
+\W = \frac{1}{n}\sum_k \sum_{i \in \mathcal{C}_k} (\mathbf{x}_i - \mathbf{g}_k)(\mathbf{x}_i - \mathbf{g}_k)^\top.
 \]
 On a $\V = \B + \W$.
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
-Pour $\x_i \in \mathcal{C}_k$, $\x_i - \g = (\x_i - \g_k) + (\g_k - \g)$.
-Le produit extérieur $(\x_i - \g)(\x_i - \g)^\top$ se développe en :
-$(\x_i - \g_k)(\x_i - \g_k)^\top + (\g_k - \g)(\g_k - \g)^\top + 2 \cdot \text{terme croisé}$.
-Le terme croisé s'annule par centrage à $\g_k$ en sommant sur $i \in \mathcal{C}_k$,
+Pour $\mathbf{x}_i \in \mathcal{C}_k$, $\mathbf{x}_i - \mathbf{g} = (\mathbf{x}_i - \mathbf{g}_k) + (\mathbf{g}_k - \mathbf{g})$.
+Le produit extérieur $(\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top$ se développe en :
+$(\mathbf{x}_i - \mathbf{g}_k)(\mathbf{x}_i - \mathbf{g}_k)^\top + (\mathbf{g}_k - \mathbf{g})(\mathbf{g}_k - \mathbf{g})^\top + 2 \cdot \text{terme croisé}$.
+Le terme croisé s'annule par centrage à $\mathbf{g}_k$ en sommant sur $i \in \mathcal{C}_k$,
 ce qui donne le résultat.
-\end{proof>
+\end{proof}
 
 \section{Critère de Fisher}
 
 \begin{definition}[Critère de Fisher]
 \[
-J(\u) = \frac{\u^\top \B \u}{\u^\top \W \u}.
+J(\mathbf{u}) = \frac{\mathbf{u}^\top \B \mathbf{u}}{\mathbf{u}^\top \W \mathbf{u}}.
 \]
-\end{definition>
+\end{definition}
 
 \begin{theorem}[Solution]
 Les axes discriminants maximisant $J$ sont les vecteurs propres généralisés
-$\B \u = \mu \W \u$, soit les vecteurs propres de $\W^{-1} \B$. Le maximum
+$\B \mathbf{u} = \mu \W \mathbf{u}$, soit les vecteurs propres de $\W^{-1} \B$. Le maximum
 vaut la plus grande valeur propre $\lambda_1$.
-\end{theorem>
+\end{theorem}
 
 \begin{proof}
-On contraint $\u^\top \W \u = 1$ et on maximise $\u^\top \B \u$ par
-Lagrangien : $\mathcal{L} = \u^\top \B \u - \mu(\u^\top \W \u - 1)$.
-La condition $\nabla \mathcal{L} = 0$ donne $\B \u = \mu \W \u$. La valeur
+On contraint $\mathbf{u}^\top \W \mathbf{u} = 1$ et on maximise $\mathbf{u}^\top \B \mathbf{u}$ par
+Lagrangien : $\mathcal{L} = \mathbf{u}^\top \B \mathbf{u} - \mu(\mathbf{u}^\top \W \mathbf{u} - 1)$.
+La condition $\nabla \mathcal{L} = 0$ donne $\B \mathbf{u} = \mu \W \mathbf{u}$. La valeur
 de $J$ atteinte vaut $\mu$, donc le maximum est $\lambda_1$ (plus grande
 valeur propre de $\W^{-1} \B$).
-\end{proof>
+\end{proof}
 
 \section{Cas $K = 2$ groupes}
 
 \begin{theorem}[Direction de Fisher pour 2 groupes]
 Si $K = 2$, l'unique axe discriminant est, à un scalaire près,
 \[
-\u^* = \W^{-1}(\g_1 - \g_2).
+\mathbf{u}^* = \W^{-1}(\mathbf{g}_1 - \mathbf{g}_2).
 \]
-\end{theorem>
+\end{theorem}
 
 \section{Règle de classement (LDA)}
 
 \begin{definition}[Règle de Mahalanobis]
-$\hat{k}(\x^*) = \argmin_k (\x^* - \g_k)^\top \W^{-1} (\x^* - \g_k)$.
-\end{definition>
+$\hat{k}(\mathbf{x}^*) = \argmin_k (\mathbf{x}^* - \mathbf{g}_k)^\top \W^{-1} (\mathbf{x}^* - \mathbf{g}_k)$.
+\end{definition}
 
 \begin{theorem}[Forme linéaire]
 La frontière entre deux classes $k$ et $l$ est l'hyperplan affine
-$\{\x : 2(\g_k - \g_l)^\top \W^{-1} \x = \g_k^\top \W^{-1} \g_k - \g_l^\top \W^{-1} \g_l\}$.
-\end{theorem>
+$\{\mathbf{x} : 2(\mathbf{g}_k - \mathbf{g}_l)^\top \W^{-1} \mathbf{x} = \mathbf{g}_k^\top \W^{-1} \mathbf{g}_k - \mathbf{g}_l^\top \W^{-1} \mathbf{g}_l\}$.
+\end{theorem}
 
 \section{Optimalité bayésienne (cas gaussien)}
 
@@ -864,9 +864,9 @@ Si $(X | Y = k) \sim \mathcal{N}_p(\mu_k, \Sigma)$ avec covariance commune,
 la règle de Bayes coïncide avec l'AFD à un terme de probabilité a priori près.
 
 \begin{theorem}[Bayes/Fisher]
-Sous gaussianité et homoscédasticité, $\hat{k}_B(\x) = \argmin_k (\x - \mu_k)^\top \Sigma^{-1} (\x - \mu_k) - 2 \ln \pi_k$,
+Sous gaussianité et homoscédasticité, $\hat{k}_B(\mathbf{x}) = \argmin_k (\mathbf{x} - \mu_k)^\top \Sigma^{-1} (\mathbf{x} - \mu_k) - 2 \ln \pi_k$,
 qui se réduit à la règle d'AFD lorsque $\pi_k = 1/K$.
-\end{theorem>
+\end{theorem}
 
 \section{Code R}
 \begin{lstlisting}
@@ -889,7 +889,7 @@ $\mathbf{B} = -\frac{1}{2} \mathbf{H} \mathbf{D}^{(2)} \mathbf{H}$ avec
 $\mathbf{H} = \mathbf{I}_n - \frac{1}{n}\1_n\1_n^\top$. Si $\mathbf{B}$ est
 positive, ses vecteurs propres fournissent des coordonnées $\mathbf{Y}$ telles
 que $\|\mathbf{y}_i - \mathbf{y}_j\| = d_{ij}$.
-\end{theorem>
+\end{theorem}
 
 \section{Analyse canonique des corrélations (CCA)}
 

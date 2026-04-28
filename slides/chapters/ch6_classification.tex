@@ -105,10 +105,10 @@ de $W$.
         utiliser leurs centres comme initialisation $\to$ approche \emph{HCPC}.
 \end{enumerate}
 
-\begin{remark}
+\begin{rema}
 \small Le choix de $K$ se fait par scree-plot de l'inertie intra,
 silhouette, ou critère de Calinski-Harabasz.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -137,10 +137,10 @@ une seule classe.
 \end{itemize}
 \end{block}
 
-\begin{remark}
+\begin{rema}
 \small Inconvénient : complexité $O(n^2 \log n)$ en général, $O(n^3)$ avec lien Ward sans optimisation.
 Limite pratique : $n \lesssim 10^4$.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -175,10 +175,10 @@ Ward     & inertie  & classes \alert{compactes} et \alert{nombre comparable} \\
 \end{tabular}
 \end{block}
 
-\begin{remark}
+\begin{rema}
 \small \textbf{Recommandation} : Ward est le standard en analyse des données
 (critère cohérent avec les méthodes factorielles).
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -205,12 +205,12 @@ l'inertie inter-classe du même montant.
 au regard du théorème de Huygens.
 \end{block}
 
-\begin{remark}[Lien avec k-means]
+\begin{rema}[Lien avec k-means]
 \small Le Ward et le k-means partagent le \emph{même} critère
 (minimiser $I_{\text{intra}}$). Le Ward est une optimisation
 \textbf{gloutonne hiérarchique}, k-means une optimisation
 \textbf{itérative} avec $K$ fixé.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -299,10 +299,10 @@ au regard du théorème de Huygens.
 \end{enumerate}
 \end{columns}
 
-\begin{remark}
+\begin{rema}
 \small Le HCPC est la méthode \alert{standard} en analyse des données françaises :
 il combine la \emph{description} factorielle et la \emph{typologie}.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -331,10 +331,10 @@ v_{kj} = \frac{\bar{X}^j_k - \bar{X}^j}{\sqrt{s_j^2 / n_k \cdot (n - n_k)/(n-1)}
 fréquence d'une modalité dans $\mathcal{C}_k$ et dans la population totale.
 \end{block}
 
-\begin{remark}
+\begin{rema}
 \small Ces tests servent à \alert{nommer} les classes. Une classe est décrite
 par les variables ayant $|v| > 2$, classées par valeur décroissante.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────

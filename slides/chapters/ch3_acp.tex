@@ -107,10 +107,10 @@ choisir $\mu = \lambda_1$ (la plus grande valeur propre) et $\mathbf{u} = \mathb
 (vecteur propre dominant). C'est exactement le théorème de Courant-Fischer-Weyl.
 \end{block}
 
-\begin{remark}[Axes suivants]
+\begin{rema}[Axes suivants]
 Les axes $\mathbf{u}_2, \ldots, \mathbf{u}_p$ se construisent de proche en proche en
 ajoutant la contrainte d'orthogonalité $\mathbf{u}_k \perp \mathbf{u}_1, \ldots, \mathbf{u}_{k-1}$.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -129,19 +129,19 @@ ajoutant la contrainte d'orthogonalité $\mathbf{u}_k \perp \mathbf{u}_1, \ldots
 \end{itemize}
 \end{definition}
 
-\begin{proposition}[Propriétés des composantes principales]
+\begin{prop}[Propriétés des composantes principales]
 \begin{enumerate}
   \item Les $\mathbf{c}_k$ sont \textbf{centrées} : $\bar{c}_k = 0$.
   \item Leur variance est $\Var(\mathbf{c}_k) = \lambda_k$.
   \item Elles sont \textbf{deux à deux non corrélées} : $\Cov(\mathbf{c}_k, \mathbf{c}_l) = 0$ si $k \neq l$.
   \item L'inertie totale est conservée : $\sum_{k=1}^p \lambda_k = \Tr(\mathbf{V})$.
 \end{enumerate}
-\end{proposition}
+\end{prop}
 
-\begin{remark}
+\begin{rema}
 \small Les composantes principales fournissent un \alert{nouveau système de coordonnées}
 \textbf{orthogonal} dans lequel les variables sont décorrélées.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -319,10 +319,10 @@ La \textbf{contribution} d'un individu $i$ à l'inertie de l'axe $k$ est :
 \end{itemize}
 \end{block}
 
-\begin{remark}[Variables]
+\begin{rema}[Variables]
 \small Les mêmes définitions s'appliquent aux variables :
 $\cos^2_k(\mathbf{x}^j) = \Cor^2(\mathbf{x}^j, \mathbf{c}_k)$, et $\text{ctr}_k(\mathbf{x}^j) = u_{kj}^2$ (en ACP normée).
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -417,20 +417,20 @@ Un axe non interprétable, même chargé en inertie, n'apporte rien.
 \begin{frame}{3.11 — Workflow d'une ACP}
 \centering
 \begin{tikzpicture}[scale=0.78, font=\small,
-  step/.style={rectangle, draw=deepblue, fill=deepblue!10,
+  pstep/.style={rectangle, draw=deepblue, fill=deepblue!10,
                rounded corners=3pt, minimum width=3.5cm,
                minimum height=0.7cm, align=center},
   arr/.style={->, thick, deepblue}]
 
-\node[step] (s1) at (0,0)    {1. Données quantitatives};
-\node[step] (s2) at (5,0)    {2. Centrer / réduire};
-\node[step] (s3) at (10,0)   {3. Calculer $\mathbf{V}$ ou $\mathbf{R}$};
-\node[step] (s4) at (10,-1.2){4. Diagonaliser};
-\node[step] (s5) at (5,-1.2) {5. Choisir $q$ axes};
-\node[step] (s6) at (0,-1.2) {6. Coordonnées $F_k$};
-\node[step] (s7) at (0,-2.4) {7. Cercle des corrélations};
-\node[step] (s8) at (5,-2.4) {8. Aides interprétation};
-\node[step, fill=darkgreen!15, draw=darkgreen] (s9) at (10,-2.4)
+\node[pstep] (s1) at (0,0)    {1. Données quantitatives};
+\node[pstep] (s2) at (5,0)    {2. Centrer / réduire};
+\node[pstep] (s3) at (10,0)   {3. Calculer $\mathbf{V}$ ou $\mathbf{R}$};
+\node[pstep] (s4) at (10,-1.2){4. Diagonaliser};
+\node[pstep] (s5) at (5,-1.2) {5. Choisir $q$ axes};
+\node[pstep] (s6) at (0,-1.2) {6. Coordonnées $F_k$};
+\node[pstep] (s7) at (0,-2.4) {7. Cercle des corrélations};
+\node[pstep] (s8) at (5,-2.4) {8. Aides interprétation};
+\node[pstep, fill=darkgreen!15, draw=darkgreen] (s9) at (10,-2.4)
    {9. Interprétation métier};
 
 \draw[arr] (s1)--(s2); \draw[arr] (s2)--(s3); \draw[arr] (s3)--(s4);

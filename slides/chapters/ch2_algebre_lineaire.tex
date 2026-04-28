@@ -32,14 +32,14 @@ E_\lambda = \ker(\mathbf{A} - \lambda \mathbf{I}_p)
 \]
 
 \column{0.49\textwidth}
-\begin{proposition}[Trace et déterminant]
+\begin{prop}[Trace et déterminant]
 \[
 \Tr(\mathbf{A}) = \sum_{i=1}^p \lambda_i, \qquad
 \det(\mathbf{A}) = \prod_{i=1}^p \lambda_i.
 \]
-\end{proposition}
+\end{prop}
 
-\begin{proposition}[Diagonalisation]
+\begin{prop}[Diagonalisation]
 $\mathbf{A}$ est \alert{diagonalisable} si et seulement si la somme des
 dimensions des sous-espaces propres vaut $p$ :
 \[
@@ -47,7 +47,7 @@ dimensions des sous-espaces propres vaut $p$ :
 \]
 On peut alors écrire $\mathbf{A} = \mathbf{P}\mathbf{D}\mathbf{P}^{-1}$
 avec $\mathbf{D}$ diagonale.
-\end{proposition}
+\end{prop}
 \end{columns}
 \end{frame}
 
@@ -74,11 +74,11 @@ avec $\mathbf{U}$ orthogonale ($\mathbf{U}^\top \mathbf{U} = \mathbf{I}_p$) et
 $\mathbf{\Lambda} = \text{diag}(\lambda_1, \ldots, \lambda_p)$.
 \end{theorem}
 
-\begin{remark}[Conséquence majeure]
+\begin{rema}[Conséquence majeure]
 \small La matrice de variance-covariance $\mathbf{V}$ et la matrice de corrélation
 $\mathbf{R}$ sont symétriques réelles : elles admettent toujours une base
 \alert{orthonormée} de vecteurs propres. C'est le \textbf{cœur} de l'ACP.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -110,11 +110,11 @@ Soit $\mathbf{A}$ symétrique réelle. Alors :
 \]
 \end{theorem}
 
-\begin{remark}
+\begin{rema}
 $\mathbf{V}$ et $\mathbf{R}$ sont \alert{toujours} positives car
 $\mathbf{V} = \frac{1}{n}\mathbf{X}_c^\top \mathbf{X}_c$ : pour tout $\mathbf{u}$,
 $\mathbf{u}^\top \mathbf{V} \mathbf{u} = \frac{1}{n}\|\mathbf{X}_c \mathbf{u}\|^2 \geq 0$.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -144,11 +144,11 @@ R_{\mathbf{A}}(\mathbf{u}).
 \]
 \end{theorem}
 
-\begin{remark}[Importance pour l'ACP]
+\begin{rema}[Importance pour l'ACP]
 \small Maximiser la variance projetée $\mathbf{u}^\top \mathbf{V} \mathbf{u}$ sous
 $\|\mathbf{u}\|=1$ revient à trouver le \alert{vecteur propre dominant} de $\mathbf{V}$.
 C'est l'optimisation centrale de l'ACP.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -173,13 +173,13 @@ $\mathbf{U}$ et $\mathbf{V}$ sont les \textbf{vecteurs singuliers à gauche} et
 \textbf{à droite}.
 \end{theorem}
 
-\begin{proposition}[Forme dyadique / SVD réduite]
+\begin{prop}[Forme dyadique / SVD réduite]
 \[
 \mathbf{X} = \sum_{k=1}^r \sigma_k\, \mathbf{u}_k \mathbf{v}_k^\top.
 \]
 Chaque terme est une matrice de rang 1. La SVD décompose $\mathbf{X}$ en
 \alert{somme} de matrices de rang 1, par ordre décroissant d'importance.
-\end{proposition}
+\end{prop}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -249,12 +249,12 @@ est l'unique matrice de rang $\leq q$ minimisant l'erreur de Frobenius :
 \small $\displaystyle \|\mathbf{A}\|_F^2 = \sum_{i,j} a_{ij}^2 = \Tr(\mathbf{A}^\top \mathbf{A}) = \sum_k \sigma_k^2$.
 \end{block}
 
-\begin{remark}[Interprétation pour l'analyse des données]
+\begin{rema}[Interprétation pour l'analyse des données]
 \small Eckart-Young fonde \alert{toute la réduction de dimension} : la
 \textbf{meilleure approximation de rang $q$} d'un nuage de points est la
 projection sur le sous-espace engendré par les $q$ premiers vecteurs propres
 de $\mathbf{X}_c^\top \mathbf{X}_c$ — c'est l'ACP.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -268,14 +268,14 @@ $\mathbf{x} - \mathbf{P}_F(\mathbf{x}) \perp F$ pour tout $\mathbf{x}$.
 Il vérifie : $\mathbf{P}_F^2 = \mathbf{P}_F$ et $\mathbf{P}_F^\top = \mathbf{P}_F$.
 \end{definition}
 
-\begin{proposition}[Forme matricielle]
+\begin{prop}[Forme matricielle]
 Si $\{\mathbf{u}_1, \ldots, \mathbf{u}_q\}$ est une base orthonormée de $F$ et
 $\mathbf{U} = [\mathbf{u}_1 \,|\, \cdots \,|\, \mathbf{u}_q]$, alors :
 \[
 \mathbf{P}_F = \mathbf{U} \mathbf{U}^\top.
 \]
 La projection de $\mathbf{x}$ est $\mathbf{P}_F(\mathbf{x}) = \mathbf{U}(\mathbf{U}^\top \mathbf{x}) = \sum_{k=1}^q \langle \mathbf{x}, \mathbf{u}_k\rangle \mathbf{u}_k$.
-\end{proposition}
+\end{prop}
 
 \begin{theorem}[Théorème de Pythagore]
 Pour tout $\mathbf{x} \in \R^p$ :
@@ -284,10 +284,10 @@ Pour tout $\mathbf{x} \in \R^p$ :
 \]
 \end{theorem}
 
-\begin{remark}
+\begin{rema}
 \small En analyse des données : projeter sur l'espace propre des $q$ premiers axes
 de $\mathbf{V}$ \alert{maximise} la norme projetée donc l'inertie projetée.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -308,13 +308,13 @@ I_{\text{totale}}
 $F_q$ est le sous-espace de dimension $q$ \alert{maximisant} l'inertie projetée.
 \end{theorem}
 
-\begin{proposition}[Pourcentage d'inertie expliquée]
+\begin{prop}[Pourcentage d'inertie expliquée]
 La part d'inertie expliquée par les $q$ premiers axes est :
 \[
 \tau_q = \frac{\lambda_1 + \cdots + \lambda_q}{\lambda_1 + \cdots + \lambda_p} \in [0, 1].
 \]
 On choisit $q$ pour que $\tau_q$ atteigne un seuil (ex : 80\%).
-\end{proposition}
+\end{prop}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────

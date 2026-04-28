@@ -75,10 +75,10 @@ où $n = \sum_{i,j} n_{ij}$ est l'effectif total.
 Chaque profil est une \alert{distribution conditionnelle} (somme $= 1$).
 \end{definition}
 
-\begin{remark}[Profil moyen]
+\begin{rema}[Profil moyen]
 \small Le \textbf{profil moyen ligne} est $(f_{\bullet 1}, \ldots, f_{\bullet J})$ (la marge colonne).
 Sous l'\textbf{indépendance} $\chi^2$, tous les profils lignes seraient égaux à ce profil moyen.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ C'est une distance euclidienne dans $\R^J$ avec \alert{métrique
 $\mathbf{M} = \mathbf{D}_{1/f_{\bullet j}}$} (inverses des fréquences marginales).
 \end{definition}
 
-\begin{proposition}[Propriétés essentielles]
+\begin{prop}[Propriétés essentielles]
 \begin{enumerate}
   \item \textbf{Pondération} : les colonnes \emph{rares} pèsent plus lourd
         ($1/f_{\bullet j}$).
@@ -104,12 +104,12 @@ $\mathbf{M} = \mathbf{D}_{1/f_{\bullet j}}$} (inverses des fréquences marginale
   \item \textbf{Symétrie} : on définit de même la distance entre profils
         colonnes avec $\mathbf{M} = \mathbf{D}_{1/f_{i\bullet}}$.
 \end{enumerate}
-\end{proposition}
+\end{prop}
 
-\begin{remark}
+\begin{rema}
 \small La métrique du $\chi^2$ \alert{équilibre l'influence} des modalités peu
 fréquentes mais informatives.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -135,13 +135,13 @@ I_{\text{totale}}
 \]
 \end{theorem}
 
-\begin{remark}[Conséquence]
+\begin{rema}[Conséquence]
 \small L'AFC \emph{décompose} la statistique du $\chi^2$ : chaque axe factoriel
 explique une part de l'écart à l'indépendance.
 \[
 \Phi^2 = \sum_{k=1}^{r} \lambda_k, \qquad r = \min(I-1, J-1).
 \]
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -193,11 +193,11 @@ G_k(j) \quad\text{(coordonnée de la colonne } j\text{)}.
 Lignes et colonnes contribuent \emph{ensemble} à la même inertie $\lambda_k$.
 \end{theorem}
 
-\begin{remark}[Double point de vue]
+\begin{rema}[Double point de vue]
 \small L'AFC traite \alert{symétriquement} lignes et colonnes : on diagonalise
 deux matrices semblables qui partagent les mêmes valeurs propres non nulles
 (dualité). C'est ce qui justifie la \textbf{représentation simultanée}.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -223,11 +223,11 @@ des positions des colonnes $j$ pondérées par son profil $f_{ij}/f_{i\bullet}$.
 Et inversement.
 \end{block}
 
-\begin{remark}[Interprétation graphique]
+\begin{rema}[Interprétation graphique]
 \small Une modalité ligne et une modalité colonne \alert{proches} sur le plan
 factoriel sont dans une \textbf{relation d'attraction} : leur fréquence
 conjointe dépasse l'attendu sous indépendance.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -294,12 +294,12 @@ Définitions analogues pour les colonnes.
 \end{itemize}
 \end{block}
 
-\begin{remark}
+\begin{rema}
 \small On peut décomposer le $\chi^2$ en sommes par cellule (\textbf{contribution
 au $\chi^2$}) :
 $\chi^2_{ij} = n \cdot (f_{ij} - f_{i\bullet}f_{\bullet j})^2 / (f_{i\bullet}f_{\bullet j})$,
 ce qui complète l'AFC.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
@@ -324,10 +324,10 @@ f_{ij} = f_{i\bullet} f_{\bullet j}
 \end{itemize}
 \end{block}
 
-\begin{remark}[Comparaison à l'ACP]
+\begin{rema}[Comparaison à l'ACP]
 \small AFC et ACP partagent la même structure : SVD généralisée + Eckart-Young.
 La différence est uniquement dans le \emph{triplet} $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$.
-\end{remark}
+\end{rema}
 \end{frame}
 
 % ────────────────────────────────────────────────────────────
