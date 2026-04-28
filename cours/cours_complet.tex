@@ -1,0 +1,992 @@
+%==============================================================
+% Analyse des Données — Polycopié complet
+% Master GAMMA · Master BA · Licence LMAD — Esprit School of Business
+% Tradition : école française (Benzécri, Lebart, Saporta, Escofier-Pagès)
+%==============================================================
+\documentclass[11pt, a4paper, openany]{book}
+
+% --- Packages ------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{positioning, arrows.meta, shapes, calc}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage[hidelinks, colorlinks=true, linkcolor=blue!50!black,
+            citecolor=green!40!black, urlcolor=blue!60!black]{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+% --- Couleurs ------------------------------------------------
+\definecolor{deepblue}{RGB}{20, 50, 110}
+\definecolor{deeporange}{RGB}{220, 100, 30}
+\definecolor{darkgreen}{RGB}{30, 110, 60}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+
+% --- Listings R ----------------------------------------------
+\lstdefinelanguage{Renh}{
+  morekeywords={if,else,for,while,function,return,in,TRUE,FALSE,NULL,NA,
+                NaN,Inf,library,require,source},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstdefinestyle{Rstyle}{
+  language=Renh,
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{deepblue}\bfseries,
+  stringstyle=\color{darkgreen},
+  commentstyle=\color{gray}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{gray!30},
+  showstringspaces=false,
+  breaklines=true,
+  tabsize=2,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1
+           {â}{{\^a}}1 {ç}{{\c c}}1 {ô}{{\^o}}1 {î}{{\^\i}}1
+           {É}{{\'E}}1 {È}{{\`E}}1 {Ê}{{\^E}}1 {À}{{\`A}}1
+           {ù}{{\`u}}1 {û}{{\^u}}1 {ï}{{\"\i}}1 {œ}{{\oe}}1,
+}
+\lstset{style=Rstyle}
+
+% --- Théorèmes -----------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Théorème}[chapter]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemme}
+\newtheorem{corollary}[theorem]{Corollaire}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Définition}
+\newtheorem{example}[theorem]{Exemple}
+\newtheorem{exercice}{Exercice}[chapter]
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remarque}
+
+% --- Macros --------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\1}{\mathds{1}}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\rang}{rang}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\V}{\mathbf{V}}
+\newcommand{\M}{\mathbf{M}}
+\newcommand{\B}{\mathbf{B}}
+\newcommand{\W}{\mathbf{W}}
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\U}{\mathbf{U}}
+\newcommand{\bSigma}{\mathbf{\Sigma}}
+\newcommand{\bLambda}{\mathbf{\Lambda}}
+\newcommand{\g}{\mathbf{g}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\u}{\mathbf{u}}
+\newcommand{\v}{\mathbf{v}}
+
+% --- En-têtes ------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[LO]{\itshape\nouppercase{\rightmark}}
+\fancyhead[RE]{\itshape\nouppercase{\leftmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{14pt}
+
+\title{
+  \vspace{2cm}
+  {\Huge \textbf{Analyse des Données}}\\[0.6cm]
+  {\Large Théorie, méthodes factorielles et applications}\\[0.5cm]
+  {\large ACP $\cdot$ AFC $\cdot$ ACM $\cdot$ Classification $\cdot$ AFD}\\[2cm]
+}
+\author{
+  \Large Master GAMMA · Master Business Analytics\\[0.2cm]
+  \large Licence Mathématiques Appliquées (LMAD)\\[0.6cm]
+  \large Esprit School of Business
+}
+\date{\today}
+
+%==============================================================
+\begin{document}
+
+\frontmatter
+\maketitle
+
+%--------------------------------------------------------------
+\chapter*{Préface}
+\addcontentsline{toc}{chapter}{Préface}
+
+Ce polycopié accompagne le cours d'\textbf{Analyse des Données} dispensé aux
+étudiants de Master GAMMA, Master Business Analytics et Licence Mathématiques
+Appliquées (LMAD) de l'Esprit School of Business. Il s'inscrit dans la
+\textit{tradition de l'école française d'analyse des données}, fondée par
+Jean-Paul Benzécri dans les années 1960 et formalisée par les travaux de
+Lebart, Morineau, Saporta, Escofier et Pagès.
+
+L'idée directrice du cours est unique :
+\begin{quote}
+\textit{Toute méthode factorielle se ramène à une décomposition en valeurs
+singulières (SVD) généralisée, dont la lecture géométrique repose sur la
+notion d'\textbf{inertie} et le théorème de \textbf{Huygens}.}
+\end{quote}
+
+\section*{Public visé}
+Ce polycopié s'adresse à des étudiants disposant de connaissances solides en :
+\begin{itemize}
+  \item algèbre linéaire (valeurs propres, diagonalisation, formes quadratiques);
+  \item statistique descriptive et inférentielle (variance, covariance, tests);
+  \item programmation R (manipulation de données, graphiques).
+\end{itemize}
+Les étudiants en Mathématiques Appliquées (LMAD) y trouveront les démonstrations
+détaillées, les étudiants en Business Analytics les interprétations et cas
+d'usage, et tous bénéficieront du fil conducteur géométrique commun.
+
+\section*{Organisation}
+Le cours suit huit chapitres :
+\begin{enumerate}
+  \item Introduction et statistiques descriptives multivariées;
+  \item Algèbre linéaire pour l'analyse des données;
+  \item Analyse en Composantes Principales (ACP);
+  \item Analyse Factorielle des Correspondances (AFC);
+  \item Analyse des Correspondances Multiples (ACM);
+  \item Classification (CAH, k-means, HCPC);
+  \item Analyse Factorielle Discriminante (AFD);
+  \item Méthodes avancées (MDS, CCA, AFM, PLS, KPCA).
+\end{enumerate}
+Chaque chapitre contient des définitions, théorèmes (avec démonstrations
+des plus importants), exemples, code R et exercices.
+
+\section*{Travaux pratiques}
+Quatre TPs en R accompagnent le cours :
+\begin{itemize}
+  \item \textbf{TP1 — ACP} : decathlon (FactoMineR) et vins de Bordeaux;
+  \item \textbf{TP2 — AFC} : CSP × Diplôme et Région × Transport;
+  \item \textbf{TP3 — ACM} : enquête sur les pratiques numériques;
+  \item \textbf{TP4 — AFD} : iris et credit scoring.
+\end{itemize}
+Tous les jeux de données et leurs scripts de génération sont fournis dans
+le dépôt GitHub associé.
+
+\vspace{2cm}
+\begin{flushright}
+\textit{Esprit School of Business --- \today}
+\end{flushright}
+
+\tableofcontents
+
+\mainmatter
+
+%==============================================================
+\chapter{Introduction et statistiques descriptives multivariées}
+%==============================================================
+
+\section{Position de l'analyse des données}
+
+\begin{definition}[Analyse des données]
+L'\textit{analyse des données} (\textit{data analysis}) est l'ensemble des
+techniques exploratoires \textit{descriptives}, fondées sur la décomposition
+matricielle et la géométrie des nuages de points, visant à révéler la
+structure d'un tableau de données $\X \in \R^{n \times p}$ \textit{sans
+modèle probabiliste}.
+\end{definition}
+
+L'analyse des données se distingue de la statistique inférentielle (qui
+postule un modèle probabiliste pour estimer des paramètres et tester des
+hypothèses) et du \textit{machine learning} supervisé (qui optimise une
+fonction de prédiction).
+
+\paragraph{Objectifs.}
+\begin{enumerate}
+  \item \textbf{Réduction de dimension} : remplacer $p$ variables corrélées
+        par $q \ll p$ composantes synthétiques.
+  \item \textbf{Visualisation} : projeter les individus et les variables
+        sur des plans interprétables.
+  \item \textbf{Classification} (typologie) : regrouper les individus en
+        classes homogènes.
+\end{enumerate}
+
+\section{Tableau de données}
+
+\begin{definition}[Tableau de données]
+On note $\X \in \R^{n \times p}$ le tableau où :
+\begin{itemize}
+  \item la ligne $i$ représente l'\textit{individu} $\x_i = (x_{i1}, \ldots, x_{ip})^\top$;
+  \item la colonne $j$ représente la \textit{variable} $\x^j = (x_{1j}, \ldots, x_{nj})^\top$.
+\end{itemize}
+\end{definition}
+
+Selon le type de variables, on choisit la méthode adaptée :
+\begin{itemize}
+  \item Quantitatives $\to$ \textbf{ACP} (chapitre 3);
+  \item Tableau de contingence $\to$ \textbf{AFC} (chapitre 4);
+  \item Qualitatives nominales $\to$ \textbf{ACM} (chapitre 5);
+  \item Mixtes $\to$ AFDM, AFM (chapitre 8).
+\end{itemize}
+
+\section{Statistiques descriptives univariées et bivariées}
+
+\subsection{Caractéristiques d'une variable quantitative}
+Pour la variable $\x^j$ on définit :
+\[
+\bar{x}^j = \frac{1}{n}\sum_{i=1}^n x_{ij}, \quad
+s_j^2 = \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)^2, \quad
+s_j = \sqrt{s_j^2}.
+\]
+
+\begin{remark}
+Nous utilisons la variance \textit{biaisée} (divisée par $n$) plutôt que
+la variance corrigée ($n-1$) car l'analyse géométrique s'appuie sur les
+moments empiriques sans inférence.
+\end{remark}
+
+\subsection{Covariance et corrélation}
+
+\begin{definition}[Covariance et corrélation empiriques]
+\[
+\Cov(\x^j, \x^k) = \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)(x_{ik} - \bar{x}^k),
+\quad
+\Cor(\x^j, \x^k) = \frac{\Cov(\x^j, \x^k)}{s_j s_k}.
+\]
+\end{definition}
+
+\begin{proposition}[Propriétés de la corrélation]
+Pour toutes variables $\x^j, \x^k$ :
+\begin{enumerate}
+  \item $\Cor(\x^j, \x^k) \in [-1, 1]$ (Cauchy-Schwarz);
+  \item $|\Cor| = 1 \Leftrightarrow \x^k$ est fonction affine de $\x^j$;
+  \item $\Cor$ est invariante par changement d'unités linéaire;
+  \item $\Cor = 0 \;\not\Rightarrow\;$ indépendance.
+\end{enumerate}
+\end{proposition}
+
+\subsection{Forme matricielle}
+On note $\X_c = \X - \1_n \bar{\x}^\top$ le tableau \textit{centré}. La
+matrice de variance-covariance est
+\[
+\V = \frac{1}{n} \X_c^\top \X_c \;\in\; \R^{p \times p}.
+\]
+La matrice de corrélation est
+\[
+\mathbf{R} = \mathbf{D}_{1/s}\, \V\, \mathbf{D}_{1/s}, \quad
+\mathbf{D}_{1/s} = \mathrm{diag}(1/s_j).
+\]
+
+\section{Centrage, réduction et tableau standardisé}
+
+\begin{definition}[Tableau réduit]
+Le tableau \textit{centré-réduit} (ou \textit{standardisé}) est
+\[
+\Z = \X_c\, \mathbf{D}_{1/s}, \quad z_{ij} = \frac{x_{ij} - \bar{x}^j}{s_j}.
+\]
+\end{definition}
+
+\begin{theorem}[Effet sur la variance-covariance]
+\[
+\V(\X_c) = \V(\X), \qquad \V(\Z) = \mathbf{R}(\X).
+\]
+\end{theorem}
+
+\begin{proof}
+Pour $\X_c$, on a $\bar{\x}_c = 0$, donc $\V(\X_c) = \frac{1}{n}\X_c^\top\X_c = \V(\X)$.
+Pour $\Z$, par construction $\Var(z_j) = 1$ et $\Cov(z_j, z_k) = \Cor(x_j, x_k)$,
+ce qui donne $\V(\Z) = \mathbf{R}(\X)$.
+\end{proof}
+
+\section{Distance, métrique et inertie}
+
+\begin{definition}[Métrique]
+Une \textit{métrique} sur $\R^p$ est une matrice $\M$ symétrique définie
+positive. La distance associée entre $\x_i$ et $\x_{i'}$ est
+\[
+d_{\M}^2(\x_i, \x_{i'}) = (\x_i - \x_{i'})^\top \M (\x_i - \x_{i'}).
+\]
+\end{definition}
+
+\paragraph{Cas particuliers.}
+\begin{itemize}
+  \item $\M = \mathbf{I}_p$ : distance euclidienne classique;
+  \item $\M = \mathbf{D}_{1/s^2}$ : distance euclidienne réduite (ACP normée);
+  \item $\M = \V^{-1}$ : Mahalanobis (AFD);
+  \item $\M = \mathbf{D}_{1/f_{\bullet j}}$ : distance du $\chi^2$ (AFC).
+\end{itemize}
+
+\begin{definition}[Inertie totale d'un nuage]
+Soit $\mathcal{N} = \{(\x_i, p_i)\}_{i=1}^n$ avec $\sum_i p_i = 1$ et
+$\g = \sum_i p_i \x_i$ le centre de gravité. L'\textit{inertie totale}
+de $\mathcal{N}$ par rapport à $\g$ dans la métrique $\M$ est
+\[
+I_{\mathcal{N}} = \sum_{i=1}^n p_i\, d_{\M}^2(\x_i, \g).
+\]
+\end{definition}
+
+\begin{proposition}[Inertie et trace]
+Avec $\V = \sum_i p_i (\x_i - \g)(\x_i - \g)^\top$,
+\[
+I_{\mathcal{N}} = \Tr(\V \M).
+\]
+\end{proposition}
+
+\begin{proof}
+Par cyclicité de la trace, $(\x_i - \g)^\top \M (\x_i - \g) = \Tr\bigl(\M (\x_i - \g)(\x_i - \g)^\top\bigr)$.
+En sommant pondéré sur $i$, $\sum_i p_i \Tr\bigl(\M (\x_i - \g)(\x_i - \g)^\top\bigr) = \Tr(\M \V) = \Tr(\V \M)$.
+\end{proof}
+
+\section{Théorème de Huygens}
+
+\begin{theorem}[Huygens]
+Soit $\mathcal{N}$ un nuage partitionné en $K$ classes
+$\mathcal{C}_1, \ldots, \mathcal{C}_K$ de poids $P_k = \sum_{i \in \mathcal{C}_k} p_i$
+et de barycentres $\g_k$. Alors
+\[
+\underbrace{\sum_i p_i\, d^2(\x_i, \g)}_{I_{\text{tot}}}
+=
+\underbrace{\sum_{k=1}^K \sum_{i \in \mathcal{C}_k} p_i\, d^2(\x_i, \g_k)}_{I_{\text{intra}}}
++
+\underbrace{\sum_{k=1}^K P_k\, d^2(\g_k, \g)}_{I_{\text{inter}}}.
+\]
+\end{theorem}
+
+\begin{proof}
+Pour tout $\x_i \in \mathcal{C}_k$, on écrit $\x_i - \g = (\x_i - \g_k) + (\g_k - \g)$.
+Le développement de la norme donne
+$d^2(\x_i, \g) = d^2(\x_i, \g_k) + d^2(\g_k, \g) + 2\langle \x_i - \g_k, \g_k - \g\rangle_{\M}$.
+Par définition du barycentre $\g_k$, le double produit s'annule en sommant sur
+$i \in \mathcal{C}_k$. La pondération sur les classes donne le résultat.
+\end{proof}
+
+Ce théorème est fondamental : il fonde le critère du clustering
+($\min I_{\text{intra}}$) et de la réduction de dimension
+($\max I_{\text{projetée}}$) ainsi que celui de l'AFD
+($\max I_{\text{inter}} / I_{\text{intra}}$).
+
+%==============================================================
+\chapter{Algèbre linéaire pour l'analyse des données}
+%==============================================================
+
+\section{Théorème spectral}
+
+\begin{theorem}[Théorème spectral]
+Soit $\mathbf{A} \in \R^{p \times p}$ symétrique réelle. Alors :
+\begin{enumerate}
+  \item toutes les valeurs propres de $\mathbf{A}$ sont réelles;
+  \item les sous-espaces propres associés à des valeurs propres distinctes sont orthogonaux;
+  \item il existe une base orthonormée de $\R^p$ formée de vecteurs propres de $\mathbf{A}$.
+\end{enumerate}
+On a la décomposition
+\[
+\mathbf{A} = \U\, \bLambda\, \U^\top = \sum_{k=1}^p \lambda_k\, \u_k \u_k^\top,
+\]
+avec $\U$ orthogonale et $\bLambda = \mathrm{diag}(\lambda_1, \ldots, \lambda_p)$.
+\end{theorem}
+
+\begin{proof}[Idée de la démonstration]
+On procède par récurrence sur $p$. Pour $p=1$ trivial. Pour $p \geq 2$, on
+considère $\u_1$ unitaire maximisant $\u^\top \mathbf{A} \u$ : par compacité
+de la sphère, ce maximum existe et vaut $\lambda_1 = \u_1^\top \mathbf{A} \u_1$.
+La matrice $\mathbf{A}$ étant symétrique, $\u_1$ est vecteur propre associé.
+Sur l'orthogonal $\u_1^\perp$ on applique l'hypothèse de récurrence.
+Les valeurs propres sont réelles car $\mathbf{A}$ est auto-adjointe sur $\R^p$.
+\end{proof}
+
+\section{Quotient de Rayleigh}
+
+\begin{definition}[Quotient de Rayleigh]
+Pour $\mathbf{A}$ symétrique et $\u \neq 0$ :
+\[
+R_{\mathbf{A}}(\u) = \frac{\u^\top \mathbf{A} \u}{\u^\top \u}.
+\]
+\end{definition}
+
+\begin{theorem}[Courant-Fischer-Weyl]
+Si $\lambda_1 \geq \cdots \geq \lambda_p$ sont les valeurs propres de
+$\mathbf{A}$ symétrique, alors
+\[
+\lambda_1 = \max_{\u \neq 0} R_{\mathbf{A}}(\u),\quad
+\lambda_p = \min_{\u \neq 0} R_{\mathbf{A}}(\u),\quad
+\lambda_k = \max_{\u \perp \u_1, \ldots, \u_{k-1}} R_{\mathbf{A}}(\u).
+\]
+\end{theorem}
+
+\begin{proof}
+On décompose $\u = \sum_j \alpha_j \u_j$ dans la base orthonormée des vecteurs
+propres. Alors $\u^\top \mathbf{A} \u = \sum_j \lambda_j \alpha_j^2$ et
+$\u^\top \u = \sum_j \alpha_j^2$. Le quotient s'écrit
+\[
+R_{\mathbf{A}}(\u) = \frac{\sum_j \lambda_j \alpha_j^2}{\sum_j \alpha_j^2}
+\in [\lambda_p, \lambda_1].
+\]
+Le maximum $\lambda_1$ est atteint pour $\u = \u_1$. Pour le $k$-ième, on impose
+$\alpha_1 = \cdots = \alpha_{k-1} = 0$ et le maximum vaut $\lambda_k$.
+\end{proof}
+
+\section{Décomposition en valeurs singulières (SVD)}
+
+\begin{theorem}[SVD]
+Toute matrice $\X \in \R^{n \times p}$ admet une décomposition
+\[
+\X = \U\, \bSigma\, \mathbf{V}^\top,
+\]
+où $\U \in \R^{n \times n}$ et $\mathbf{V} \in \R^{p \times p}$ sont orthogonales,
+et $\bSigma \in \R^{n \times p}$ rectangulaire diagonale de coefficients
+$\sigma_1 \geq \cdots \geq \sigma_r \geq 0$, $r = \rang(\X)$.
+\end{theorem}
+
+\begin{proposition}[Lien spectral]
+\[
+\X^\top \X = \mathbf{V}\, (\bSigma^\top \bSigma)\, \mathbf{V}^\top, \quad
+\X \X^\top = \U\, (\bSigma \bSigma^\top)\, \U^\top.
+\]
+Les valeurs propres communes non nulles sont $\lambda_k = \sigma_k^2$.
+\end{proposition}
+
+\section{Théorème d'Eckart-Young}
+
+\begin{theorem}[Eckart-Young, 1936]
+Soit $\X = \sum_{k=1}^r \sigma_k \u_k \v_k^\top$ la SVD de $\X$. Pour tout
+$q \leq r$, la matrice $\X_q = \sum_{k=1}^q \sigma_k \u_k \v_k^\top$ est
+l'unique matrice de rang $\leq q$ minimisant $\|\X - \mathbf{Y}\|_F$ :
+\[
+\X_q = \argmin_{\rang(\mathbf{Y}) \leq q} \|\X - \mathbf{Y}\|_F^2,
+\quad
+\|\X - \X_q\|_F^2 = \sum_{k=q+1}^r \sigma_k^2.
+\]
+\end{theorem}
+
+\begin{proof}[Esquisse]
+Soit $\mathbf{Y}$ de rang $\leq q$. Pour toute matrice $\mathbf{C}$ de rang
+$q$, $\|\X - \mathbf{C}\|_F^2 = \sum_k \sigma_k^2(\X - \mathbf{C})$. La meilleure
+approximation est obtenue en projetant les composantes singulières dominantes :
+on garde les $q$ plus grandes $\sigma_k$ et leurs vecteurs associés. La preuve
+formelle utilise l'inégalité de Mirsky pour les normes unitairement invariantes.
+\end{proof>
+
+Ce théorème fonde toute la réduction de dimension : la \textit{meilleure
+approximation de rang $q$} d'un tableau est la projection sur les $q$
+premières directions principales.
+
+\section{SVD généralisée et schéma de dualité}
+
+\begin{theorem}[SVD généralisée]
+Soient $\M$ une métrique sur $\R^p$ et $\mathbf{D}_p$ une métrique sur $\R^n$
+(toutes deux SDP). Alors $\X$ admet une décomposition
+\[
+\X = \U\, \bSigma\, \mathbf{V}^\top
+\]
+avec $\U^\top \mathbf{D}_p \U = \mathbf{I}$ et $\mathbf{V}^\top \M \mathbf{V} = \mathbf{I}$.
+Les axes $\v_k$ diagonalisent $\X^\top \mathbf{D}_p \X \M$.
+\end{theorem}
+
+Ce cadre unifie l'ACP, l'AFC, l'ACM et l'AFD : chaque méthode correspond
+à un choix particulier du \textit{triplet} $(\X, \M, \mathbf{D}_p)$.
+
+%==============================================================
+\chapter{Analyse en Composantes Principales (ACP)}
+%==============================================================
+
+\section{Formulation et solution}
+
+\paragraph{Cadre.} $\X_c \in \R^{n \times p}$ centré, métrique
+$\M = \mathbf{I}_p$ (ACP non normée) ou $\M = \mathbf{D}_{1/s^2}$ (ACP normée),
+pondération $p_i = 1/n$. On note $\V = \frac{1}{n} \X_c^\top \X_c$.
+
+\begin{theorem}[Premier axe principal]
+Le premier axe principal $\u_1$ est la direction unitaire maximisant
+l'inertie projetée :
+\[
+\u_1 = \argmax_{\|\u\|=1} \u^\top \V \u.
+\]
+La solution est le vecteur propre dominant de $\V$ et le maximum vaut $\lambda_1$.
+\end{theorem}
+
+\begin{proof}
+Lagrangien : $\mathcal{L}(\u, \mu) = \u^\top \V \u - \mu(\u^\top \u - 1)$.
+La condition $\nabla_{\u} \mathcal{L} = 2(\V \u - \mu \u) = 0$ donne
+$\V \u = \mu \u$, et $\u^\top \V \u = \mu$. Le maximum est atteint pour
+$\mu = \lambda_1$ et $\u = \u_1$ (vecteur propre dominant).
+\end{proof>
+
+\begin{definition}[Composantes principales]
+Le $k$-ième axe principal est $\u_k$ vecteur propre de $\V$ associé à $\lambda_k$.
+La $k$-ième composante principale est $\mathbf{c}_k = \X_c \u_k \in \R^n$.
+\end{definition>
+
+\begin{proposition}[Propriétés des composantes]
+\begin{enumerate}
+  \item $\bar{c}_k = 0$;
+  \item $\Var(\mathbf{c}_k) = \lambda_k$;
+  \item $\Cov(\mathbf{c}_k, \mathbf{c}_l) = 0$ pour $k \neq l$;
+  \item $\sum_k \lambda_k = \Tr(\V)$.
+\end{enumerate}
+\end{proposition>
+
+\begin{proof}
+(1) Le tableau $\X_c$ est centré donc $\X_c \u_k$ est centré.
+(2) $\Var(\X_c \u_k) = \u_k^\top \V \u_k = \lambda_k \u_k^\top \u_k = \lambda_k$.
+(3) $\Cov(\X_c \u_k, \X_c \u_l) = \u_k^\top \V \u_l = \lambda_l \u_k^\top \u_l = 0$ (orthogonalité).
+(4) $\sum_k \lambda_k = \Tr(\bLambda) = \Tr(\V)$ (par invariance cyclique).
+\end{proof>
+
+\section{Représentations graphiques et aides à l'interprétation}
+
+\paragraph{Coordonnées des individus :}
+$F_k(i) = \x_i^\top \u_k$ ; on les représente sur le plan factoriel $(F_1, F_2)$.
+
+\paragraph{Coordonnées des variables (cercle des corrélations) :}
+
+\begin{theorem}
+En ACP normée, $G_k(\x^j) = \sqrt{\lambda_k}\, u_{kj} = \Cor(\x^j, \mathbf{c}_k)$,
+et $\sum_k G_k(\x^j)^2 \leq 1$.
+\end{theorem>
+
+\begin{definition}[Aides à l'interprétation]
+Pour l'individu $i$ sur l'axe $k$ :
+\[
+\cos^2_k(i) = \frac{F_k(i)^2}{\|\x_i - \g\|^2}, \quad
+\text{ctr}_k(i) = \frac{p_i F_k(i)^2}{\lambda_k}.
+\]
+\end{definition>
+
+\section{Choix du nombre d'axes}
+
+Trois critères classiques :
+\begin{enumerate}
+  \item \textbf{Coude} dans le scree plot $\lambda_k$ vs $k$;
+  \item \textbf{Kaiser} : retenir les $\lambda_k \geq 1$ (ACP normée);
+  \item \textbf{KSS} (Karlis-Saporta-Spinaki) : $\lambda_k > 1 + 2\sqrt{(p-1)/(n-1)}$.
+\end{enumerate}
+
+\section{Code R}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+data(decathlon)
+res <- PCA(decathlon, scale.unit = TRUE,
+           quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
+fviz_eig(res, addlabels = TRUE)
+fviz_pca_ind(res, col.ind = "cos2", repel = TRUE)
+fviz_pca_var(res, col.var = "contrib", repel = TRUE)
+\end{lstlisting}
+
+\begin{exercice}
+Démontrer que l'ACP normée est équivalente à une ACP non normée du tableau
+préalablement standardisé. Conclure que diagonaliser $\mathbf{R}$ revient
+à diagonaliser $\V(\Z)$.
+\end{exercice>
+
+%==============================================================
+\chapter{Analyse Factorielle des Correspondances (AFC)}
+%==============================================================
+
+\section{Cadre et notations}
+
+Soit $\mathbf{N} = (n_{ij}) \in \N^{I \times J}$ un tableau de contingence.
+On note $n = \sum_{i,j} n_{ij}$, $f_{ij} = n_{ij}/n$, et les marges
+$f_{i\bullet}, f_{\bullet j}$.
+
+\begin{definition}[Profil ligne, profil colonne]
+$\mathbf{L}_i = (f_{ij}/f_{i\bullet})_j$, $\mathbf{C}_j = (f_{ij}/f_{\bullet j})_i$.
+\end{definition>
+
+\section{Distance du chi-deux}
+
+\begin{definition}
+\[
+d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_{i'}) = \sum_j \frac{1}{f_{\bullet j}}
+\left(\frac{f_{ij}}{f_{i\bullet}} - \frac{f_{i'j}}{f_{i'\bullet}}\right)^2.
+\]
+\end{definition>
+
+\begin{theorem}[Inertie totale = $\Phi^2$]
+\[
+I_{\text{tot}} = \sum_i f_{i\bullet}\, d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_\bullet)
+= \Phi^2 = \chi^2 / n.
+\]
+\end{theorem>
+
+\begin{proof}
+Le profil moyen ligne est $\mathbf{L}_\bullet = (f_{\bullet j})_j$. On a
+\[
+d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_\bullet) = \sum_j \frac{1}{f_{\bullet j}}
+\left(\frac{f_{ij}}{f_{i\bullet}} - f_{\bullet j}\right)^2
+= \sum_j \frac{(f_{ij} - f_{i\bullet} f_{\bullet j})^2}{f_{i\bullet}^2 f_{\bullet j}}.
+\]
+En sommant pondéré par $f_{i\bullet}$ et après simplification,
+\[
+I_{\text{tot}} = \sum_{i,j} \frac{(f_{ij} - f_{i\bullet} f_{\bullet j})^2}{f_{i\bullet} f_{\bullet j}}
+= \frac{1}{n}\sum_{i,j} \frac{(n_{ij} - n f_{i\bullet} f_{\bullet j})^2}{n f_{i\bullet} f_{\bullet j}}
+= \chi^2 / n.
+\]
+\end{proof>
+
+\section{Décomposition factorielle}
+
+L'AFC se ramène à la SVD du tableau standardisé $s_{ij} = (f_{ij} - f_{i\bullet} f_{\bullet j})/\sqrt{f_{i\bullet} f_{\bullet j}}$.
+
+\begin{theorem}[Formules de transition]
+\[
+F_k(i) = \frac{1}{\sqrt{\lambda_k}}\sum_j \frac{f_{ij}}{f_{i\bullet}}\, G_k(j),
+\quad
+G_k(j) = \frac{1}{\sqrt{\lambda_k}}\sum_i \frac{f_{ij}}{f_{\bullet j}}\, F_k(i).
+\]
+\end{theorem>
+
+Ces formules sont la \textit{lecture barycentrique} du biplot AFC : la position
+d'une ligne est, à un facteur près, le barycentre des positions des colonnes
+pondérées par son profil.
+
+\section{Code R}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+tab <- as.matrix(read.csv("csp_diplome.csv", row.names = 1))
+chi <- chisq.test(tab); chi$statistic / sum(tab)   # = Phi^2
+res <- CA(tab, graph = FALSE)
+fviz_ca_biplot(res, repel = TRUE)
+\end{lstlisting}
+
+%==============================================================
+\chapter{Analyse des Correspondances Multiples (ACM)}
+%==============================================================
+
+\section{Tableau disjonctif complet et tableau de Burt}
+
+\begin{definition}[TDC]
+Soit $p$ variables qualitatives, $K = \sum_j K_j$ modalités. Le tableau
+disjonctif complet $\Z \in \{0,1\}^{n \times K}$ vérifie $z_{im} = 1$ ssi
+l'individu $i$ possède la modalité $m$.
+\end{definition>
+
+\begin{definition}[Tableau de Burt]
+$\mathbf{B} = \Z^\top \Z \in \N^{K \times K}$. Les blocs diagonaux contiennent
+les effectifs des modalités, les blocs hors-diagonaux les tables de contingence
+deux à deux.
+\end{definition>
+
+\section{ACM = AFC du TDC}
+
+\begin{theorem}[Inertie totale en ACM]
+$I_{\text{tot}} = K/p - 1$.
+\end{theorem>
+
+\begin{proof}
+L'AFC du TDC fait apparaître la marge ligne constante ($z_{i\bullet} = p$) et
+la marge colonne $z_{\bullet m} = n_m$. En appliquant la formule de l'inertie
+totale de l'AFC après simplification, on trouve $I_{\text{tot}} = K/p - 1$.
+\end{proof>
+
+\section{Tableau de Burt et correction de Benzécri}
+
+\begin{theorem}[Lien valeurs propres TDC / Burt]
+Soient $\lambda_k^Z$ les valeurs propres de l'AFC du TDC et $\lambda_k^B$
+celles de l'AFC du Burt. Alors $\lambda_k^B = (\lambda_k^Z)^2$.
+\end{theorem>
+
+\paragraph{Correction de Benzécri.} Seuls les axes $\lambda_k > 1/p$ sont
+significatifs. La part d'inertie corrigée est
+\[
+\tau_k^c = \frac{(\lambda_k - 1/p)^2}{\sum_{l : \lambda_l > 1/p} (\lambda_l - 1/p)^2}.
+\]
+
+\section{Code R}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+df <- read.csv("enquete_numerique.csv", stringsAsFactors = TRUE)
+res <- MCA(df, quali.sup = 8:9, graph = FALSE)
+res$eig
+fviz_mca_var(res, repel = TRUE)
+\end{lstlisting}
+
+%==============================================================
+\chapter{Classification}
+%==============================================================
+
+\section{Critère unificateur}
+
+Une partition $\mathcal{C} = \{\mathcal{C}_1, \ldots, \mathcal{C}_K\}$ minimise
+$I_{\text{intra}}$, ce qui équivaut à maximiser $I_{\text{inter}}$ par
+le théorème de Huygens.
+
+\section{Algorithme k-means}
+
+\begin{definition}[Critère k-means]
+$W(\mathcal{C}) = \sum_k \sum_{i \in \mathcal{C}_k} \|\x_i - \g_k\|^2 = n\, I_{\text{intra}}$.
+\end{definition>
+
+\begin{theorem}[Convergence de Lloyd]
+La suite $W(\mathcal{C}^{(t)})$ est décroissante et minorée par 0, donc
+converge en un nombre fini d'itérations vers un minimum local de $W$.
+\end{theorem>
+
+\begin{proof}
+À chaque itération :
+- l'étape d'affectation diminue $W$ (chaque $\x_i$ est affecté au centre le plus proche);
+- l'étape de mise à jour minimise $\sum_{i \in \mathcal{C}_k} \|\x_i - \g\|^2$ en $\g = \g_k$ (centre de gravité).
+$W$ ne peut prendre qu'un nombre fini de valeurs (il y a $K^n$ partitions),
+donc la suite stationnaire après un nombre fini d'étapes.
+\end{proof>
+
+\section{Classification ascendante hiérarchique (CAH)}
+
+L'algorithme agglomératif fusionne à chaque étape les deux classes les plus
+proches selon une stratégie de \textit{linkage} $\delta$.
+
+\begin{definition}[Indice de Ward]
+\[
+\delta_{\text{Ward}}(A, B) = \frac{|A| |B|}{|A| + |B|}\, d^2(\g_A, \g_B).
+\]
+\end{definition>
+
+\begin{theorem}[Interprétation comme perte d'inertie]
+La fusion de $A$ et $B$ augmente l'inertie intra-classe de
+$\delta_{\text{Ward}}(A, B)$.
+\end{theorem>
+
+\begin{proof}
+Avant fusion : inertie intra de $A$ et $B$ égale à $\sum_{x \in A} \|x - \g_A\|^2 + \sum_{x \in B} \|x - \g_B\|^2$.
+Après fusion : inertie intra de $A \cup B$ vaut la somme précédente plus
+$\frac{|A| |B|}{|A| + |B|} d^2(\g_A, \g_B)$, par développement direct
+(formule de König). D'où le résultat.
+\end{proof>
+
+\section{HCPC : couplage ACP/AFC/ACM + classification}
+
+\paragraph{Procédure.}
+\begin{enumerate}
+  \item Méthode factorielle (ACP, AFC ou ACM);
+  \item Sélection de $q$ axes;
+  \item CAH-Ward sur les $q$ premières composantes;
+  \item Coupure automatique au plus grand saut;
+  \item Consolidation par k-means;
+  \item Caractérisation des classes (valeur-test).
+\end{enumerate}
+
+\paragraph{Code R.}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+data(decathlon)
+res.pca <- PCA(decathlon[, 1:10], graph = FALSE)
+res.hcpc <- HCPC(res.pca, nb.clust = -1, consol = TRUE, graph = FALSE)
+plot(res.hcpc, choice = "tree")
+res.hcpc$desc.var
+\end{lstlisting}
+
+%==============================================================
+\chapter{Analyse Factorielle Discriminante (AFD)}
+%==============================================================
+
+\section{Décomposition de la variance}
+
+Soit $Y \in \{1, \ldots, K\}$ une variable qualitative définissant $K$ groupes
+$\mathcal{C}_1, \ldots, \mathcal{C}_K$ d'effectifs $n_k$.
+
+\begin{theorem}[Décomposition $\V = \B + \W$]
+\[
+\B = \frac{1}{n}\sum_k n_k (\g_k - \g)(\g_k - \g)^\top, \quad
+\W = \frac{1}{n}\sum_k \sum_{i \in \mathcal{C}_k} (\x_i - \g_k)(\x_i - \g_k)^\top.
+\]
+On a $\V = \B + \W$.
+\end{theorem>
+
+\begin{proof}
+Pour $\x_i \in \mathcal{C}_k$, $\x_i - \g = (\x_i - \g_k) + (\g_k - \g)$.
+Le produit extérieur $(\x_i - \g)(\x_i - \g)^\top$ se développe en :
+$(\x_i - \g_k)(\x_i - \g_k)^\top + (\g_k - \g)(\g_k - \g)^\top + 2 \cdot \text{terme croisé}$.
+Le terme croisé s'annule par centrage à $\g_k$ en sommant sur $i \in \mathcal{C}_k$,
+ce qui donne le résultat.
+\end{proof>
+
+\section{Critère de Fisher}
+
+\begin{definition}[Critère de Fisher]
+\[
+J(\u) = \frac{\u^\top \B \u}{\u^\top \W \u}.
+\]
+\end{definition>
+
+\begin{theorem}[Solution]
+Les axes discriminants maximisant $J$ sont les vecteurs propres généralisés
+$\B \u = \mu \W \u$, soit les vecteurs propres de $\W^{-1} \B$. Le maximum
+vaut la plus grande valeur propre $\lambda_1$.
+\end{theorem>
+
+\begin{proof}
+On contraint $\u^\top \W \u = 1$ et on maximise $\u^\top \B \u$ par
+Lagrangien : $\mathcal{L} = \u^\top \B \u - \mu(\u^\top \W \u - 1)$.
+La condition $\nabla \mathcal{L} = 0$ donne $\B \u = \mu \W \u$. La valeur
+de $J$ atteinte vaut $\mu$, donc le maximum est $\lambda_1$ (plus grande
+valeur propre de $\W^{-1} \B$).
+\end{proof>
+
+\section{Cas $K = 2$ groupes}
+
+\begin{theorem}[Direction de Fisher pour 2 groupes]
+Si $K = 2$, l'unique axe discriminant est, à un scalaire près,
+\[
+\u^* = \W^{-1}(\g_1 - \g_2).
+\]
+\end{theorem>
+
+\section{Règle de classement (LDA)}
+
+\begin{definition}[Règle de Mahalanobis]
+$\hat{k}(\x^*) = \argmin_k (\x^* - \g_k)^\top \W^{-1} (\x^* - \g_k)$.
+\end{definition>
+
+\begin{theorem}[Forme linéaire]
+La frontière entre deux classes $k$ et $l$ est l'hyperplan affine
+$\{\x : 2(\g_k - \g_l)^\top \W^{-1} \x = \g_k^\top \W^{-1} \g_k - \g_l^\top \W^{-1} \g_l\}$.
+\end{theorem>
+
+\section{Optimalité bayésienne (cas gaussien)}
+
+Si $(X | Y = k) \sim \mathcal{N}_p(\mu_k, \Sigma)$ avec covariance commune,
+la règle de Bayes coïncide avec l'AFD à un terme de probabilité a priori près.
+
+\begin{theorem}[Bayes/Fisher]
+Sous gaussianité et homoscédasticité, $\hat{k}_B(\x) = \argmin_k (\x - \mu_k)^\top \Sigma^{-1} (\x - \mu_k) - 2 \ln \pi_k$,
+qui se réduit à la règle d'AFD lorsque $\pi_k = 1/K$.
+\end{theorem>
+
+\section{Code R}
+\begin{lstlisting}
+library(MASS); data(iris)
+res <- lda(Species ~ ., data = iris)
+predict(res)$x      # coordonnees factorielles discriminantes
+res.cv <- lda(Species ~ ., data = iris, CV = TRUE)
+table(iris$Species, res.cv$class)
+\end{lstlisting}
+
+%==============================================================
+\chapter{Méthodes avancées}
+%==============================================================
+
+\section{Multidimensional Scaling (MDS)}
+
+\begin{theorem}[Torgerson]
+Étant donnée une matrice de distances $\mathbf{D} = (d_{ij})$, soit
+$\mathbf{B} = -\frac{1}{2} \mathbf{H} \mathbf{D}^{(2)} \mathbf{H}$ avec
+$\mathbf{H} = \mathbf{I}_n - \frac{1}{n}\1_n\1_n^\top$. Si $\mathbf{B}$ est
+positive, ses vecteurs propres fournissent des coordonnées $\mathbf{Y}$ telles
+que $\|\mathbf{y}_i - \mathbf{y}_j\| = d_{ij}$.
+\end{theorem>
+
+\section{Analyse canonique des corrélations (CCA)}
+
+Étant donnés deux groupes $\X \in \R^{n \times p}$ et $\mathbf{Y} \in \R^{n \times q}$,
+la CCA cherche $\mathbf{a}, \mathbf{b}$ maximisant
+\[
+\rho = \Cor(\X \mathbf{a}, \mathbf{Y} \mathbf{b}),
+\]
+solution de $\V_{XX}^{-1} \V_{XY} \V_{YY}^{-1} \V_{YX} \mathbf{a} = \rho^2 \mathbf{a}$.
+
+\section{Analyse Factorielle Multiple (AFM)}
+
+L'AFM analyse simultanément $J$ tableaux $\X^{(j)}$ portant sur les mêmes
+individus, en pondérant chaque bloc par $1/\lambda_1^{(j)}$ pour équilibrer
+leur influence.
+
+\section{Régression PLS}
+
+Construit des composantes $\mathbf{t}_k = \X \mathbf{w}_k$ maximisant
+$\Cov(\X \mathbf{w}, \mathbf{Y})$. Très utile lorsque $p \gg n$.
+
+\section{Variantes non linéaires}
+
+\begin{itemize}
+  \item \textbf{Kernel PCA} : ACP dans un espace de Hilbert via un noyau;
+  \item \textbf{Isomap} : MDS sur la distance géodésique d'une variété;
+  \item \textbf{LLE} : reconstruction locale par voisinage;
+  \item \textbf{t-SNE, UMAP} : préservation des voisinages probabilistes.
+\end{itemize}
+
+\section{Conclusion générale}
+
+Toutes les méthodes vues s'inscrivent dans le cadre unique de la
+\textbf{SVD généralisée} d'un triplet $(\X, \M, \mathbf{D}_p)$. Le choix
+de la métrique $\M$ et de la pondération $\mathbf{D}_p$ définit la méthode :
+\[
+\begin{array}{ll}
+\text{ACP} : (\X_c, \mathbf{I}_p \text{ ou } \mathbf{D}_{1/s^2}, \frac{1}{n}\mathbf{I}_n)
+& \text{AFC} : (\text{profils}, \mathbf{D}_{1/f_{\bullet j}}, \mathbf{D}_{f_{i\bullet}}) \\
+\text{ACM} : (\Z, \frac{n}{p}\mathbf{D}_{1/n_m}, \frac{1}{n}\mathbf{I}_n)
+& \text{AFD} : (\X_c, \W^{-1}, \frac{1}{n}\mathbf{I}_n)
+\end{array}
+\]
+
+Cette unicité algébrique est une force conceptuelle : elle permet de comprendre,
+critiquer et étendre toute nouvelle méthode factorielle. Le théorème de Huygens
+fournit l'interprétation géométrique : tout est décomposition d'inertie en
+parts expliquée et résiduelle.
+
+%==============================================================
+\backmatter
+
+\chapter*{Bibliographie}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\textbf{Ouvrages fondamentaux (école française)}
+\begin{enumerate}
+  \item Saporta, G. (2011). \textit{Probabilités, analyse des données et statistique} (3e éd.). Technip.
+  \item Lebart, L., Morineau, A., \& Piron, M. (2006). \textit{Statistique exploratoire multidimensionnelle} (4e éd.). Dunod.
+  \item Escofier, B., \& Pagès, J. (2008). \textit{Analyses factorielles simples et multiples} (4e éd.). Dunod.
+  \item Husson, F., Lê, S., \& Pagès, J. (2017). \textit{Analyse de données avec R} (2e éd.). PUR.
+  \item Cornillon, P.-A. et al. (2018). \textit{Statistique avec R} (4e éd.). PUR.
+\end{enumerate}
+
+\textbf{Auteurs historiques}
+\begin{enumerate}
+  \setcounter{enumi}{5}
+  \item Benzécri, J.-P. (1973). \textit{L'analyse des données} (2 vol.). Dunod.
+  \item Cailliez, F., \& Pagès, J.-P. (1976). \textit{Introduction à l'analyse des données}. SMASH.
+  \item Bouroche, J.-M., \& Saporta, G. (1980). \textit{L'analyse des données} (\textit{Que sais-je ?}). PUF.
+\end{enumerate}
+
+\textbf{Articles séminaux}
+\begin{enumerate}
+  \setcounter{enumi}{8}
+  \item Pearson, K. (1901). On lines and planes of closest fit. \textit{Phil. Mag.}, 2(11).
+  \item Hotelling, H. (1933). Analysis of a complex of statistical variables. \textit{J. Educ. Psych.}, 24.
+  \item Fisher, R. A. (1936). The use of multiple measurements in taxonomic problems. \textit{Annals of Eugenics}, 7.
+  \item Eckart, C., \& Young, G. (1936). The approximation of one matrix by another of lower rank. \textit{Psychometrika}, 1.
+  \item Hotelling, H. (1936). Relations between two sets of variates. \textit{Biometrika}, 28.
+  \item Ward, J. H. (1963). Hierarchical grouping to optimize an objective function. \textit{JASA}, 58.
+  \item Torgerson, W. S. (1952). Multidimensional scaling: I. Theory and method. \textit{Psychometrika}, 17.
+  \item Kruskal, J. B. (1964). Multidimensional scaling. \textit{Psychometrika}, 29.
+  \item Wold, H. (1975). Soft modelling by latent variables (PLS). \textit{Perspectives in Probability and Statistics}.
+  \item Schölkopf, B., Smola, A., \& Müller, K.-R. (1998). Nonlinear component analysis as a kernel eigenvalue problem. \textit{Neural Computation}, 10(5).
+  \item Tenenbaum, J. B. et al. (2000). A global geometric framework for nonlinear dimensionality reduction. \textit{Science}, 290.
+  \item Roweis, S. T., \& Saul, L. K. (2000). Nonlinear dimensionality reduction by locally linear embedding. \textit{Science}, 290.
+  \item Candès, E. J. et al. (2011). Robust principal component analysis. \textit{JACM}, 58(3).
+\end{enumerate}
+
+\textbf{Logiciels et packages R}
+\begin{enumerate}
+  \setcounter{enumi}{21}
+  \item Lê, S., Josse, J., \& Husson, F. (2008). FactoMineR: An R package for multivariate analysis. \textit{JSS}, 25(1).
+  \item Kassambara, A., \& Mundt, F. (2020). \textit{factoextra}. R package version 1.0.7.
+  \item Dray, S., \& Dufour, A.-B. (2007). The ade4 package. \textit{JSS}, 22(4).
+  \item Venables, W. N., \& Ripley, B. D. (2002). \textit{Modern Applied Statistics with S} (4e éd.). Springer.
+\end{enumerate}
+
+\end{document}
