@@ -1,3 +1,431 @@
-%% Chapitre — Algèbre Linéaire pour l'Analyse des Données
-%% À compléter
+% ============================================================
+%  Chapitre 2 — Algèbre linéaire pour l'analyse des données
+% ============================================================
 \section{Algèbre Linéaire pour l'Analyse des Données}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.1 Rappels : valeurs et vecteurs propres}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.1 — Rappels d'algèbre linéaire}
+\begin{definition}[Valeur propre, vecteur propre]
+Soit $\mathbf{A} \in \R^{p \times p}$. Un scalaire $\lambda \in \R$ est dit
+\textbf{valeur propre} de $\mathbf{A}$ s'il existe $\mathbf{u} \in \R^p \setminus \{0\}$
+tel que $\mathbf{A}\mathbf{u} = \lambda \mathbf{u}$. Le vecteur $\mathbf{u}$ est
+le \textbf{vecteur propre} associé.
+\end{definition}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Polynôme caractéristique}
+\[
+P_{\mathbf{A}}(\lambda) = \det(\mathbf{A} - \lambda \mathbf{I}_p)
+\]
+Les valeurs propres sont les racines de $P_{\mathbf{A}}$ dans $\mathbb{C}$.
+\vspace{0.2cm}
+
+\textbf{Spectre} : $\sigma(\mathbf{A}) = \{\lambda_1, \ldots, \lambda_p\}$
+(comptées avec multiplicité).
+
+\textbf{Sous-espace propre}
+\[
+E_\lambda = \ker(\mathbf{A} - \lambda \mathbf{I}_p)
+\]
+
+\column{0.49\textwidth}
+\begin{proposition}[Trace et déterminant]
+\[
+\Tr(\mathbf{A}) = \sum_{i=1}^p \lambda_i, \qquad
+\det(\mathbf{A}) = \prod_{i=1}^p \lambda_i.
+\]
+\end{proposition}
+
+\begin{proposition}[Diagonalisation]
+$\mathbf{A}$ est \alert{diagonalisable} si et seulement si la somme des
+dimensions des sous-espaces propres vaut $p$ :
+\[
+\sum_{\lambda \in \sigma(\mathbf{A})} \dim(E_\lambda) = p.
+\]
+On peut alors écrire $\mathbf{A} = \mathbf{P}\mathbf{D}\mathbf{P}^{-1}$
+avec $\mathbf{D}$ diagonale.
+\end{proposition}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.2 Théorème spectral}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.2 — Théorème spectral pour matrices symétriques}
+\begin{theorem}[Théorème spectral]
+Soit $\mathbf{A} \in \R^{p \times p}$ une matrice \alert{symétrique réelle}
+($\mathbf{A}^\top = \mathbf{A}$). Alors :
+\begin{enumerate}
+  \item Toutes les valeurs propres de $\mathbf{A}$ sont \textbf{réelles}.
+  \item Les sous-espaces propres associés à des valeurs propres distinctes
+        sont \textbf{orthogonaux}.
+  \item Il existe une \textbf{base orthonormée} $\{\mathbf{u}_1, \ldots, \mathbf{u}_p\}$
+        de $\R^p$ formée de vecteurs propres de $\mathbf{A}$.
+\end{enumerate}
+On a la décomposition :
+\[
+\boxed{\;\mathbf{A} = \mathbf{U}\, \mathbf{\Lambda}\, \mathbf{U}^\top
+       = \sum_{k=1}^p \lambda_k \mathbf{u}_k \mathbf{u}_k^\top \;}
+\]
+avec $\mathbf{U}$ orthogonale ($\mathbf{U}^\top \mathbf{U} = \mathbf{I}_p$) et
+$\mathbf{\Lambda} = \text{diag}(\lambda_1, \ldots, \lambda_p)$.
+\end{theorem}
+
+\begin{remark}[Conséquence majeure]
+\small La matrice de variance-covariance $\mathbf{V}$ et la matrice de corrélation
+$\mathbf{R}$ sont symétriques réelles : elles admettent toujours une base
+\alert{orthonormée} de vecteurs propres. C'est le \textbf{cœur} de l'ACP.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.3 Formes quadratiques}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.3 — Formes quadratiques et matrices SDP}
+\begin{definition}[Forme quadratique]
+À toute matrice symétrique $\mathbf{A} \in \R^{p\times p}$ on associe la
+\textbf{forme quadratique}
+\[
+q_{\mathbf{A}} : \R^p \to \R, \quad
+q_{\mathbf{A}}(\mathbf{x}) = \mathbf{x}^\top \mathbf{A}\, \mathbf{x}.
+\]
+\end{definition}
+
+\begin{definition}[Matrice positive / définie positive]
+\begin{itemize}
+  \item $\mathbf{A}$ est \textbf{positive} ($\mathbf{A} \succeq 0$) si $q_{\mathbf{A}}(\mathbf{x}) \geq 0$ pour tout $\mathbf{x}$.
+  \item $\mathbf{A}$ est \textbf{définie positive} ($\mathbf{A} \succ 0$) si $q_{\mathbf{A}}(\mathbf{x}) > 0$ pour tout $\mathbf{x} \neq 0$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Caractérisation par les valeurs propres]
+Soit $\mathbf{A}$ symétrique réelle. Alors :
+\[
+\mathbf{A} \succeq 0 \iff \forall k, \; \lambda_k \geq 0,
+\qquad
+\mathbf{A} \succ 0 \iff \forall k, \; \lambda_k > 0.
+\]
+\end{theorem}
+
+\begin{remark}
+$\mathbf{V}$ et $\mathbf{R}$ sont \alert{toujours} positives car
+$\mathbf{V} = \frac{1}{n}\mathbf{X}_c^\top \mathbf{X}_c$ : pour tout $\mathbf{u}$,
+$\mathbf{u}^\top \mathbf{V} \mathbf{u} = \frac{1}{n}\|\mathbf{X}_c \mathbf{u}\|^2 \geq 0$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.4 Quotient de Rayleigh}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.4 — Quotient de Rayleigh}
+\begin{definition}[Quotient de Rayleigh]
+Soit $\mathbf{A}$ symétrique réelle et $\mathbf{u} \in \R^p \setminus \{0\}$. Le
+\textbf{quotient de Rayleigh} est :
+\[
+R_{\mathbf{A}}(\mathbf{u}) = \frac{\mathbf{u}^\top \mathbf{A}\, \mathbf{u}}{\mathbf{u}^\top \mathbf{u}}.
+\]
+\end{definition}
+
+\begin{theorem}[Courant-Fischer-Weyl]
+Soient $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_p$ les valeurs propres
+de $\mathbf{A}$ (symétrique). Alors :
+\[
+\boxed{\;\lambda_1 = \max_{\mathbf{u} \neq 0} R_{\mathbf{A}}(\mathbf{u}),
+\qquad
+\lambda_p = \min_{\mathbf{u} \neq 0} R_{\mathbf{A}}(\mathbf{u}).\;}
+\]
+Plus généralement, pour le $k$-ième axe :
+\[
+\lambda_k = \max_{\substack{\mathbf{u} \perp \mathbf{u}_1, \ldots, \mathbf{u}_{k-1} \\ \mathbf{u} \neq 0}}
+R_{\mathbf{A}}(\mathbf{u}).
+\]
+\end{theorem}
+
+\begin{remark}[Importance pour l'ACP]
+\small Maximiser la variance projetée $\mathbf{u}^\top \mathbf{V} \mathbf{u}$ sous
+$\|\mathbf{u}\|=1$ revient à trouver le \alert{vecteur propre dominant} de $\mathbf{V}$.
+C'est l'optimisation centrale de l'ACP.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.5 Décomposition en valeurs singulières}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.5 — Décomposition en valeurs singulières (SVD)}
+\begin{theorem}[SVD]
+Toute matrice $\mathbf{X} \in \R^{n \times p}$ admet une décomposition
+\[
+\boxed{\;\mathbf{X} = \mathbf{U}\, \mathbf{\Sigma}\, \mathbf{V}^\top\;}
+\]
+où :
+\begin{itemize}
+  \item $\mathbf{U} \in \R^{n \times n}$ orthogonale ($\mathbf{U}^\top \mathbf{U} = \mathbf{I}_n$)
+  \item $\mathbf{V} \in \R^{p \times p}$ orthogonale ($\mathbf{V}^\top \mathbf{V} = \mathbf{I}_p$)
+  \item $\mathbf{\Sigma} \in \R^{n \times p}$ rectangulaire diagonale, de coefficients
+        diagonaux $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r \geq 0$,
+        où $r = \rang(\mathbf{X})$.
+\end{itemize}
+Les $\sigma_k$ sont les \textbf{valeurs singulières}, les colonnes de
+$\mathbf{U}$ et $\mathbf{V}$ sont les \textbf{vecteurs singuliers à gauche} et
+\textbf{à droite}.
+\end{theorem}
+
+\begin{proposition}[Forme dyadique / SVD réduite]
+\[
+\mathbf{X} = \sum_{k=1}^r \sigma_k\, \mathbf{u}_k \mathbf{v}_k^\top.
+\]
+Chaque terme est une matrice de rang 1. La SVD décompose $\mathbf{X}$ en
+\alert{somme} de matrices de rang 1, par ordre décroissant d'importance.
+\end{proposition}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.6 Lien spectral / SVD}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.6 — Lien entre SVD et décomposition spectrale}
+\begin{theorem}[Spectres de $\mathbf{X}^\top \mathbf{X}$ et $\mathbf{X} \mathbf{X}^\top$]
+Soit $\mathbf{X} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top$ la SVD de $\mathbf{X}$. Alors :
+\[
+\mathbf{X}^\top \mathbf{X} = \mathbf{V}\, \mathbf{\Sigma}^\top \mathbf{\Sigma}\, \mathbf{V}^\top,
+\qquad
+\mathbf{X} \mathbf{X}^\top = \mathbf{U}\, \mathbf{\Sigma} \mathbf{\Sigma}^\top\, \mathbf{U}^\top.
+\]
+Les valeurs propres communes (non nulles) sont $\lambda_k = \sigma_k^2$.
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Démonstration (idée).}
+\[
+\mathbf{X}^\top \mathbf{X}
+= (\mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top)^\top (\mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top)
+= \mathbf{V}\mathbf{\Sigma}^\top \mathbf{U}^\top \mathbf{U} \mathbf{\Sigma}\mathbf{V}^\top
+\]
+$= \mathbf{V}\, (\mathbf{\Sigma}^\top \mathbf{\Sigma})\, \mathbf{V}^\top$
+car $\mathbf{U}^\top \mathbf{U} = \mathbf{I}_n$. La matrice $\mathbf{\Sigma}^\top \mathbf{\Sigma}$
+est diagonale de coefficients $\sigma_k^2$.
+
+\column{0.49\textwidth}
+\begin{block}{Conséquence pour l'ACP}
+\small La SVD de $\mathbf{X}_c$ donne directement :
+\begin{itemize}\small
+  \item Les axes principaux : colonnes de $\mathbf{V}$
+  \item Les composantes principales : $\mathbf{C} = \mathbf{X}_c \mathbf{V}$
+  \item Les inerties expliquées : $\lambda_k = \sigma_k^2$
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{En pratique}
+\small On utilise la \textbf{SVD numérique} pour calculer l'ACP, plus stable
+que la diagonalisation directe de $\mathbf{V}$.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.7 Théorème d'Eckart-Young}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.7 — Théorème d'Eckart-Young-Mirsky}
+\begin{theorem}[Eckart-Young, 1936]
+Soit $\mathbf{X} = \sum_{k=1}^r \sigma_k \mathbf{u}_k \mathbf{v}_k^\top$ la SVD de $\mathbf{X}$.
+Pour tout entier $q \leq r$, la matrice
+\[
+\mathbf{X}_q = \sum_{k=1}^q \sigma_k \, \mathbf{u}_k \mathbf{v}_k^\top
+\]
+est l'unique matrice de rang $\leq q$ minimisant l'erreur de Frobenius :
+\[
+\mathbf{X}_q = \argmin_{\rang(\mathbf{Y}) \leq q} \|\mathbf{X} - \mathbf{Y}\|_F^2,
+\quad
+\text{avec}
+\quad
+\|\mathbf{X} - \mathbf{X}_q\|_F^2 = \sum_{k=q+1}^{r} \sigma_k^2.
+\]
+\end{theorem}
+
+\begin{block}{Norme de Frobenius}
+\small $\displaystyle \|\mathbf{A}\|_F^2 = \sum_{i,j} a_{ij}^2 = \Tr(\mathbf{A}^\top \mathbf{A}) = \sum_k \sigma_k^2$.
+\end{block}
+
+\begin{remark}[Interprétation pour l'analyse des données]
+\small Eckart-Young fonde \alert{toute la réduction de dimension} : la
+\textbf{meilleure approximation de rang $q$} d'un nuage de points est la
+projection sur le sous-espace engendré par les $q$ premiers vecteurs propres
+de $\mathbf{X}_c^\top \mathbf{X}_c$ — c'est l'ACP.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.8 Projections orthogonales}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.8 — Projections orthogonales}
+\begin{definition}[Projecteur orthogonal]
+Soit $F$ un sous-espace vectoriel de $\R^p$. Le \textbf{projecteur orthogonal}
+sur $F$ est l'unique application linéaire $\mathbf{P}_F : \R^p \to F$ telle que
+$\mathbf{x} - \mathbf{P}_F(\mathbf{x}) \perp F$ pour tout $\mathbf{x}$.
+Il vérifie : $\mathbf{P}_F^2 = \mathbf{P}_F$ et $\mathbf{P}_F^\top = \mathbf{P}_F$.
+\end{definition}
+
+\begin{proposition}[Forme matricielle]
+Si $\{\mathbf{u}_1, \ldots, \mathbf{u}_q\}$ est une base orthonormée de $F$ et
+$\mathbf{U} = [\mathbf{u}_1 \,|\, \cdots \,|\, \mathbf{u}_q]$, alors :
+\[
+\mathbf{P}_F = \mathbf{U} \mathbf{U}^\top.
+\]
+La projection de $\mathbf{x}$ est $\mathbf{P}_F(\mathbf{x}) = \mathbf{U}(\mathbf{U}^\top \mathbf{x}) = \sum_{k=1}^q \langle \mathbf{x}, \mathbf{u}_k\rangle \mathbf{u}_k$.
+\end{proposition}
+
+\begin{theorem}[Théorème de Pythagore]
+Pour tout $\mathbf{x} \in \R^p$ :
+\[
+\|\mathbf{x}\|^2 = \|\mathbf{P}_F(\mathbf{x})\|^2 + \|\mathbf{x} - \mathbf{P}_F(\mathbf{x})\|^2.
+\]
+\end{theorem}
+
+\begin{remark}
+\small En analyse des données : projeter sur l'espace propre des $q$ premiers axes
+de $\mathbf{V}$ \alert{maximise} la norme projetée donc l'inertie projetée.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.9 Inertie projetée}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.9 — Inertie projetée et meilleur sous-espace}
+\begin{theorem}[Décomposition de l'inertie]
+Soit $\mathcal{N}$ un nuage centré de matrice de variance-covariance $\mathbf{V}$,
+et $F_q$ le sous-espace engendré par les $q$ premiers vecteurs propres de $\mathbf{V}$.
+Alors l'inertie totale se décompose comme :
+\[
+\boxed{\;
+I_{\text{totale}}
+= \underbrace{\sum_{k=1}^q \lambda_k}_{\text{inertie projetée sur } F_q}
++ \underbrace{\sum_{k=q+1}^p \lambda_k}_{\text{inertie résiduelle}}.
+\;}
+\]
+$F_q$ est le sous-espace de dimension $q$ \alert{maximisant} l'inertie projetée.
+\end{theorem}
+
+\begin{proposition}[Pourcentage d'inertie expliquée]
+La part d'inertie expliquée par les $q$ premiers axes est :
+\[
+\tau_q = \frac{\lambda_1 + \cdots + \lambda_q}{\lambda_1 + \cdots + \lambda_p} \in [0, 1].
+\]
+On choisit $q$ pour que $\tau_q$ atteigne un seuil (ex : 80\%).
+\end{proposition}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.10 Métriques généralisées}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.10 — Décomposition généralisée (avec métrique $\mathbf{M}$)}
+\begin{theorem}[SVD généralisée]
+Soient $\mathbf{M}$ une métrique sur $\R^p$ et $\mathbf{D}_p$ une métrique sur $\R^n$
+(symétriques définies positives). Il existe une décomposition de $\mathbf{X}$
+\[
+\mathbf{X} = \mathbf{U}\, \mathbf{\Sigma}\, \mathbf{V}^\top
+\]
+avec $\mathbf{U}^\top \mathbf{D}_p \mathbf{U} = \mathbf{I}$ et $\mathbf{V}^\top \mathbf{M} \mathbf{V} = \mathbf{I}$.
+Les vecteurs propres $\mathbf{v}_k$ diagonalisent $\mathbf{X}^\top \mathbf{D}_p \mathbf{X} \mathbf{M}$.
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Cadre unificateur}\\
+\small Toutes les méthodes factorielles s'écrivent comme une SVD
+généralisée d'un triplet $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$ :
+
+\begin{itemize}\small
+  \item ACP : $\mathbf{M} = \mathbf{I}_p$ ou $\mathbf{D}_{1/s^2}$, $\mathbf{D}_p = \frac{1}{n}\mathbf{I}_n$
+  \item AFC : $\mathbf{M} = \mathbf{D}_{1/x_{\bullet j}}$, $\mathbf{D}_p$ liée aux profils
+  \item ACM : AFC du tableau disjonctif
+  \item AFD : $\mathbf{M} = \mathbf{V}_{\text{intra}}^{-1}$
+\end{itemize}
+\column{0.49\textwidth}
+\begin{block}{Vue duale}
+\small Le \textbf{schéma de dualité} (Cailliez-Pagès) :
+\[
+\mathbf{X}^\top \mathbf{D}_p \mathbf{X} \mathbf{M}
+\quad \stackrel{\text{spectres}}{\equiv} \quad
+\mathbf{X} \mathbf{M} \mathbf{X}^\top \mathbf{D}_p
+\]
+Mêmes valeurs propres non nulles : c'est la dualité individus/variables.
+\end{block}
+
+\begin{alertblock}{Conséquence}
+\small Une seule machine algébrique --- la SVD généralisée --- couvre
+l'\emph{ensemble} des méthodes factorielles classiques.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.11 Aperçu R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{2.11 — Algèbre linéaire en R}
+\begin{lstlisting}
+# Matrice symetrique definie positive
+set.seed(42)
+A <- matrix(rnorm(16), 4, 4); A <- t(A) %*% A   # symetrique, SDP
+
+# Decomposition spectrale
+res <- eigen(A)
+res$values    # valeurs propres (decroissantes)
+res$vectors   # vecteurs propres en colonnes (orthonormes)
+
+# Verification : A = U D U^T
+U <- res$vectors; D <- diag(res$values)
+all.equal(A, U %*% D %*% t(U))   # TRUE
+
+# SVD d'une matrice generale
+X <- matrix(rnorm(20), 5, 4)
+svd_res <- svd(X)
+svd_res$d     # valeurs singulieres
+svd_res$u; svd_res$v
+
+# Verification : X = U Sigma V^T
+all.equal(X, svd_res$u %*% diag(svd_res$d) %*% t(svd_res$v))  # TRUE
+
+# Approximation de rang 2 (Eckart-Young)
+X2 <- svd_res$u[, 1:2] %*% diag(svd_res$d[1:2]) %*% t(svd_res$v[, 1:2])
+norm(X - X2, type = "F")^2          # = somme des sigma^2 restants
+sum(svd_res$d[3:4]^2)
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{2.12 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{2.12 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Théorèmes à retenir}
+\begin{itemize}\small
+  \item \textbf{Spectral} : $\mathbf{A}$ symétrique réelle
+        $\Rightarrow$ base orthonormée de vecteurs propres
+        $\mathbf{A} = \mathbf{U}\mathbf{\Lambda}\mathbf{U}^\top$
+  \item \textbf{Courant-Fischer-Weyl} : $\lambda_1 = \max R_{\mathbf{A}}(\mathbf{u})$
+  \item \textbf{SVD} : $\mathbf{X} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top$ pour toute matrice
+  \item \textbf{Eckart-Young} : meilleure approximation de rang $q$
+  \item \textbf{Pythagore} : $\|\mathbf{x}\|^2 = \|\mathbf{P}_F\mathbf{x}\|^2 + \|\mathbf{x} - \mathbf{P}_F\mathbf{x}\|^2$
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Pont vers l'ACP}
+Toutes les briques sont en place :
+\begin{enumerate}\small
+  \item Variance-covariance $\mathbf{V}$ symétrique SDP
+  \item Théorème spectral $\Rightarrow$ axes propres orthogonaux
+  \item Quotient de Rayleigh $\Rightarrow$ inertie projetée maximale
+  \item Eckart-Young $\Rightarrow$ ACP est optimale
+\end{enumerate}
+\end{block}
+
+\begin{alertblock}{Idée maîtresse}
+L'ACP, l'AFC, l'ACM, l'AFD sont \alert{une seule et même opération} :
+diagonaliser une matrice symétrique pour décomposer une inertie.
+\end{alertblock}
+\end{columns}
+\end{frame}
