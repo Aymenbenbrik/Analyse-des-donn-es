@@ -1,3 +1,428 @@
-%% Chapitre — Classification
-%% À compléter
+% ============================================================
+%  Chapitre 6 — Classification
+% ============================================================
 \section{Classification}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.1 Position du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.1 — Classification (clustering)}
+\begin{definition}[Classification non supervisée]
+La \textbf{classification} d'un nuage $\mathcal{N} = \{\mathbf{x}_i\}_{i=1}^n$ vise à
+construire une \textbf{partition} $\mathcal{C} = \{\mathcal{C}_1, \ldots, \mathcal{C}_K\}$ ou une
+\textbf{hiérarchie} de partitions emboîtées telles que :
+\begin{itemize}
+  \item les individus d'une même classe sont \alert{semblables}
+  \item les classes sont \alert{distinctes} entre elles
+\end{itemize}
+\end{definition}
+
+\begin{columns}[T]
+\column{0.50\textwidth}
+\textbf{Deux familles principales}
+\begin{itemize}\small
+  \item \textbf{Partition directe} : $K$ fixé a priori
+        $\to$ k-means, k-medoïdes, modèles de mélange
+  \item \textbf{Hiérarchique} : produit un dendrogramme
+        $\to$ CAH ascendante, divisive
+\end{itemize}
+
+\textbf{Critère unificateur (Huygens)}
+\[
+I_{\text{tot}} = I_{\text{intra}} + I_{\text{inter}}.
+\]
+Minimiser $I_{\text{intra}} \Leftrightarrow$ maximiser $I_{\text{inter}}$.
+\column{0.46\textwidth}
+\begin{tikzpicture}[scale=0.85]
+\fill[deepblue!10] (0.5, 0.6) circle(0.7cm);
+\fill[deeporange!10] (3.0, 0.5) circle(0.7cm);
+\fill[darkgreen!10] (1.7, 2.2) circle(0.6cm);
+
+\foreach \x/\y in {0.3/0.5, 0.7/0.7, 0.5/0.4, 0.6/0.9, 0.4/0.8}
+  \fill[deepblue!80] (\x,\y) circle(1.5pt);
+\foreach \x/\y in {2.8/0.4, 3.1/0.6, 3.2/0.7, 2.9/0.7, 3.0/0.3}
+  \fill[deeporange!80] (\x,\y) circle(1.5pt);
+\foreach \x/\y in {1.5/2.0, 1.7/2.3, 1.9/2.1, 1.6/2.4, 1.8/2.0}
+  \fill[darkgreen!80] (\x,\y) circle(1.5pt);
+
+\fill[deepblue]   (0.5, 0.66) circle(2pt) node[left, font=\tiny]{$\mathbf{g}_1$};
+\fill[deeporange] (3.0, 0.54) circle(2pt) node[right,font=\tiny]{$\mathbf{g}_2$};
+\fill[darkgreen]  (1.7, 2.16) circle(2pt) node[above,font=\tiny]{$\mathbf{g}_3$};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.2 Algorithme k-means}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.2 — Algorithme k-means}
+\begin{definition}[Critère k-means]
+Étant donné $K$ fixé, on cherche $\mathcal{C} = (\mathcal{C}_1, \ldots, \mathcal{C}_K)$ minimisant :
+\[
+W(\mathcal{C}) = \sum_{k=1}^K \sum_{i \in \mathcal{C}_k} \|\mathbf{x}_i - \mathbf{g}_k\|^2,
+\qquad
+\mathbf{g}_k = \frac{1}{|\mathcal{C}_k|}\sum_{i \in \mathcal{C}_k} \mathbf{x}_i.
+\]
+$W(\mathcal{C}) = n \, I_{\text{intra}}$ : minimiser $W$ revient à minimiser
+l'inertie intra-classe.
+\end{definition}
+
+\textbf{Algorithme de Lloyd (1957)}\\[0.1cm]
+\begin{enumerate}\small
+  \item Initialiser $K$ centres $\mathbf{g}_1^{(0)}, \ldots, \mathbf{g}_K^{(0)}$
+  \item \textbf{Affectation} : $\mathcal{C}_k^{(t)} = \{i : k = \argmin_l \|\mathbf{x}_i - \mathbf{g}_l^{(t)}\|^2\}$
+  \item \textbf{Mise à jour} : $\mathbf{g}_k^{(t+1)} = \frac{1}{|\mathcal{C}_k^{(t)}|}\sum_{i \in \mathcal{C}_k^{(t)}} \mathbf{x}_i$
+  \item Répéter 2-3 jusqu'à stabilité de $\mathcal{C}$
+\end{enumerate}
+
+\begin{theorem}[Convergence]
+La suite $\bigl(W(\mathcal{C}^{(t)})\bigr)_t$ est \textbf{décroissante minorée} par 0,
+elle converge donc en un nombre fini d'itérations vers un \alert{minimum local}
+de $W$.
+\end{theorem}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.3 k-means : limites et initialisation}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.3 — k-means : sensibilité à l'initialisation}
+\begin{block}{Limites du k-means}
+\begin{itemize}\small
+  \item Solution \alert{non globale} : dépend de l'initialisation
+  \item Hypothèse implicite : classes \alert{sphériques}, taille comparable
+  \item Sensible aux \textbf{outliers} (médiane $\to$ k-medoïdes)
+  \item Métrique euclidienne : suppose des variables comparables
+\end{itemize}
+\end{block}
+
+\textbf{Stratégies d'initialisation}
+\begin{enumerate}\small
+  \item \textbf{Aléatoire} (re-démarrer plusieurs fois et garder le meilleur $W$)
+  \item \textbf{k-means++} (Arthur \& Vassilvitskii, 2007) : choisir
+        successivement les centres avec une probabilité proportionnelle au carré
+        de la distance au plus proche centre. Garantit $\E[W] \leq 8(\ln K + 2) \cdot W^*$.
+  \item \textbf{Initialisation par CAH} : couper l'arbre à $K$ classes,
+        utiliser leurs centres comme initialisation $\to$ approche \emph{HCPC}.
+\end{enumerate}
+
+\begin{remark}
+\small Le choix de $K$ se fait par scree-plot de l'inertie intra,
+silhouette, ou critère de Calinski-Harabasz.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.4 CAH : principe}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.4 — Classification Ascendante Hiérarchique (CAH)}
+\begin{definition}[CAH agglomérative]
+On part de la partition triviale en $n$ classes singletons.
+À chaque étape, on \alert{fusionne} les deux classes les plus proches selon
+une \textbf{stratégie de regroupement} (\emph{linkage}) $\delta$, jusqu'à obtenir
+une seule classe.
+\end{definition}
+
+\textbf{Données produites par la CAH}
+\begin{itemize}\small
+  \item Une suite de $n-1$ \alert{fusions} (objet \texttt{merge})
+  \item Les \alert{hauteurs} de fusion (objet \texttt{height})
+  \item Un \alert{dendrogramme} : arbre représentant les emboîtements
+\end{itemize}
+
+\begin{block}{Avantages}
+\begin{itemize}\small
+  \item Aucune contrainte sur $K$ (choisi \emph{a posteriori})
+  \item Fournit toute une \emph{hiérarchie} de partitions
+  \item Permet une \alert{lecture visuelle} (dendrogramme)
+\end{itemize}
+\end{block}
+
+\begin{remark}
+\small Inconvénient : complexité $O(n^2 \log n)$ en général, $O(n^3)$ avec lien Ward sans optimisation.
+Limite pratique : $n \lesssim 10^4$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.5 Critères de linkage}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.5 — Critères de linkage}
+\begin{definition}[Quatre stratégies classiques]
+Pour deux classes $A, B$ :
+\begin{itemize}\small
+  \item \textbf{Single} (saut min) :
+        $\delta(A,B) = \min_{i \in A, j \in B} d(\mathbf{x}_i, \mathbf{x}_j)$
+  \item \textbf{Complete} (saut max) :
+        $\delta(A,B) = \max_{i \in A, j \in B} d(\mathbf{x}_i, \mathbf{x}_j)$
+  \item \textbf{Average} (moyenne) :
+        $\delta(A,B) = \frac{1}{|A||B|}\sum_{i \in A, j \in B} d(\mathbf{x}_i, \mathbf{x}_j)$
+  \item \textbf{Ward} (inertie) : voir slide suivant
+\end{itemize}
+\end{definition}
+
+\begin{block}{Comparaison qualitative}
+\centering
+\footnotesize
+\begin{tabular}{l|l|l}
+\toprule
+Linkage & Tendance & Effet \\
+\midrule
+Single   & chaînage & classes très allongées \\
+Complete & compact  & classes sphériques, moyennes \\
+Average  & équilibré& moyennes, sensible aux outliers \\
+Ward     & inertie  & classes \alert{compactes} et \alert{nombre comparable} \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\begin{remark}
+\small \textbf{Recommandation} : Ward est le standard en analyse des données
+(critère cohérent avec les méthodes factorielles).
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.6 Méthode de Ward}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.6 — Méthode de Ward}
+\begin{definition}[Indice de Ward]
+La distance de Ward entre deux classes $A, B$ est :
+\[
+\delta_{\text{Ward}}(A, B)
+= \frac{|A|\,|B|}{|A|+|B|}\, d^2(\mathbf{g}_A, \mathbf{g}_B).
+\]
+\end{definition}
+
+\begin{theorem}[Interprétation : perte d'inertie inter]
+La fusion de $A$ et $B$ \alert{augmente} l'inertie intra-classe de
+$\delta_{\text{Ward}}(A, B)$. Symétriquement elle \alert{diminue}
+l'inertie inter-classe du même montant.
+\end{theorem}
+
+\begin{block}{Idée du Ward}
+\small À chaque étape, on fusionne les deux classes dont la fusion
+\textbf{minimise la perte d'inertie inter}. C'est le critère le plus naturel
+au regard du théorème de Huygens.
+\end{block}
+
+\begin{remark}[Lien avec k-means]
+\small Le Ward et le k-means partagent le \emph{même} critère
+(minimiser $I_{\text{intra}}$). Le Ward est une optimisation
+\textbf{gloutonne hiérarchique}, k-means une optimisation
+\textbf{itérative} avec $K$ fixé.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.7 Dendrogramme et coupure}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.7 — Dendrogramme et coupure}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Lecture du dendrogramme}
+\begin{itemize}\small
+  \item Hauteur d'un nœud $=$ valeur du critère
+        $\delta$ à la fusion
+  \item En Ward : hauteur $=$ saut d'inertie inter-classe
+  \item Une partition en $K$ classes $=$ \alert{coupure}
+        horizontale qui traverse $K$ branches
+\end{itemize}
+
+\textbf{Choix du nombre de classes}
+\begin{itemize}\small
+  \item Repérer le \alert{plus grand saut} dans la suite des hauteurs
+  \item Compromis entre nombre de classes
+        \emph{interprétables} et compacité
+  \item Critères : silhouette, indice de Calinski-Harabasz, gap statistic
+\end{itemize}
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=0.85]
+\draw[->] (-0.4,0) -- (-0.4,4.0) node[above, font=\tiny]{Inertie};
+\draw[gray] (0,0) -- (8,0);
+\foreach \x in {0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5}
+  \draw[gray] (\x,0) -- (\x,-0.1);
+
+\draw[deepblue, thick] (0.5,0)--(0.5,0.5)--(1.5,0.5)--(1.5,0);
+\draw[deepblue, thick] (1.0,0.5)--(1.0,1.2);
+\draw[deepblue, thick] (2.5,0)--(2.5,0.6)--(3.5,0.6)--(3.5,0);
+\draw[deepblue, thick] (3.0,0.6)--(3.0,1.2);
+\draw[deepblue, thick] (1.0,1.2)--(3.0,1.2);
+\draw[deepblue, thick] (2.0,1.2)--(2.0,2.0);
+
+\draw[deepblue, thick] (4.5,0)--(4.5,0.4)--(5.5,0.4)--(5.5,0);
+\draw[deepblue, thick] (5.0,0.4)--(5.0,1.4);
+\draw[deepblue, thick] (6.5,0)--(6.5,0.6)--(7.5,0.6)--(7.5,0);
+\draw[deepblue, thick] (7.0,0.6)--(7.0,1.4);
+\draw[deepblue, thick] (5.0,1.4)--(7.0,1.4);
+\draw[deepblue, thick] (6.0,1.4)--(6.0,2.0);
+
+\draw[deepblue, thick] (2.0,2.0)--(6.0,2.0);
+\draw[deepblue, thick] (4.0,2.0)--(4.0,3.5);
+
+\draw[deeporange, dashed, thick] (-0.3,1.7) -- (8.0,1.7);
+\node[deeporange, font=\tiny] at (8.4,1.7) {$K=2$};
+
+\draw[darkgreen, dashed, thick] (-0.3,0.9) -- (8.0,0.9);
+\node[darkgreen, font=\tiny] at (8.4,0.9) {$K=4$};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.8 Couplage avec méthodes factorielles}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.8 — Couplage avec ACP / AFC / ACM}
+\begin{theorem}[HCPC : Hierarchical Clustering on Principal Components]
+\textbf{Procédure} : appliquer la classification (CAH ou k-means) sur les
+\alert{premières coordonnées factorielles} $(F_1, \ldots, F_q)$ d'une ACP/AFC/ACM
+\emph{plutôt} que sur les variables d'origine.
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Avantages méthodologiques}
+\begin{itemize}\small
+  \item \alert{Débruitage} : on retient l'inertie principale
+  \item \alert{Décorrélation} : composantes orthogonales
+  \item Homogénéité d'échelle (composantes standardisées)
+  \item Compatibilité avec données qualitatives via ACM
+\end{itemize}
+\column{0.49\textwidth}
+\textbf{Algorithme HCPC (FactoMineR)}
+\begin{enumerate}\small
+  \item ACP / AFC / ACM
+  \item Choix de $q$ axes (par défaut auto)
+  \item CAH-Ward sur $(F_1, \ldots, F_q)$
+  \item Coupure automatique au plus grand saut
+  \item Consolidation par k-means (option)
+  \item Caractérisation des classes
+\end{enumerate}
+\end{columns}
+
+\begin{remark}
+\small Le HCPC est la méthode \alert{standard} en analyse des données françaises :
+il combine la \emph{description} factorielle et la \emph{typologie}.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.9 Caractérisation des classes}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.9 — Caractérisation des classes}
+\begin{definition}[Valeur-test pour une variable continue]
+Pour une variable $X^j$, la \textbf{valeur-test} associée à la classe $\mathcal{C}_k$ est :
+\[
+v_{kj} = \frac{\bar{X}^j_k - \bar{X}^j}{\sqrt{s_j^2 / n_k \cdot (n - n_k)/(n-1)}}
+\quad \approx \mathcal{N}(0, 1) \text{ sous } H_0.
+\]
+\end{definition}
+
+\begin{block}{Lecture}
+\begin{itemize}\small
+  \item $|v_{kj}| > 2$ : la classe $\mathcal{C}_k$ est \alert{significativement} différente
+        de la moyenne globale sur $X^j$
+  \item $v_{kj} > 0$ : la classe a une moyenne \emph{supérieure}
+  \item $v_{kj} < 0$ : moyenne \emph{inférieure}
+\end{itemize}
+\end{block}
+
+\begin{block}{Variables qualitatives}
+\small On utilise un test de proportion (loi hypergéométrique) entre la
+fréquence d'une modalité dans $\mathcal{C}_k$ et dans la population totale.
+\end{block}
+
+\begin{remark}
+\small Ces tests servent à \alert{nommer} les classes. Une classe est décrite
+par les variables ayant $|v| > 2$, classées par valeur décroissante.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.10 Évaluation de la classification}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.10 — Évaluation et validation}
+\textbf{Indices internes}\\[0.1cm]
+\begin{itemize}\small
+  \item \textbf{Inertie expliquée} : $I_{\text{inter}} / I_{\text{tot}} \in [0,1]$
+  \item \textbf{Silhouette} (Rousseeuw, 1987)
+        \[ s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}}, \quad
+           \bar{s} = \frac{1}{n}\sum_i s(i) \in [-1, 1] \]
+        avec $a(i)$ : distance moyenne intra et $b(i)$ : distance moyenne au cluster voisin le plus proche.
+  \item \textbf{Calinski-Harabasz} : $\text{CH} = \frac{I_{\text{inter}}/(K-1)}{I_{\text{intra}}/(n-K)}$
+\end{itemize}
+
+\textbf{Stabilité (bootstrap)}\\
+\small Tirer plusieurs échantillons bootstrap, refaire la classification,
+mesurer la proportion d'individus toujours regroupés.
+
+\begin{alertblock}{Il n'existe pas de vérité unique}
+\small La classification est \alert{exploratoire}. Plusieurs partitions peuvent
+être pertinentes selon les questions métier. Toujours valider avec un expert
+du domaine.
+\end{alertblock}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.11 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{6.11 — Classification avec R}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra); library(cluster)
+data(decathlon)
+
+# 1) ACP (10 variables actives, 11-12 quanti.sup, 13 quali.sup)
+res.pca <- PCA(decathlon, scale.unit = TRUE,
+               quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
+
+# 2) HCPC : CAH + consolidation k-means sur les composantes
+res.hcpc <- HCPC(res.pca, nb.clust = -1, consol = TRUE, graph = FALSE)
+plot(res.hcpc, choice = "tree")     # dendrogramme
+plot(res.hcpc, choice = "map")      # individus colories par classe
+res.hcpc$desc.var                    # caracterisation par variables
+res.hcpc$desc.axes                   # caracterisation par axes
+res.hcpc$desc.ind                    # paragons (individus typiques)
+
+# 3) k-means seul (sur donnees reduites)
+X <- scale(decathlon[, 1:10])
+km <- kmeans(X, centers = 4, nstart = 50)
+fviz_cluster(km, data = X, ellipse.type = "convex")
+
+# 4) Silhouette
+sil <- silhouette(km$cluster, dist(X))
+fviz_silhouette(sil)
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{6.12 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{6.12 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{À retenir}
+\begin{itemize}\small
+  \item Critère unificateur : minimiser $I_{\text{intra}}$ (Huygens)
+  \item \textbf{k-means} : itératif, $K$ fixé, convergence locale
+  \item \textbf{CAH} : agglomératif, dendrogramme, $K$ a posteriori
+  \item \textbf{Ward} = critère d'inertie, standard de l'AD française
+  \item \textbf{HCPC} : classification sur composantes factorielles
+  \item Caractérisation par \alert{valeur-test} et variables descriptives
+  \item Évaluation : silhouette, CH, stabilité bootstrap
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Lien avec le reste du cours}
+\begin{itemize}\small
+  \item Théorème de Huygens (Ch. 1) : critère
+  \item ACP/AFC/ACM (Ch. 3-5) : préparation du nuage
+  \item AFD (Ch. 7) : version supervisée
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Choix méthodologique}
+\small \textbf{HCPC} (ACP + Ward + k-means) reste la \alert{méthode de
+référence} en analyse des données françaises pour produire une
+typologie validée et interprétable.
+\end{alertblock}
+\end{columns}
+\end{frame}
