@@ -1,3 +1,515 @@
-%% Chapitre — Analyse en Composantes Principales (ACP)
-%% À compléter
+% ============================================================
+%  Chapitre 3 — Analyse en Composantes Principales (ACP)
+% ============================================================
 \section{Analyse en Composantes Principales (ACP)}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.1 Position du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.1 — Pourquoi l'ACP ?}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Données} : tableau $\mathbf{X} \in \R^{n \times p}$ de $p$ variables
+\alert{quantitatives} (souvent corrélées).\\[0.2cm]
+
+\textbf{Trois objectifs}
+\begin{enumerate}
+  \item Construire $q \ll p$ \alert{nouvelles variables} non corrélées
+        résumant l'information.
+  \item Visualiser le nuage des individus en 2D / 3D.
+  \item Étudier la structure des corrélations entre variables.
+\end{enumerate}
+
+\vspace{0.2cm}
+\textbf{Origine historique}
+\begin{itemize}\small
+  \item Pearson (1901) : meilleur ajustement d'un sous-espace
+  \item Hotelling (1933) : composantes principales
+  \item École française (Cazes, Saporta) : formalisation géométrique
+\end{itemize}
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=0.8]
+\foreach \i in {1,...,30}{
+  \pgfmathsetmacro{\a}{rnd*0.7+0.4}
+  \pgfmathsetmacro{\bb}{(\a)*1.4 + 0.5*(rnd-0.5)}
+  \fill[deepblue!70] (\a*3,\bb*1.5) circle(2pt);
+}
+\draw[->, thick, deeporange]   (-0.3,0.4)  -- (3.5,2.7) node[right, font=\tiny]{Axe 1};
+\draw[->, thick, darkgreen]    (1.6,2.4)   -- (0.7,3.3) node[above, font=\tiny]{Axe 2};
+\draw[->] (-0.5,0)--(4,0); \draw[->] (0,-0.3)--(0,3.5);
+\node[font=\tiny] at (3.8,-0.3) {$X_1$};
+\node[font=\tiny] at (-0.3,3.3) {$X_2$};
+\node[font=\tiny, gray, align=center] at (4.0,4.2)
+  {Le \textbf{premier axe}\\porte le plus\\d'inertie};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.2 Formulation du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.2 — Formulation : axe d'inertie maximale}
+\begin{block}{Cadre}
+$\mathbf{X}_c$ centré, métrique $\mathbf{M}$ sur $\R^p$, pondération $p_i = 1/n$.
+$\mathbf{V} = \frac{1}{n}\mathbf{X}_c^\top \mathbf{X}_c$ : matrice de variance-covariance.
+\end{block}
+
+\textbf{Premier axe principal $\mathbf{u}_1$}\\
+On cherche $\mathbf{u}_1 \in \R^p$ unitaire ($\mathbf{u}_1^\top \mathbf{M} \mathbf{u}_1 = 1$)
+maximisant l'inertie projetée :
+\[
+\mathbf{u}_1 = \argmax_{\mathbf{u}^\top \mathbf{M} \mathbf{u} = 1}
+\sum_{i=1}^n p_i \, (\mathbf{u}^\top \mathbf{M} \mathbf{x}_i)^2
+= \argmax_{\mathbf{u}^\top \mathbf{M} \mathbf{u} = 1} \mathbf{u}^\top \mathbf{M} \mathbf{V} \mathbf{M} \mathbf{u}.
+\]
+
+\begin{theorem}[Solution]
+Le premier axe principal $\mathbf{u}_1$ est le vecteur propre de
+$\mathbf{V}\mathbf{M}$ associé à la plus grande valeur propre $\lambda_1$.
+La maximum atteint vaut $\lambda_1$ : c'est la \alert{plus grande variance} portée par un axe.
+\end{theorem}
+
+\textbf{Cas euclidien classique} ($\mathbf{M} = \mathbf{I}_p$) :
+$\mathbf{V}\mathbf{u}_1 = \lambda_1 \mathbf{u}_1$, donc $\mathbf{u}_1$ est
+le vecteur propre dominant de $\mathbf{V}$.
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.3 Démonstration par Lagrangien}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.3 — Démonstration (cas $\mathbf{M} = \mathbf{I}_p$)}
+\textbf{Problème :} $\displaystyle \max_{\mathbf{u}}\; \mathbf{u}^\top \mathbf{V} \mathbf{u}
+\quad\text{sous}\quad \mathbf{u}^\top \mathbf{u} = 1$.
+
+\vspace{0.2cm}
+\textbf{Lagrangien}
+\[
+\mathcal{L}(\mathbf{u}, \mu) = \mathbf{u}^\top \mathbf{V} \mathbf{u} - \mu (\mathbf{u}^\top \mathbf{u} - 1).
+\]
+
+\textbf{Condition du premier ordre}
+\[
+\nabla_{\mathbf{u}} \mathcal{L} = 2 \mathbf{V} \mathbf{u} - 2 \mu \mathbf{u} = 0
+\;\;\Longleftrightarrow\;\;
+\boxed{\;\mathbf{V}\mathbf{u} = \mu \mathbf{u}.\;}
+\]
+
+\vspace{0.1cm}
+$\mathbf{u}$ est donc un vecteur propre de $\mathbf{V}$ associé à la valeur propre $\mu$.
+
+\textbf{Valeur du critère} :
+$\mathbf{u}^\top \mathbf{V} \mathbf{u} = \mathbf{u}^\top (\mu \mathbf{u}) = \mu$.
+\medskip
+
+\begin{block}{Conclusion}
+\textbf{Maximiser} $\mathbf{u}^\top \mathbf{V} \mathbf{u}$ sous $\|\mathbf{u}\|=1$ revient à
+choisir $\mu = \lambda_1$ (la plus grande valeur propre) et $\mathbf{u} = \mathbf{u}_1$
+(vecteur propre dominant). C'est exactement le théorème de Courant-Fischer-Weyl.
+\end{block}
+
+\begin{remark}[Axes suivants]
+Les axes $\mathbf{u}_2, \ldots, \mathbf{u}_p$ se construisent de proche en proche en
+ajoutant la contrainte d'orthogonalité $\mathbf{u}_k \perp \mathbf{u}_1, \ldots, \mathbf{u}_{k-1}$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.4 Composantes et axes principaux}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.4 — Composantes et axes principaux}
+\begin{definition}[Axe principal et composante principale]
+\begin{itemize}
+  \item Le \textbf{$k$-ième axe principal} est le vecteur propre $\mathbf{u}_k$
+        de $\mathbf{V}$ associé à $\lambda_k$.
+  \item La \textbf{$k$-ième composante principale} est la variable
+        \[
+          \mathbf{c}_k = \mathbf{X}_c \mathbf{u}_k \in \R^n
+        \]
+        c'est-à-dire la projection des individus sur l'axe $\mathbf{u}_k$.
+\end{itemize}
+\end{definition}
+
+\begin{proposition}[Propriétés des composantes principales]
+\begin{enumerate}
+  \item Les $\mathbf{c}_k$ sont \textbf{centrées} : $\bar{c}_k = 0$.
+  \item Leur variance est $\Var(\mathbf{c}_k) = \lambda_k$.
+  \item Elles sont \textbf{deux à deux non corrélées} : $\Cov(\mathbf{c}_k, \mathbf{c}_l) = 0$ si $k \neq l$.
+  \item L'inertie totale est conservée : $\sum_{k=1}^p \lambda_k = \Tr(\mathbf{V})$.
+\end{enumerate}
+\end{proposition}
+
+\begin{remark}
+\small Les composantes principales fournissent un \alert{nouveau système de coordonnées}
+\textbf{orthogonal} dans lequel les variables sont décorrélées.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.5 ACP normée vs non normée}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.5 — ACP normée vs non normée}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{ACP non normée} ($\mathbf{M} = \mathbf{I}_p$)
+\begin{itemize}\small
+  \item On diagonalise $\mathbf{V}$
+  \item Inertie totale $= \Tr(\mathbf{V}) = \sum_j s_j^2$
+  \item Sensible aux \alert{unités}
+  \item Variable de plus grande variance domine
+\end{itemize}
+
+\textbf{Quand l'utiliser ?}
+\begin{itemize}\small
+  \item Variables homogènes en unité
+  \item Variances comparables
+  \item Ex : intensités lumineuses, longueurs
+\end{itemize}
+
+\column{0.49\textwidth}
+\textbf{ACP normée} ($\mathbf{M} = \mathbf{D}_{1/s^2}$)
+\begin{itemize}\small
+  \item On diagonalise $\mathbf{R}$ (corrélations)
+  \item Inertie totale $= \Tr(\mathbf{R}) = p$
+  \item \alert{Adimensionnelle}
+  \item Toutes les variables ont poids égal
+\end{itemize}
+
+\textbf{Quand l'utiliser ?}
+\begin{itemize}\small
+  \item Unités différentes
+  \item Variances disparates
+  \item Cas \alert{le plus courant} en pratique
+\end{itemize}
+\end{columns}
+
+\vspace{0.2cm}
+\begin{alertblock}{Conseil pratique}
+\small Si vous hésitez : \textbf{ACP normée}. Elle est plus robuste et
+plus interprétable, sauf cas particulier.
+\end{alertblock}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.6 Représentation des individus}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.6 — Représentation des individus}
+\begin{definition}[Coordonnées factorielles des individus]
+La coordonnée de l'individu $i$ sur l'axe $k$ est :
+\[
+F_k(i) = c_{k,i} = \mathbf{x}_i^\top \mathbf{u}_k
+\quad\text{(produit scalaire avec l'axe)}.
+\]
+\end{definition}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Plan factoriel $(F_1, F_2)$}
+\begin{itemize}\small
+  \item Chaque individu = un point $(F_1(i), F_2(i))$
+  \item Distance dans le plan $\approx$ distance dans $\R^p$
+        si $\tau_2$ élevé
+  \item Position $=$ profil de l'individu
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Lecture}
+\begin{itemize}\small
+  \item Individus \alert{proches} sur le plan
+        $\to$ profils similaires
+  \item Individus \alert{opposés} $\to$ profils contrastés
+  \item Individus \alert{centraux} $\to$ profils moyens
+\end{itemize}
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=0.85]
+\draw[->] (-2.5,0) -- (2.5,0) node[right, font=\tiny] {$F_1$};
+\draw[->] (0,-2) -- (0,2.5) node[above, font=\tiny] {$F_2$};
+
+\fill[deepblue]   (-1.5, 1.5) circle(2.5pt) node[above left, font=\tiny] {$i_A$};
+\fill[deepblue]   (-1.7, 1.2) circle(2.5pt);
+\fill[deepblue]   (-1.3, 1.8) circle(2.5pt);
+
+\fill[deeporange] ( 1.6, 1.0) circle(2.5pt) node[above right, font=\tiny] {$i_B$};
+\fill[deeporange] ( 1.4, 0.8) circle(2.5pt);
+\fill[deeporange] ( 1.8, 1.3) circle(2.5pt);
+
+\fill[darkgreen]  ( 0.0,-1.4) circle(2.5pt) node[below, font=\tiny] {$i_C$};
+\fill[darkgreen]  (-0.3,-1.6) circle(2.5pt);
+\fill[darkgreen]  ( 0.4,-1.2) circle(2.5pt);
+
+\node[font=\tiny, gray, align=center] at (-2.0,-1.6) {3 groupes\\contrastés};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.7 Représentation des variables}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.7 — Représentation des variables (cercle des corrélations)}
+\begin{theorem}[Coordonnées des variables]
+Pour une ACP normée, la coordonnée de la variable $\mathbf{x}^j$ sur
+l'axe $k$ est :
+\[
+G_k(\mathbf{x}^j) = \sqrt{\lambda_k}\, u_{kj} = \Cor(\mathbf{x}^j, \mathbf{c}_k).
+\]
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Cercle des corrélations}\\
+\small Toutes les variables ont une norme $\leq 1$ dans le plan factoriel :
+\[
+G_1(\mathbf{x}^j)^2 + G_2(\mathbf{x}^j)^2 \leq 1.
+\]
+On les représente \alert{à l'intérieur du cercle unité}.
+
+\textbf{Lecture}
+\begin{itemize}\small
+  \item Variable proche du cercle $\to$ bien représentée
+  \item Deux variables proches $\to$ corrélation positive
+  \item Variables opposées $\to$ corrélation négative
+  \item Variables orthogonales $\to$ peu corrélées
+\end{itemize}
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=1.5]
+\draw[thick] (0,0) circle (1cm);
+\draw[->] (-1.2,0) -- (1.2,0) node[right, font=\tiny] {$F_1$};
+\draw[->] (0,-1.2) -- (0,1.2) node[above, font=\tiny] {$F_2$};
+
+\draw[->, deepblue, thick]   (0,0) -- (0.85, 0.45);
+\node[deepblue, font=\tiny] at (0.95, 0.55) {$X_1$};
+
+\draw[->, deepblue, thick]   (0,0) -- (0.78, 0.55);
+\node[deepblue, font=\tiny] at (0.85, 0.7) {$X_2$};
+
+\draw[->, deeporange, thick] (0,0) -- (-0.7, 0.6);
+\node[deeporange, font=\tiny] at (-0.78, 0.7) {$X_3$};
+
+\draw[->, darkgreen, thick]  (0,0) -- (0.1, -0.92);
+\node[darkgreen, font=\tiny] at (0.2, -0.95) {$X_4$};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.8 Aides à l'interprétation}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.8 — Aides à l'interprétation : qualité et contributions}
+\begin{definition}[Qualité de représentation]
+La \textbf{qualité de représentation} d'un individu $i$ sur l'axe $k$ est :
+\[
+\cos^2_k(i) = \frac{F_k(i)^2}{\|\mathbf{x}_i - \mathbf{g}\|^2}
+\quad\in [0, 1].
+\]
+Sur un plan : $\cos^2_{k,k'}(i) = \cos^2_k(i) + \cos^2_{k'}(i)$.
+\end{definition}
+
+\begin{definition}[Contribution]
+La \textbf{contribution} d'un individu $i$ à l'inertie de l'axe $k$ est :
+\[
+\text{ctr}_k(i) = \frac{p_i \, F_k(i)^2}{\lambda_k}, \qquad
+\sum_{i=1}^n \text{ctr}_k(i) = 1.
+\]
+\end{definition}
+
+\begin{block}{Règles d'interprétation}
+\begin{itemize}\small
+  \item $\cos^2$ \emph{élevé} $\to$ l'individu est \alert{bien représenté} sur l'axe
+  \item Contribution \emph{élevée} $\to$ l'individu \alert{construit} l'axe
+  \item Critère pratique : retenir les ind. avec ctr $> 1/n$ (sup. à la moyenne)
+\end{itemize}
+\end{block}
+
+\begin{remark}[Variables]
+\small Les mêmes définitions s'appliquent aux variables :
+$\cos^2_k(\mathbf{x}^j) = \Cor^2(\mathbf{x}^j, \mathbf{c}_k)$, et $\text{ctr}_k(\mathbf{x}^j) = u_{kj}^2$ (en ACP normée).
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.9 Variables et individus supplémentaires}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.9 — Variables et individus supplémentaires}
+\begin{definition}[Élément supplémentaire]
+Un \textbf{individu (ou variable) supplémentaire} est une observation que
+l'on \alert{n'utilise pas} pour construire les axes principaux, mais que
+l'on projette \emph{a posteriori} sur le plan factoriel.
+\end{definition}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Individu supplémentaire $\mathbf{x}^*$}
+\[
+F_k(\mathbf{x}^*) = (\mathbf{x}^* - \mathbf{g})^\top \mathbf{u}_k
+\]
+On compare la position de $\mathbf{x}^*$ aux groupes existants.
+
+\vspace{0.2cm}
+\textbf{Variable quantitative supp. $\mathbf{x}^{*j}$}
+\[
+G_k(\mathbf{x}^{*j}) = \Cor(\mathbf{x}^{*j}, \mathbf{c}_k)
+\]
+Position dans le cercle des corrélations.
+\column{0.49\textwidth}
+\textbf{Variable qualitative supp.}\\[0.2cm]
+\small Pour chaque modalité $m$ : barycentre des individus la possédant.
+\[
+F_k(m) = \frac{1}{n_m}\sum_{i \in m} F_k(i)
+\]
+
+\begin{block}{Intérêts}
+\begin{itemize}\small
+  \item \textbf{Test} : prédire un nouvel individu
+  \item \textbf{Validation} : positionner une variable connue
+  \item \textbf{Interprétation} : caractériser les axes
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.10 Choix du nombre d'axes}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.10 — Combien d'axes retenir ?}
+\textbf{Trois critères classiques}
+\begin{enumerate}
+  \item \textbf{Critère du coude} (\emph{scree plot}) : repérer la cassure dans la courbe
+        $\lambda_k$ vs $k$.
+  \item \textbf{Critère de Kaiser} (ACP normée) : retenir les axes avec $\lambda_k \geq 1$
+        (plus que la variance moyenne).
+  \item \textbf{Critère de Karlis-Saporta-Spinaki} (KSS) : conserver
+        $\lambda_k > 1 + 2\sqrt{(p-1)/(n-1)}$.
+\end{enumerate}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=0.85]
+\begin{axis}[width=6cm, height=4cm,
+  xlabel={$k$}, ylabel={$\lambda_k$},
+  xtick={1,2,3,4,5,6,7,8},
+  tick label style={font=\tiny}, label style={font=\small},
+  grid=major, grid style={gray!30}]
+\addplot[deepblue, thick, mark=*] coordinates {
+  (1,3.8)(2,2.1)(3,1.4)(4,0.9)(5,0.7)(6,0.5)(7,0.4)(8,0.2)
+};
+\addplot[deeporange, dashed] coordinates {(0.5,1)(8.5,1)};
+\node[deeporange, font=\tiny] at (axis cs:6.8,1.18) {Kaiser};
+\draw[->, deeporange, thick]
+  (axis cs:3,2.6) -- (axis cs:3,1.6)
+  node[above, midway, font=\tiny] {coude};
+\end{axis}
+\end{tikzpicture}
+\column{0.49\textwidth}
+\textbf{Critère pragmatique}\\
+\small Retenir le nombre d'axes pour atteindre un seuil de
+\textbf{variance cumulée} (typiquement 70--80\%).
+
+\vspace{0.2cm}
+\begin{alertblock}{Méta-critère}
+\small Un axe doit toujours être \alert{interprétable} sur le plan métier.
+Un axe non interprétable, même chargé en inertie, n'apporte rien.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.11 Workflow ACP}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.11 — Workflow d'une ACP}
+\centering
+\begin{tikzpicture}[scale=0.78, font=\small,
+  step/.style={rectangle, draw=deepblue, fill=deepblue!10,
+               rounded corners=3pt, minimum width=3.5cm,
+               minimum height=0.7cm, align=center},
+  arr/.style={->, thick, deepblue}]
+
+\node[step] (s1) at (0,0)    {1. Données quantitatives};
+\node[step] (s2) at (5,0)    {2. Centrer / réduire};
+\node[step] (s3) at (10,0)   {3. Calculer $\mathbf{V}$ ou $\mathbf{R}$};
+\node[step] (s4) at (10,-1.2){4. Diagonaliser};
+\node[step] (s5) at (5,-1.2) {5. Choisir $q$ axes};
+\node[step] (s6) at (0,-1.2) {6. Coordonnées $F_k$};
+\node[step] (s7) at (0,-2.4) {7. Cercle des corrélations};
+\node[step] (s8) at (5,-2.4) {8. Aides interprétation};
+\node[step, fill=darkgreen!15, draw=darkgreen] (s9) at (10,-2.4)
+   {9. Interprétation métier};
+
+\draw[arr] (s1)--(s2); \draw[arr] (s2)--(s3); \draw[arr] (s3)--(s4);
+\draw[arr] (s4)--(s5); \draw[arr] (s5)--(s6); \draw[arr] (s6)--(s7);
+\draw[arr] (s7)--(s8); \draw[arr] (s8)--(s9);
+\end{tikzpicture}
+
+\vspace{0.3cm}
+\begin{block}{Sortie typique}
+\small Tableau des valeurs propres + scree plot $\to$ plan(s) factoriel(s) des
+individus + cercle(s) des corrélations $\to$ tableau ctr/cos² $\to$ commentaire.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.12 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{3.12 — ACP avec FactoMineR et factoextra}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+data(decathlon)
+
+# ACP normee (par defaut), 13e variable supplementaire qualitative
+res <- PCA(decathlon, scale.unit = TRUE,
+           quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
+
+# Valeurs propres et scree plot
+get_eigenvalue(res)               # eigenvalue, % var, cumul
+fviz_eig(res, addlabels = TRUE)   # scree plot
+
+# Plan factoriel des individus
+fviz_pca_ind(res, col.ind = "cos2", repel = TRUE,
+             gradient.cols = c("blue", "red"))
+
+# Cercle des correlations
+fviz_pca_var(res, col.var = "contrib",
+             gradient.cols = c("grey", "orange", "red"))
+
+# Biplot
+fviz_pca_biplot(res, habillage = 13, repel = TRUE)
+
+# Tableau qualite et contributions
+res$ind$cos2[, 1:2]
+res$ind$contrib[, 1:2]
+res$var$cos2[, 1:2]
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{3.13 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{3.13 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{À retenir}
+\begin{itemize}\small
+  \item ACP $=$ diagonalisation de $\mathbf{V}$ (ou $\mathbf{R}$) pour
+        décomposer l'inertie
+  \item Axes principaux $=$ vecteurs propres ($\mathbf{u}_k$)
+  \item Composantes $=$ projections ($\mathbf{c}_k = \mathbf{X}_c \mathbf{u}_k$)
+  \item Variances $=$ valeurs propres ($\lambda_k$)
+  \item Composantes décorrélées et ordonnées par inertie
+  \item Cercle des corrélations : visualiser les variables
+  \item Aides : $\cos^2$, contributions, supplémentaires
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Garanties théoriques}
+\begin{itemize}\small
+  \item Eckart-Young $\Rightarrow$ ACP optimale
+  \item Composantes orthogonales $\Rightarrow$ décorrélation
+  \item Conservation de l'inertie totale
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Limites}
+\small ACP suppose des relations \alert{linéaires} entre variables
+quantitatives. Pour des données qualitatives ou des relations
+non linéaires, voir AFC (chap. 4) ou Kernel PCA.
+\end{alertblock}
+\end{columns}
+\end{frame}
