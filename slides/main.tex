@@ -1,0 +1,149 @@
+% ============================================================
+%  Cours : Analyse des Données
+%  Public : Master GAMMA · Master BA · Licence LMAD
+%  Style  : Beamer Metropolis
+% ============================================================
+\documentclass[10pt, aspectratio=169]{beamer}
+
+% ─── Thème ──────────────────────────────────────────────────
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ─── Encodage et langue ─────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ─── Mathématiques ──────────────────────────────────────────
+\usepackage{amsmath, amssymb, amsthm, bm, mathtools}
+\usepackage{bbm}
+\usepackage{dsfont}
+
+% ─── Tableaux ───────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% ─── Code R / Python ────────────────────────────────────────
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% ─── Figures ────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{
+  arrows.meta, positioning, shapes.geometric,
+  fit, backgrounds, calc, matrix, chains,
+  decorations.pathmorphing, patterns
+}
+
+% ─── Colonnes ───────────────────────────────────────────────
+\usepackage{multicol}
+
+% ─── Couleurs ───────────────────────────────────────────────
+\definecolor{deepblue}{RGB}{13,71,161}
+\definecolor{deeporange}{RGB}{230,81,0}
+\definecolor{darkgreen}{RGB}{27,94,32}
+\definecolor{advcolor}{RGB}{180,0,0}
+\definecolor{mygray}{RGB}{245,245,245}
+\definecolor{thmblue}{RGB}{0,102,153}
+
+% ─── Palette Metropolis personnalisée ───────────────────────
+\setbeamercolor{frametitle}{bg=deepblue, fg=white}
+\setbeamercolor{progress bar}{fg=deeporange}
+\setbeamercolor{alerted text}{fg=deeporange}
+\setbeamercolor{example text}{fg=darkgreen}
+\setbeamertemplate{frame numbering}[fraction]
+\metroset{block=fill}
+
+% ─── Théorèmes ──────────────────────────────────────────────
+\theoremstyle{definition}
+\newtheorem{definition}{Définition}
+\newtheorem{example}{Exemple}
+\newtheorem{remark}{Remarque}
+\theoremstyle{plain}
+\newtheorem{theorem}{Théorème}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemme}
+\newtheorem{corollary}{Corollaire}
+
+% ─── Style du code R/Python ─────────────────────────────────
+\lstdefinelanguage{Renh}{
+  morekeywords={if,else,for,while,function,return,in,TRUE,FALSE,NULL,NA,NaN,Inf,library,require,source},
+  morecomment=[l]{\#},
+  morestring=[b]",
+  morestring=[b]'
+}
+\lstset{
+  language=Renh,
+  backgroundcolor=\color{mygray},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{deepblue}\bfseries,
+  stringstyle=\color{deeporange},
+  commentstyle=\color{gray}\itshape,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=single,
+  framesep=3pt,
+  breaklines=true,
+  tabsize=2,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1
+           {â}{{\^a}}1 {ç}{{\c c}}1 {ô}{{\^o}}1 {î}{{\^\i}}1
+           {É}{{\'E}}1 {È}{{\`E}}1 {Ê}{{\^E}}1 {À}{{\`A}}1
+           {ù}{{\`u}}1 {û}{{\^u}}1 {ï}{{\"\i}}1 {œ}{{\oe}}1
+           {’}{{'}}1 {–}{{-}}1 {—}{{-}}1 {«}{{<<}}2 {»}{{>>}}2,
+}
+
+% ─── Macros ─────────────────────────────────────────────────
+\newcommand{\adv}{\textcolor{advcolor}{\textsf{\textbf{[ADV]}}}\;}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\rang}{rang}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\1}{\mathds{1}}
+\newcommand{\Loss}{\mathcal{L}}
+
+% ─── Page de titre ──────────────────────────────────────────
+\title{Analyse des Données}
+\subtitle{ACP · AFC · ACM · Classification · AFD}
+\author{Aymen Ben Brik}
+\institute{Esprit School of Business\\
+           Master GAMMA · Master BA · Licence LMAD}
+\date{Année académique 2025--2026}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+\maketitle
+
+% ── Table des matières ──────────────────────────────────────
+\begin{frame}{Plan du cours}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+% ── Chapitres ───────────────────────────────────────────────
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_algebre_lineaire}
+\input{chapters/ch3_acp}
+\input{chapters/ch4_afc}
+\input{chapters/ch5_acm}
+\input{chapters/ch6_classification}
+\input{chapters/ch7_afd}
+\input{chapters/ch8_methodes_avancees}
+\input{chapters/bibliographie}
+
+\end{document}
