@@ -1,3 +1,432 @@
-%% Chapitre — Analyse Factorielle des Correspondances (AFC)
-%% À compléter
+% ============================================================
+%  Chapitre 4 — Analyse Factorielle des Correspondances (AFC)
+% ============================================================
 \section{Analyse Factorielle des Correspondances (AFC)}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.1 Position du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.1 — Pourquoi l'AFC ?}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Données} : table de contingence $\mathbf{N} = (n_{ij}) \in \N^{I \times J}$
+croisant deux variables \alert{qualitatives}.\\[0.1cm]
+
+\textbf{Objectifs}
+\begin{enumerate}
+  \item Décrire les associations entre modalités lignes et colonnes
+  \item Tester / quantifier l'\textbf{écart à l'indépendance}
+  \item Représenter \textbf{simultanément} lignes et colonnes
+        sur un plan factoriel
+\end{enumerate}
+
+\vspace{0.2cm}
+\textbf{Origine} : Benzécri (1973), école française.
+\textbf{AFC} = ACP \emph{généralisée} avec :
+\begin{itemize}\small
+  \item Tableau de profils
+  \item Métrique du $\chi^2$
+\end{itemize}
+\column{0.42\textwidth}
+\centering
+\footnotesize
+\textbf{CSP $\times$ Diplôme} (INSEE)
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{l|cccc|c}
+\toprule
+ & Bac & Lic. & Mast. & Doct. & total \\
+\midrule
+Cadre   & 12 & 65 & 180 & 95 & 352 \\
+ProfInt & 88 & 110 & 50  & 5  & 253 \\
+Employé & 230& 45 & 12  & 1  & 288 \\
+Ouvrier & 195& 8  & 2   & 0  & 205 \\
+\midrule
+total   & 525& 228& 244 & 101& 1098\\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4cm}
+\begin{block}{\small Question}
+\small Quels diplômes sont \emph{associés} à quelles CSP ?
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.2 Profils lignes et colonnes}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.2 — Profils lignes et profils colonnes}
+\begin{definition}[Tableau de fréquences relatives]
+\[
+f_{ij} = \frac{n_{ij}}{n}, \qquad
+f_{i \bullet} = \sum_j f_{ij}, \qquad
+f_{\bullet j} = \sum_i f_{ij}
+\]
+où $n = \sum_{i,j} n_{ij}$ est l'effectif total.
+\end{definition}
+
+\begin{definition}[Profil ligne, profil colonne]
+\begin{itemize}
+  \item \textbf{Profil de la ligne $i$} :
+        $\mathbf{L}_i = \left(\dfrac{f_{i1}}{f_{i\bullet}}, \ldots, \dfrac{f_{iJ}}{f_{i\bullet}}\right) \in \R^J$
+  \item \textbf{Profil de la colonne $j$} :
+        $\mathbf{C}_j = \left(\dfrac{f_{1j}}{f_{\bullet j}}, \ldots, \dfrac{f_{Ij}}{f_{\bullet j}}\right) \in \R^I$
+\end{itemize}
+Chaque profil est une \alert{distribution conditionnelle} (somme $= 1$).
+\end{definition}
+
+\begin{remark}[Profil moyen]
+\small Le \textbf{profil moyen ligne} est $(f_{\bullet 1}, \ldots, f_{\bullet J})$ (la marge colonne).
+Sous l'\textbf{indépendance} $\chi^2$, tous les profils lignes seraient égaux à ce profil moyen.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.3 Distance du chi-deux}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.3 — Distance du $\chi^2$}
+\begin{definition}[Distance du $\chi^2$ entre profils lignes]
+\[
+d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_{i'})
+= \sum_{j=1}^J \frac{1}{f_{\bullet j}}
+  \left(\frac{f_{ij}}{f_{i\bullet}} - \frac{f_{i'j}}{f_{i'\bullet}}\right)^2.
+\]
+C'est une distance euclidienne dans $\R^J$ avec \alert{métrique
+$\mathbf{M} = \mathbf{D}_{1/f_{\bullet j}}$} (inverses des fréquences marginales).
+\end{definition}
+
+\begin{proposition}[Propriétés essentielles]
+\begin{enumerate}
+  \item \textbf{Pondération} : les colonnes \emph{rares} pèsent plus lourd
+        ($1/f_{\bullet j}$).
+  \item \textbf{Équivalence distributionnelle} : si deux colonnes sont
+        proportionnelles, leur fusion ne change pas les distances entre lignes.
+  \item \textbf{Symétrie} : on définit de même la distance entre profils
+        colonnes avec $\mathbf{M} = \mathbf{D}_{1/f_{i\bullet}}$.
+\end{enumerate}
+\end{proposition}
+
+\begin{remark}
+\small La métrique du $\chi^2$ \alert{équilibre l'influence} des modalités peu
+fréquentes mais informatives.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.4 Lien avec le test d'indépendance}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.4 — Test d'indépendance et inertie totale}
+\textbf{Hypothèse d'indépendance} : $f_{ij} = f_{i\bullet} \, f_{\bullet j}$.
+
+\begin{theorem}[Statistique du $\chi^2$ et inertie]
+La statistique de Pearson est :
+\[
+\chi^2 = n \sum_{i,j} \frac{(f_{ij} - f_{i\bullet} f_{\bullet j})^2}{f_{i\bullet} f_{\bullet j}}
+       = n \, \Phi^2.
+\]
+Le coefficient $\Phi^2 = \chi^2 / n$ est exactement l'\alert{inertie totale} du
+nuage des profils lignes (ou colonnes), pondérés par leurs marges :
+\[
+\boxed{\;
+I_{\text{totale}}
+= \sum_{i=1}^I f_{i\bullet}\, d_{\chi^2}^2(\mathbf{L}_i, \mathbf{L}_{\bullet})
+= \Phi^2 = \chi^2 / n.
+\;}
+\]
+\end{theorem}
+
+\begin{remark}[Conséquence]
+\small L'AFC \emph{décompose} la statistique du $\chi^2$ : chaque axe factoriel
+explique une part de l'écart à l'indépendance.
+\[
+\Phi^2 = \sum_{k=1}^{r} \lambda_k, \qquad r = \min(I-1, J-1).
+\]
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.5 Formulation et résolution}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.5 — Formulation comme SVD généralisée}
+\textbf{Tableau centré} : $\widetilde{f}_{ij} = f_{ij} - f_{i\bullet} f_{\bullet j}$.
+
+\begin{theorem}[Diagonalisation]
+Soit $\mathbf{S}$ la matrice de terme général $\widetilde{f}_{ij}/\sqrt{f_{i\bullet} f_{\bullet j}}$.
+La SVD $\mathbf{S} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top$ fournit les axes principaux
+de l'AFC :
+\begin{itemize}
+  \item Valeurs propres : $\lambda_k = \sigma_k^2$ (vérifient $\lambda_k \leq 1$)
+  \item Inertie totale : $\Phi^2 = \sum_k \lambda_k$
+  \item Axes des lignes : $\mathbf{D}_{1/\sqrt{f_{i\bullet}}} \mathbf{U}$
+  \item Axes des colonnes : $\mathbf{D}_{1/\sqrt{f_{\bullet j}}} \mathbf{V}$
+\end{itemize}
+\end{theorem}
+
+\begin{block}{Cadre unificateur}
+\small AFC $=$ ACP du triplet $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$ avec :
+\begin{itemize}\small
+  \item $\mathbf{X}$ = tableau des profils lignes
+  \item $\mathbf{M} = \mathbf{D}_{1/f_{\bullet j}}$ (métrique $\chi^2$)
+  \item $\mathbf{D}_p = \mathbf{D}_{f_{i\bullet}}$ (pondération par marges)
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.6 Coordonnées factorielles}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.6 — Coordonnées factorielles}
+\begin{definition}[Coordonnées des lignes et des colonnes]
+Sur le $k$-ième axe, les coordonnées sont :
+\[
+F_k(i) \quad\text{(coordonnée de la ligne } i\text{)}, \qquad
+G_k(j) \quad\text{(coordonnée de la colonne } j\text{)}.
+\]
+\end{definition}
+
+\begin{theorem}[Inertie expliquée par axe]
+\[
+\sum_{i=1}^I f_{i\bullet}\, F_k(i)^2 = \lambda_k,
+\qquad
+\sum_{j=1}^J f_{\bullet j}\, G_k(j)^2 = \lambda_k.
+\]
+Lignes et colonnes contribuent \emph{ensemble} à la même inertie $\lambda_k$.
+\end{theorem}
+
+\begin{remark}[Double point de vue]
+\small L'AFC traite \alert{symétriquement} lignes et colonnes : on diagonalise
+deux matrices semblables qui partagent les mêmes valeurs propres non nulles
+(dualité). C'est ce qui justifie la \textbf{représentation simultanée}.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.7 Formules de transition}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.7 — Formules barycentriques (transition)}
+\begin{theorem}[Relations de transition]
+Pour tout axe $k$ et avec $\lambda_k$ la valeur propre associée :
+\[
+\boxed{\;
+F_k(i) = \frac{1}{\sqrt{\lambda_k}}
+         \sum_{j=1}^J \frac{f_{ij}}{f_{i\bullet}}\, G_k(j),
+\qquad
+G_k(j) = \frac{1}{\sqrt{\lambda_k}}
+         \sum_{i=1}^I \frac{f_{ij}}{f_{\bullet j}}\, F_k(i).
+\;}
+\]
+\end{theorem}
+
+\begin{block}{Lecture barycentrique}
+\small La position d'une ligne $i$ est, à un facteur près, le \alert{barycentre}
+des positions des colonnes $j$ pondérées par son profil $f_{ij}/f_{i\bullet}$.
+Et inversement.
+\end{block}
+
+\begin{remark}[Interprétation graphique]
+\small Une modalité ligne et une modalité colonne \alert{proches} sur le plan
+factoriel sont dans une \textbf{relation d'attraction} : leur fréquence
+conjointe dépasse l'attendu sous indépendance.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.8 Représentation simultanée}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.8 — Représentation simultanée}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Biplot AFC}\\
+\small Sur le \emph{même} plan, on représente :
+\begin{itemize}\small
+  \item les modalités \alert{lignes} ($I$ points)
+  \item les modalités \alert{colonnes} ($J$ points)
+\end{itemize}
+
+\textbf{Règles de lecture}
+\begin{itemize}\small
+  \item Deux \emph{lignes} proches : profils similaires
+  \item Deux \emph{colonnes} proches : profils similaires
+  \item Ligne $\times$ colonne proche : association forte
+  \item Origine $=$ profil moyen
+        (proche $=$ proche de l'indépendance)
+\end{itemize}
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=0.95]
+\draw[->, gray!50] (-2.5,0) -- (2.5,0) node[right, font=\tiny]{$F_1$};
+\draw[->, gray!50] (0,-2) -- (0,2) node[above, font=\tiny]{$F_2$};
+
+\fill[deepblue]   ( 1.7, 1.5)  circle(2.5pt) node[above, font=\tiny] {Cadre};
+\fill[deepblue]   ( 0.4, 0.6)  circle(2.5pt) node[above, font=\tiny] {ProfInt};
+\fill[deepblue]   (-1.0,-0.5)  circle(2.5pt) node[below, font=\tiny] {Employé};
+\fill[deepblue]   (-2.0,-1.4)  circle(2.5pt) node[below, font=\tiny] {Ouvrier};
+
+\fill[deeporange] (-2.0,-1.0)  circle(2.5pt) node[above, font=\tiny] {Bac};
+\fill[deeporange] (-0.3, 0.4)  circle(2.5pt) node[right, font=\tiny] {Lic.};
+\fill[deeporange] ( 1.2, 1.2)  circle(2.5pt) node[right, font=\tiny] {Mast.};
+\fill[deeporange] ( 1.9, 1.6)  circle(2.5pt) node[right, font=\tiny] {Doct.};
+
+\node[font=\tiny, gray, align=center] at (-2.0,1.7) {Lignes (CSP)\\Colonnes (Diplôme)};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.9 Aides à l'interprétation}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.9 — Aides à l'interprétation}
+\begin{definition}[Qualité de représentation et contributions]
+Pour la ligne $i$ sur l'axe $k$ :
+\[
+\cos^2_k(i) = \frac{F_k(i)^2}{\sum_{l \geq 1} F_l(i)^2},
+\qquad
+\text{ctr}_k(i) = \frac{f_{i\bullet}\, F_k(i)^2}{\lambda_k}.
+\]
+Définitions analogues pour les colonnes.
+\end{definition}
+
+\begin{block}{Règles de lecture}
+\begin{itemize}\small
+  \item \alert{Contribution élevée} : la modalité \emph{construit} l'axe
+        (seuil pratique : ctr $> 1/I$ ou $1/J$)
+  \item \alert{$\cos^2$ élevé} : la modalité est \emph{bien représentée}
+  \item Une modalité avec $\cos^2$ faible doit être interprétée avec prudence
+\end{itemize}
+\end{block}
+
+\begin{remark}
+\small On peut décomposer le $\chi^2$ en sommes par cellule (\textbf{contribution
+au $\chi^2$}) :
+$\chi^2_{ij} = n \cdot (f_{ij} - f_{i\bullet}f_{\bullet j})^2 / (f_{i\bullet}f_{\bullet j})$,
+ce qui complète l'AFC.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.10 Reconstitution du tableau}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.10 — Reconstitution et approximation}
+\begin{theorem}[Formule de reconstitution]
+Le tableau de fréquences peut être reconstruit à partir des $r$ axes
+principaux :
+\[
+f_{ij} = f_{i\bullet} f_{\bullet j}
+        \left(1 + \sum_{k=1}^r \frac{F_k(i)\, G_k(j)}{\sqrt{\lambda_k}}\right).
+\]
+\end{theorem}
+
+\begin{block}{Lecture}
+\begin{itemize}\small
+  \item Le terme $f_{i\bullet} f_{\bullet j}$ est l'\alert{indépendance théorique}.
+  \item La somme corrective décompose les écarts à l'indépendance par axe.
+  \item Tronquer la somme à $q < r$ axes donne la \textbf{meilleure
+        approximation de rang $q$} (Eckart-Young).
+\end{itemize}
+\end{block}
+
+\begin{remark}[Comparaison à l'ACP]
+\small AFC et ACP partagent la même structure : SVD généralisée + Eckart-Young.
+La différence est uniquement dans le \emph{triplet} $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.11 Modalités supplémentaires}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.11 — Modalités et tableaux supplémentaires}
+\textbf{Modalité supplémentaire} : projetée sur les axes \emph{après} construction,
+sans contribuer à leur calcul.
+
+\begin{block}{Formules de projection}
+Pour une ligne supplémentaire $i^*$ de profil $\mathbf{L}_{i^*}$ :
+\[
+F_k(i^*) = \frac{1}{\sqrt{\lambda_k}}
+         \sum_{j=1}^J \frac{f_{i^*j}}{f_{i^*\bullet}}\, G_k(j).
+\]
+Symétriquement pour une colonne supplémentaire.
+\end{block}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Cas d'usage}
+\begin{itemize}\small
+  \item Comparer un échantillon test à une population de référence
+  \item Suivre une modalité dans le temps (cohorte)
+  \item Caractériser un axe par une variable externe
+\end{itemize}
+\column{0.49\textwidth}
+\begin{alertblock}{Attention}
+\small Une modalité supplémentaire \emph{rare} ($f \to 0$) peut être très
+mal positionnée : on l'interprète avec son $\cos^2$.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.12 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{4.12 — AFC avec FactoMineR (et ca)}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+
+# Tableau de contingence (CSP x Diplome)
+tab <- as.table(rbind(
+  Cadre   = c(Bac=12,  Lic=65,  Mast=180, Doct=95),
+  ProfInt = c(Bac=88,  Lic=110, Mast=50,  Doct=5),
+  Employe = c(Bac=230, Lic=45,  Mast=12,  Doct=1),
+  Ouvrier = c(Bac=195, Lic=8,   Mast=2,   Doct=0)))
+
+# Test d'independance du chi2
+chisq.test(tab)
+
+# Analyse Factorielle des Correspondances
+res <- CA(tab, graph = FALSE)
+
+# Valeurs propres et inertie
+get_eigenvalue(res)               # lambda_k, % d'inertie
+fviz_eig(res, addlabels = TRUE)   # scree plot
+
+# Representation simultanee (biplot)
+fviz_ca_biplot(res, repel = TRUE)
+
+# cos2 et contributions
+res$row$cos2; res$col$cos2
+res$row$contrib; res$col$contrib
+
+# Decomposition du chi2 par cellule
+chisq.test(tab)$residuals^2       # ~ contributions au chi2
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{4.13 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{4.13 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{À retenir}
+\begin{itemize}\small
+  \item AFC $=$ ACP des \alert{profils} avec métrique $\chi^2$
+  \item Inertie totale $\Phi^2 = \chi^2 / n$
+  \item Lignes et colonnes : mêmes valeurs propres
+  \item Représentation \alert{simultanée} sur un biplot
+  \item Formules de transition $\Rightarrow$ lecture barycentrique
+  \item Reconstitution comme \emph{somme} d'écarts à l'indépendance
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Garanties théoriques}
+\begin{itemize}\small
+  \item SVD généralisée : optimalité (Eckart-Young)
+  \item Conservation de l'inertie totale
+  \item Décomposition orthogonale du $\chi^2$
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Domaine d'application}
+\small AFC $\to$ \alert{2 variables qualitatives}.
+Pour $p > 2$ variables qualitatives, on utilise l'\textbf{ACM}
+(Analyse des Correspondances Multiples), chap. 5.
+\end{alertblock}
+\end{columns}
+\end{frame}
