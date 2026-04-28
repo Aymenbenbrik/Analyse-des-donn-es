@@ -1,3 +1,425 @@
-%% Chapitre — Analyse des Correspondances Multiples (ACM)
-%% À compléter
+% ============================================================
+%  Chapitre 5 — Analyse des Correspondances Multiples (ACM)
+% ============================================================
 \section{Analyse des Correspondances Multiples (ACM)}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.1 Position du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.1 — Pourquoi l'ACM ?}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Données} : $n$ individus décrits par $p$ variables \alert{qualitatives}
+$X^1, \ldots, X^p$, chaque variable ayant $K_j$ modalités.\\[0.1cm]
+
+Notons $K = K_1 + \cdots + K_p$ le \textbf{nombre total de modalités}.
+
+\textbf{Cas typiques}
+\begin{itemize}\small
+  \item Enquêtes (sociologiques, marketing)
+  \item Questionnaires à choix multiple
+  \item Observations binaires (présence / absence)
+\end{itemize}
+
+\textbf{Limite de l'AFC} : ne traite que \emph{deux} variables.
+\textbf{ACM} : généralise à $p$ variables qualitatives.
+\column{0.42\textwidth}
+\centering
+\footnotesize
+\textbf{Exemple : enquête}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{c|ccc}
+\toprule
+indiv. & Sexe & Âge & Diplôme \\
+\midrule
+$i_1$ & H & 30-50 & Master \\
+$i_2$ & F & 18-29 & Lic. \\
+$i_3$ & H & 50+   & Doct. \\
+$i_4$ & F & 30-50 & Bac \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4cm}
+\begin{block}{\small Question}
+\small Quelles sont les associations entre toutes les modalités ?
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.2 Tableau disjonctif complet}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.2 — Tableau Disjonctif Complet (TDC)}
+\begin{definition}[TDC]
+Le \textbf{tableau disjonctif complet} $\mathbf{Z} \in \{0,1\}^{n \times K}$
+code chaque individu par un vecteur indicateur :
+\[
+z_{im} = \begin{cases} 1 & \text{si l'individu } i \text{ possède la modalité } m \\
+0 & \text{sinon.} \end{cases}
+\]
+Pour chaque variable $X^j$, $\sum_{m \in X^j} z_{im} = 1$ (un et un seul $1$ par variable).
+\end{definition}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Marges du TDC}
+\begin{itemize}\small
+  \item Marge ligne : $z_{i\bullet} = p$ (chaque individu coche $p$ modalités)
+  \item Marge colonne : $z_{\bullet m} = n_m$ (effectif de la modalité $m$)
+  \item Total : $z_{\bullet \bullet} = n p$
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Fréquences relatives}
+\[
+f_{im} = \frac{z_{im}}{np}, \quad
+f_{i\bullet} = \frac{1}{n}, \quad
+f_{\bullet m} = \frac{n_m}{np}.
+\]
+\column{0.40\textwidth}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.05}
+\textbf{TDC sur 3 variables}\\[0.1cm]
+\begin{tabular}{c|cc|ccc|cc}
+& H & F & 18-29 & 30-50 & 50+ & Bac & Lic.+ \\
+\hline
+$i_1$ & 1 & 0 & 0 & 1 & 0 & 0 & 1 \\
+$i_2$ & 0 & 1 & 1 & 0 & 0 & 0 & 1 \\
+$i_3$ & 1 & 0 & 0 & 0 & 1 & 0 & 1 \\
+$i_4$ & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+\end{tabular}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.3 ACM = AFC du TDC}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.3 — Définition par AFC du TDC}
+\begin{definition}[ACM]
+L'\textbf{Analyse des Correspondances Multiples} de $p$ variables qualitatives
+est l'\textbf{AFC} du tableau disjonctif complet $\mathbf{Z}$.
+\end{definition}
+
+\textbf{Propriétés héritées de l'AFC}
+\begin{itemize}
+  \item Représentation \alert{simultanée} des individus et des modalités
+  \item Métrique du $\chi^2$ sur les modalités
+  \item Formules de transition (barycentriques)
+  \item Décomposition d'inertie via SVD généralisée
+\end{itemize}
+
+\begin{theorem}[Inertie totale en ACM]
+\[
+I_{\text{totale}} = \frac{K}{p} - 1 = \frac{1}{p}\sum_{j=1}^p (K_j - 1).
+\]
+L'inertie ne dépend que du \textbf{nombre de modalités} (et pas des liaisons
+entre variables) : limitation majeure du critère de pourcentage d'inertie.
+\end{theorem}
+
+\begin{remark}[Maximum d'inertie par axe]
+\small Les valeurs propres en ACM vérifient $\lambda_k \leq 1$. La valeur $1$
+correspond à une variable parfaitement liée aux autres.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.4 Tableau de Burt}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.4 — Tableau de Burt}
+\begin{definition}[Tableau de Burt]
+Le \textbf{tableau de Burt} $\mathbf{B} = \mathbf{Z}^\top \mathbf{Z} \in \N^{K \times K}$
+croise toutes les modalités deux à deux.
+\begin{itemize}
+  \item Bloc diagonal $(j,j)$ : matrice diagonale des effectifs de $X^j$
+  \item Bloc $(j,j')$ pour $j \neq j'$ : table de contingence des deux variables
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Lien entre AFC du TDC et AFC de Burt]
+Soient $\lambda_k^{Z}$ les valeurs propres de l'AFC du TDC et $\lambda_k^{B}$
+celles de l'AFC du tableau de Burt. Alors :
+\[
+\lambda_k^{B} = (\lambda_k^{Z})^2.
+\]
+Les axes principaux sont identiques. Les valeurs propres de Burt
+\textbf{contrastent} mieux : critère de \alert{Benzécri} pour réajuster les
+pourcentages d'inertie.
+\end{theorem}
+
+\begin{block}{Correction de Benzécri}
+\small Seules les valeurs propres $\lambda_k > 1/p$ sont significatives.
+La part d'inertie corrigée est :
+$\tau_k^{c} = (\lambda_k - 1/p)^2 / \sum_{l : \lambda_l > 1/p} (\lambda_l - 1/p)^2$.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.5 Coordonnées factorielles}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.5 — Coordonnées des modalités et des individus}
+\begin{theorem}[Coordonnées d'une modalité]
+La coordonnée de la modalité $m$ sur l'axe $k$ est, à un facteur près,
+le \alert{barycentre} des coordonnées des individus la possédant :
+\[
+G_k(m) = \frac{1}{\sqrt{\lambda_k}}
+         \cdot \frac{1}{n_m} \sum_{i : z_{im}=1} F_k(i).
+\]
+\end{theorem}
+
+\begin{theorem}[Coordonnées d'un individu]
+Symétriquement, la coordonnée d'un individu $i$ est le barycentre
+des coordonnées des modalités qu'il possède :
+\[
+F_k(i) = \frac{1}{\sqrt{\lambda_k}}
+         \cdot \frac{1}{p} \sum_{m : z_{im}=1} G_k(m).
+\]
+\end{theorem}
+
+\begin{remark}
+\small Ces \textbf{relations barycentriques} (dites de \emph{transition}) sont
+exactement celles de l'AFC, appliquées au TDC. Elles fondent la
+représentation simultanée individus / modalités.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.6 Représentation simultanée}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.6 — Représentation simultanée}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Plan factoriel ACM}\\
+On représente sur le \emph{même} plan :
+\begin{itemize}\small
+  \item les $n$ \alert{individus} (gros nuage)
+  \item les $K$ \alert{modalités} (peu nombreuses)
+\end{itemize}
+
+\textbf{Lecture}
+\begin{itemize}\small
+  \item Une modalité $m$ est au barycentre de \alert{ses} individus
+  \item Modalités proches $\to$ associations fortes
+  \item Modalités opposées $\to$ profils contrastés
+  \item Modalités à l'origine $\to$ proches du profil moyen
+\end{itemize}
+\column{0.49\textwidth}
+\begin{tikzpicture}[scale=0.95]
+\draw[->, gray!50] (-2.5,0) -- (2.5,0) node[right, font=\tiny]{$F_1$};
+\draw[->, gray!50] (0,-2) -- (0,2) node[above, font=\tiny]{$F_2$};
+
+\foreach \i in {1,...,15}{
+  \pgfmathsetmacro{\xx}{1.5+rnd*0.7}
+  \pgfmathsetmacro{\yy}{1.0+rnd*0.6}
+  \fill[gray!50] (\xx,\yy) circle(1pt);
+}
+\foreach \i in {1,...,15}{
+  \pgfmathsetmacro{\xx}{-2.0+rnd*0.6}
+  \pgfmathsetmacro{\yy}{-1.2+rnd*0.5}
+  \fill[gray!50] (\xx,\yy) circle(1pt);
+}
+\foreach \i in {1,...,15}{
+  \pgfmathsetmacro{\xx}{-0.8+rnd*0.4}
+  \pgfmathsetmacro{\yy}{0.8+rnd*0.4}
+  \fill[gray!50] (\xx,\yy) circle(1pt);
+}
+\fill[deepblue]   ( 1.7, 1.3) circle(2.5pt) node[above, font=\tiny] {Cadre};
+\fill[deepblue]   (-1.7,-1.0) circle(2.5pt) node[below, font=\tiny] {Ouvrier};
+\fill[deeporange] ( 1.6, 1.5) circle(2.5pt) node[right, font=\tiny] {Doct.};
+\fill[deeporange] (-1.8,-1.2) circle(2.5pt) node[left,  font=\tiny] {Bac};
+\fill[darkgreen]  (-0.6, 1.0) circle(2.5pt) node[above, font=\tiny] {30-50};
+\node[font=\tiny, gray] at (2.0,-1.6) {gris : individus};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.7 Aides à l'interprétation}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.7 — Aides à l'interprétation}
+\begin{definition}[Indicateurs pour les modalités]
+Pour la modalité $m$ (de fréquence $f_m = n_m/(np)$) sur l'axe $k$ :
+\[
+\text{ctr}_k(m) = \frac{f_m\, G_k(m)^2}{\lambda_k},
+\qquad
+\cos^2_k(m) = \frac{G_k(m)^2}{d_{\chi^2}^2(m, \mathbf{0})}.
+\]
+\end{definition}
+
+\begin{block}{Distance d'une modalité à l'origine}
+\[
+d_{\chi^2}^2(m, \mathbf{0}) = \frac{1}{f_m} - 1 = \frac{n_m^{-1} \cdot np - 1}{1}
+\quad\Rightarrow\quad
+\text{distance \emph{grande} pour modalités \emph{rares}.}
+\]
+\end{block}
+
+\begin{remark}[Influence des modalités rares]
+\small Une modalité rare (peu d'individus la possèdent) est \emph{loin} de l'origine
+et a souvent une forte contribution. C'est un piège classique : on regroupera
+les modalités d'effectif inférieur à $\sim 5\%$ de $n$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.8 Variables et individus supplémentaires}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.8 — Variables et individus supplémentaires}
+\textbf{Variable supplémentaire qualitative} : on projette ses modalités
+\emph{a posteriori}, sans contribuer à la construction des axes.
+\[
+G_k(m_{\text{sup}}) = \frac{1}{\sqrt{\lambda_k}}
+                     \cdot \frac{1}{n_{m_{\text{sup}}}}
+                     \sum_{i : z_{im_{\text{sup}}}=1} F_k(i).
+\]
+
+\textbf{Variable supplémentaire quantitative} : on calcule les corrélations
+avec chaque composante factorielle :
+\[
+\eta^2(\mathbf{x}^{\text{sup}}, F_k)
+\quad\text{(rapport de corrélation)}.
+\]
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Individu supplémentaire}\\[0.1cm]
+\small Vecteur indicateur $\mathbf{z}_{i^*}$, projeté via la formule de transition.
+
+\column{0.49\textwidth}
+\begin{block}{Cas d'usage}
+\small Variables descriptives \emph{externes} (cible métier, segment client)
+projetées sur la structure latente.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.9 Lien avec l'ACP}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.9 — Lien avec l'ACP via le codage disjonctif}
+\begin{theorem}[ACM comme ACP particulière]
+L'ACM est l'\textbf{ACP non normée} du tableau disjonctif complet
+\textbf{centré-réduit} avec :
+\begin{itemize}
+  \item métrique $\mathbf{M} = \frac{n}{p}\mathbf{D}_{1/n_m}$ sur les modalités
+  \item pondération $\mathbf{D}_p = \frac{1}{n}\mathbf{I}_n$ sur les individus
+\end{itemize}
+\end{theorem}
+
+\begin{block}{Comparaison méthodologique}
+\centering
+\footnotesize
+\begin{tabular}{l|ccc}
+\toprule
+ & \textbf{ACP} & \textbf{AFC} & \textbf{ACM} \\
+\midrule
+Données      & quantitatives & 1 contingence & qualitatives \\
+Métrique     & $\mathbf{I}$ ou $\mathbf{D}_{1/s^2}$ & $\mathbf{D}_{1/f_{\bullet j}}$ & $\frac{n}{p}\mathbf{D}_{1/n_m}$ \\
+Inertie tot. & $\Tr(\mathbf{V})$ ou $p$ & $\Phi^2 = \chi^2/n$ & $K/p - 1$ \\
+$\lambda_k$  & libres & $\leq 1$ & $\leq 1$ \\
+\bottomrule
+\end{tabular}
+\end{block}
+
+\begin{remark}
+\small Tous les chapitres précédents (ACP, AFC, ACM) reposent sur la
+\textbf{même machine algébrique} : la SVD généralisée du Ch. 2.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.10 Stratégie pratique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.10 — Stratégie pratique en ACM}
+\textbf{Trois précautions à prendre}
+\begin{enumerate}
+  \item \textbf{Regrouper les modalités rares} ($n_m < 5\%$ de $n$) :
+        elles contribuent excessivement aux axes.
+  \item \textbf{Variables très liées} : leurs modalités créent un effet de
+        \emph{grappe} (\textit{Guttman}). Choisir des variables à information
+        complémentaire.
+  \item \textbf{Recourir au tableau de Burt} : valeurs propres mieux contrastées,
+        correction de Benzécri pour les pourcentages d'inertie.
+\end{enumerate}
+
+\vspace{0.2cm}
+\begin{block}{Workflow ACM type}
+\begin{enumerate}\small
+  \item Description univariée et bivariée (effectifs, $\chi^2$ par paire)
+  \item Recodage / regroupement
+  \item ACM sur le TDC (variables actives + supplémentaires)
+  \item Interprétation des axes (modalités $\cos^2$ élevés et ctr fortes)
+  \item Classification des individus (CAH sur les coordonnées factorielles)
+\end{enumerate}
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.11 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{5.11 — ACM avec FactoMineR}
+\begin{lstlisting}
+library(FactoMineR); library(factoextra)
+data(tea)        # 300 individus x 36 variables qualitatives
+
+# Selection des variables actives (qualitatives)
+actives <- c("breakfast","tea.time","evening","lunch","dinner",
+             "always","resto","pub","tearoom",
+             "How","how","sugar","where","price")
+
+# ACM
+res <- MCA(tea, quanti.sup = 19, quali.sup = c(20:36),
+           graph = FALSE, ncp = 5)
+
+# Valeurs propres et eboulis
+get_eigenvalue(res)
+fviz_screeplot(res, addlabels = TRUE)
+
+# Plan factoriel des modalites
+fviz_mca_var(res, repel = TRUE, col.var = "contrib",
+             gradient.cols = c("blue","red"))
+
+# Plan factoriel des individus
+fviz_mca_ind(res, label = "none", habillage = "Tea")
+
+# Biplot (modalites + individus)
+fviz_mca_biplot(res, repel = TRUE, label = "var")
+
+# Description automatique des dimensions
+dimdesc(res, axes = 1:3)
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{5.12 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{5.12 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{À retenir}
+\begin{itemize}\small
+  \item ACM $=$ AFC du \alert{tableau disjonctif complet}
+  \item $p$ variables qualitatives, $K$ modalités totales
+  \item Inertie totale $K/p - 1$ : indépendante des liaisons
+  \item Valeurs propres $\lambda_k \leq 1$
+  \item Tableau de Burt $\mathbf{B} = \mathbf{Z}^\top \mathbf{Z}$ : $\lambda_k^B = (\lambda_k^Z)^2$
+  \item Représentation simultanée individus + modalités
+  \item Relations barycentriques (transition)
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Garanties théoriques}
+\begin{itemize}\small
+  \item ACP/AFC/ACM : même cadre SVD généralisée
+  \item Optimalité par Eckart-Young
+  \item Décomposition orthogonale d'inertie
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Pièges à éviter}
+\small Modalités rares, variables redondantes, effet Guttman, ne pas oublier
+la correction de Benzécri pour interpréter les \% d'inertie.
+\end{alertblock}
+\end{columns}
+\end{frame}
