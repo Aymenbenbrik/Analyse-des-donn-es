@@ -1,3 +1,427 @@
-%% Chapitre — Méthodes Avancées et Applications
-%% À compléter
+% ============================================================
+%  Chapitre 8 — Méthodes avancées et applications
+% ============================================================
 \section{Méthodes Avancées et Applications}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.1 Vue d'ensemble}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.1 — Au-delà des méthodes de base}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Méthodes complémentaires}
+\begin{itemize}\small
+  \item \alert{MDS} — partir de \emph{distances} et reconstituer un nuage
+  \item \alert{Analyse canonique} — relier deux \emph{groupes} de variables
+  \item \alert{AFM / AFMD} — analyser plusieurs \emph{tableaux} simultanément
+  \item \alert{PLS} — régression sur variables très corrélées
+  \item \alert{Variantes non linéaires} — Kernel PCA, Isomap, t-SNE
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Cadre} : toutes ces méthodes étendent la machinerie spectrale
+(Ch. 2) à des situations \alert{multi-tableaux} ou \alert{non linéaires}.
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=0.9, font=\scriptsize,
+  box/.style={draw=deepblue, fill=deepblue!10, rounded corners,
+              minimum width=2.4cm, minimum height=0.55cm, align=center}]
+\node[box] (acp) at (0,3) {ACP};
+\node[box] (afc) at (0,2) {AFC};
+\node[box] (acm) at (0,1) {ACM};
+
+\node[box, fill=deeporange!10, draw=deeporange] (mds)  at (4,3) {MDS};
+\node[box, fill=deeporange!10, draw=deeporange] (cca)  at (4,2) {CCA};
+\node[box, fill=deeporange!10, draw=deeporange] (afm)  at (4,1) {AFM};
+\node[box, fill=deeporange!10, draw=deeporange] (pls)  at (4,0) {PLS};
+
+\draw[->, gray] (acp) -- (mds);
+\draw[->, gray] (acp) -- (cca);
+\draw[->, gray] (afc) -- (afm);
+\draw[->, gray] (acp) -- (pls);
+
+\node[font=\tiny, gray, align=center] at (-1.2, 2.0) {méthodes\\de base};
+\node[font=\tiny, gray, align=center] at (5.5, 1.5) {extensions};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.2 MDS classique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.2 — Multidimensional Scaling (MDS) classique}
+\begin{definition}[Problème du MDS]
+Étant donnée une matrice de \textbf{distances} (ou dissimilarités)
+$\mathbf{D} = (d_{ij}) \in \R^{n \times n}$ entre $n$ objets, trouver
+des coordonnées $\mathbf{Y} \in \R^{n \times q}$ telles que :
+\[
+\|\mathbf{y}_i - \mathbf{y}_j\| \approx d_{ij}, \quad \forall i, j.
+\]
+\end{definition}
+
+\begin{theorem}[MDS classique de Torgerson]
+Soit $\mathbf{B} = -\frac{1}{2}\,\mathbf{H}\mathbf{D}^{(2)}\mathbf{H}$ où
+$\mathbf{D}^{(2)} = (d_{ij}^2)$ et $\mathbf{H} = \mathbf{I}_n - \frac{1}{n}\mathbf{1}_n \mathbf{1}_n^\top$
+est la matrice de centrage. Si $\mathbf{B}$ est positive, ses $q$ premiers
+vecteurs propres fournissent $\mathbf{Y} = \mathbf{U}_q \mathbf{\Lambda}_q^{1/2}$ qui
+restitue exactement les $\|\mathbf{y}_i - \mathbf{y}_j\| = d_{ij}$.
+\end{theorem}
+
+\begin{remark}[Lien MDS / ACP]
+\small Si $d_{ij}$ est la distance euclidienne entre lignes d'un tableau $\mathbf{X}$,
+le MDS classique \alert{coïncide} avec l'ACP non normée (à une rotation près).
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.3 MDS non métrique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.3 — MDS non métrique (Shepard-Kruskal)}
+\textbf{Idée} : ne préserver que l'\alert{ordre} des dissimilarités, pas leurs
+valeurs numériques.
+
+\begin{definition}[Stress de Kruskal]
+On minimise
+\[
+\text{Stress}(\mathbf{Y}) = \sqrt{\frac{\sum_{i < j}(\hat{d}_{ij} - \|\mathbf{y}_i - \mathbf{y}_j\|)^2}{\sum_{i < j} \|\mathbf{y}_i - \mathbf{y}_j\|^2}}
+\]
+où $\hat{d}_{ij}$ sont des \emph{disparities} respectant l'ordre des $d_{ij}$
+(régression isotone).
+\end{definition}
+
+\begin{block}{Cas d'usage}
+\begin{itemize}\small
+  \item Dissimilarités issues d'un \emph{questionnaire} (rangs)
+  \item Données \emph{phylogénétiques}, \emph{psychométriques}
+  \item Toute situation où la métrique est ordinale
+\end{itemize}
+\end{block}
+
+\begin{remark}[Critère de qualité]
+\small Stress $< 0.05$ : excellent ; $< 0.10$ : bon ; $> 0.20$ : médiocre.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.4 Analyse canonique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.4 — Analyse Canonique des Corrélations (CCA)}
+\textbf{Cadre} : deux groupes de variables sur les mêmes individus,
+$\mathbf{X} \in \R^{n \times p}$ et $\mathbf{Y} \in \R^{n \times q}$.
+
+\begin{definition}[Variables canoniques]
+On cherche des combinaisons linéaires
+\[
+U = \mathbf{X}\mathbf{a}, \qquad V = \mathbf{Y}\mathbf{b}
+\]
+maximisant la \alert{corrélation} :
+\[
+\rho_1 = \max_{\mathbf{a}, \mathbf{b}}\; \Cor(U, V).
+\]
+\end{definition}
+
+\begin{theorem}[Solution]
+Les vecteurs $\mathbf{a}, \mathbf{b}$ sont solutions du système couplé
+\[
+\mathbf{V}_{XX}^{-1}\mathbf{V}_{XY}\mathbf{V}_{YY}^{-1}\mathbf{V}_{YX}\, \mathbf{a} = \rho^2 \mathbf{a},
+\quad
+\mathbf{V}_{YY}^{-1}\mathbf{V}_{YX}\mathbf{V}_{XX}^{-1}\mathbf{V}_{XY}\, \mathbf{b} = \rho^2 \mathbf{b}.
+\]
+On obtient $\min(p, q)$ couples canoniques $(\mathbf{a}_k, \mathbf{b}_k)$ deux à deux orthogonaux.
+\end{theorem}
+
+\begin{remark}
+\small La CCA est l'analogue \emph{symétrique} de la régression linéaire : elle
+relie deux groupes \emph{sans hiérarchie}.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.5 Analyse Factorielle Multiple (AFM)}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.5 — Analyse Factorielle Multiple (AFM)}
+\textbf{Cadre} : un même ensemble d'individus décrit par
+\alert{plusieurs groupes} de variables, possiblement hétérogènes
+(quantitatives + qualitatives).
+
+\begin{definition}[Pondération AFM]
+Soit $\mathbf{X} = [\mathbf{X}^{(1)} | \mathbf{X}^{(2)} | \cdots | \mathbf{X}^{(J)}]$
+la concaténation de $J$ blocs. L'AFM applique une ACP \alert{pondérée}
+au tableau global, avec un poids $1/\lambda_1^{(j)}$ par bloc, où
+$\lambda_1^{(j)}$ est la première valeur propre de l'ACP du bloc $j$.
+\end{definition}
+
+\begin{theorem}[Équilibrage]
+Avec cette pondération, l'inertie maximale d'un axe contribuée par chaque bloc
+est \alert{normalisée à 1}. Aucun bloc ne domine la première composante
+en raison de sa taille ou de son échelle.
+\end{theorem}
+
+\begin{block}{Sorties spécifiques}
+\begin{itemize}\small
+  \item \textbf{Coordonnées} des individus, des variables, et des \emph{groupes}
+  \item \textbf{RV-coefficient} : mesure d'accord entre 2 groupes
+  \item \textbf{Lg-coefficient} : généralisation au cas multi-groupes
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.6 Régression PLS}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.6 — Régression PLS (Partial Least Squares)}
+\textbf{Problème} : régresser $\mathbf{Y}$ sur $\mathbf{X}$ avec $p \gg n$ ou
+$\mathbf{X}$ très corrélé. La régression OLS échoue ($\mathbf{X}^\top \mathbf{X}$ singulière).
+
+\begin{definition}[Composantes PLS]
+PLS construit successivement des composantes $\mathbf{t}_k = \mathbf{X}\mathbf{w}_k$
+maximisant la \alert{covariance} (et non la corrélation) avec $\mathbf{Y}$ :
+\[
+\mathbf{w}_k = \argmax_{\|\mathbf{w}\|=1}\; \Cov^2(\mathbf{X}\mathbf{w}, \mathbf{Y}),
+\]
+puis on régresse $\mathbf{Y}$ sur $\mathbf{t}_1, \ldots, \mathbf{t}_q$.
+\end{definition}
+
+\begin{block}{Différence avec ACP + régression}
+\begin{itemize}\small
+  \item ACP : maximise $\Var(\mathbf{X}\mathbf{w})$ — \alert{ignore} $\mathbf{Y}$
+  \item PLS : maximise $\Cov(\mathbf{X}\mathbf{w}, \mathbf{Y})$ — combine variance et corrélation
+  \item Avantage en \textbf{prédiction}
+\end{itemize}
+\end{block}
+
+\begin{remark}
+\small La PLS est centrale en \emph{chimiométrie} (spectres infrarouge $\to$
+concentration), \emph{génomique} (microarrays) et plus généralement quand
+$p \gg n$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.7 Méthodes non linéaires}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.7 — Variantes non linéaires}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Kernel PCA (Schölkopf, 1998)}
+\begin{itemize}\small
+  \item ACP dans un espace de Hilbert via un noyau $K(x,y)$
+  \item Capte des structures \emph{courbes}
+  \item Diagonalise la matrice $\mathbf{K} = (K(x_i, x_j))$
+\end{itemize}
+
+\textbf{Isomap}
+\begin{itemize}\small
+  \item MDS classique sur la distance \emph{géodésique}
+  \item Préserve la \emph{topologie} d'une variété
+\end{itemize}
+
+\textbf{LLE (Locally Linear Embedding)}
+\begin{itemize}\small
+  \item Reconstruit chaque point comme combinaison linéaire de ses voisins
+  \item Pas de noyau, complexité $O(n^2)$
+\end{itemize}
+\column{0.49\textwidth}
+\textbf{t-SNE et UMAP}
+\begin{itemize}\small
+  \item Préservent les \emph{voisinages} probabilistes
+  \item Utiles pour la \emph{visualisation 2D}
+  \item \alert{Pas factoriels} (pas de coordonnées globales)
+\end{itemize}
+
+\begin{block}{Critère de choix}
+\begin{itemize}\small
+  \item Données linéaires $\to$ ACP / AFC
+  \item Variétés courbes connues $\to$ Kernel PCA
+  \item Visualisation seulement $\to$ t-SNE / UMAP
+  \item Spectres ou prédiction $\to$ PLS
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.8 Études de cas}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.8 — Études de cas métier}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{1. Marketing — segmentation client}
+\begin{itemize}\small
+  \item Variables RFM + qualitatives
+  \item AFDM ou ACM + HCPC
+  \item Profils de classes $\to$ campagnes ciblées
+\end{itemize}
+
+\textbf{2. Finance — risque de crédit}
+\begin{itemize}\small
+  \item Variables continues (revenus, ratios)
+  \item AFD : LDA pour score
+  \item Validation : courbe ROC, KS
+\end{itemize}
+
+\textbf{3. Sociologie — enquête}
+\begin{itemize}\small
+  \item Tableau de questionnaire
+  \item ACM + variables sociales suppl.
+  \item Analyse des positions sociales (Bourdieu)
+\end{itemize}
+\column{0.49\textwidth}
+\textbf{4. Sensoriel — analyse sensorielle}
+\begin{itemize}\small
+  \item AFM sur jurys × descripteurs
+  \item Cartes de produits
+  \item Convergence des panels
+\end{itemize}
+
+\textbf{5. Bio-informatique — micro-arrays}
+\begin{itemize}\small
+  \item $p \gg n$, gènes corrélés
+  \item PLS ou Sparse PCA
+  \item Identification de signatures
+\end{itemize}
+
+\textbf{6. NLP — corpus textuel}
+\begin{itemize}\small
+  \item Matrice termes $\times$ documents
+  \item AFC / LSA
+  \item Topics latents
+\end{itemize}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.9 Limites et extensions modernes}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.9 — Limites et extensions modernes}
+\textbf{Limites des méthodes factorielles classiques}
+\begin{itemize}\small
+  \item Hypothèse de \alert{linéarité} (sauf Kernel PCA)
+  \item Sensibilité aux \alert{outliers} (variantes robustes)
+  \item Sélection des \alert{axes} encore largement subjective
+  \item Mauvaise adaptation aux données \alert{très volumineuses} ($n \gg 10^6$)
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Extensions modernes}
+\begin{itemize}\small
+  \item \textbf{Sparse PCA} : axes parcimonieux et interprétables
+  \item \textbf{Robust PCA} (Candès et al.) : décompose $\mathbf{X} = \mathbf{L} + \mathbf{S}$
+        (low-rank + sparse)
+  \item \textbf{Functional PCA} : pour données fonctionnelles ($y(t)$)
+  \item \textbf{Tensor decomposition} : Tucker, CP, pour tableaux 3D+
+  \item \textbf{Auto-encodeurs} (réseaux de neurones) : ACP non linéaire profonde
+  \item \textbf{Topological Data Analysis} (TDA) : persistance, mapper
+\end{itemize}
+
+\begin{block}{Filiation moderne}
+\small Les méthodes factorielles restent \alert{le squelette} interprétable que
+les approches récentes (deep learning) cherchent à intégrer ou à remplacer.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.10 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{8.10 — Méthodes avancées en R}
+\begin{lstlisting}
+# 1) MDS classique
+data(eurodist)             # distances villes
+mds <- cmdscale(eurodist, k = 2, eig = TRUE)
+plot(mds$points, type = "n"); text(mds$points, labels = names(eurodist))
+
+# 2) MDS non metrique
+library(MASS)
+mds.nm <- isoMDS(eurodist, k = 2)
+
+# 3) Analyse canonique (CCA)
+library(CCA)
+res.cca <- cc(X1, X2)
+res.cca$cor                # correlations canoniques
+
+# 4) AFM (Multiple Factor Analysis)
+library(FactoMineR)
+res.afm <- MFA(don, group = c(2, 5, 3), type = c("c","c","n"),
+               name.group = c("ratios","prix","categorie"))
+plot(res.afm, choix = "ind")
+plot(res.afm, choix = "group")
+
+# 5) Regression PLS
+library(pls)
+res.pls <- plsr(y ~ ., data = train, ncomp = 10, validation = "CV")
+summary(res.pls); plot(RMSEP(res.pls))
+
+# 6) Kernel PCA
+library(kernlab)
+res.kpca <- kpca(~ ., data = X, kernel = "rbfdot")
+plot(rotated(res.kpca)[, 1:2])
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.11 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.11 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Méthodes vues}
+\begin{itemize}\small
+  \item \textbf{MDS} (classique, non métrique)
+  \item \textbf{Analyse canonique} (CCA)
+  \item \textbf{AFM} (multi-tableaux)
+  \item \textbf{PLS} (régression $p \gg n$)
+  \item \textbf{Kernel PCA, Isomap, LLE} (non linéaire)
+  \item \textbf{Sparse / Robust PCA}, fonctionnel, tensoriel
+\end{itemize}
+\column{0.49\textwidth}
+\begin{block}{Ligne directrice}
+\begin{itemize}\small
+  \item Toutes ces méthodes \emph{généralisent} la SVD
+  \item Elles répondent à des \emph{questions différentes}
+  \item Choisir selon : type de données, structure recherchée, objectif
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Vers la pratique}
+\small La maîtrise de ces extensions repose sur : (1) compréhension du
+chapitre 2, (2) choix de la \emph{métrique} et de la \emph{pondération},
+(3) validation par les TPs.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{8.12 Conclusion générale du cours}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{8.12 — Conclusion générale du cours}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Ce que vous savez maintenant}
+\begin{enumerate}\small
+  \item Décomposer un tableau de données en termes d'\alert{inertie}
+  \item Choisir la \emph{bonne} méthode factorielle
+        selon le type de données
+  \item Démontrer les théorèmes fondamentaux
+        (Spectral, SVD, Eckart-Young, Huygens)
+  \item Lire un plan factoriel et un cercle des corrélations
+  \item Construire une typologie validée
+        (HCPC + caractérisation)
+  \item Mettre en œuvre tout cela en \textbf{R}
+        (FactoMineR, factoextra, MASS)
+\end{enumerate}
+\column{0.49\textwidth}
+\begin{block}{Trois principes à retenir}
+\begin{enumerate}\small
+  \item \textbf{Géométrie d'abord} : tout est inertie, projection, distance.
+  \item \textbf{Une seule machine} : SVD généralisée du triplet
+        $(\mathbf{X}, \mathbf{M}, \mathbf{D}_p)$.
+  \item \textbf{Toujours interpréter} : les chiffres ne parlent pas seuls,
+        les variables et le métier oui.
+\end{enumerate}
+\end{block}
+
+\begin{alertblock}{Vers la suite}
+\small Les TPs en R consolident la maîtrise pratique. Le polycopié
+fournit les démonstrations détaillées. Bonne fin de cours !
+\end{alertblock}
+\end{columns}
+\end{frame}
