@@ -1,0 +1,271 @@
+---
+title: "TP3 — Analyse des Correspondances Multiples"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Énoncé"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+# Objectifs
+
+À l'issue de ce TP vous saurez :
+
+1. Préparer un tableau de variables **qualitatives** pour une ACM.
+2. Construire et lire un **tableau disjonctif complet** et un **tableau de Burt**.
+3. Réaliser une **ACM** avec FactoMineR.
+4. Interpréter le **plan factoriel des modalités** et le **nuage des individus**.
+5. Utiliser les **aides à l'interprétation** (cos², ctr, $v$-test).
+6. Projeter des **variables supplémentaires** qualitatives.
+7. Combiner ACM et **classification** (HCPC).
+
+# Données
+
+Le fichier `enquete_numerique.csv` contient les réponses d'une enquête fictive
+sur les **pratiques numériques** : 300 individus décrits par 9 variables
+qualitatives (sexe, âge, habitat, fréquence Internet, réseaux sociaux, streaming,
+achats en ligne, diplôme, profession).
+
+```{r packages}
+library(FactoMineR)
+library(factoextra)
+library(dplyr)
+library(ggplot2)
+```
+
+# Partie 1 — Exploration des variables qualitatives
+
+## Q1.1 — Chargement
+
+Chargez `enquete_numerique.csv` (ID en `rownames`) et convertissez toutes les
+variables en **facteurs** ordonnés.
+
+```{r}
+# TODO :
+# df <- read.csv("enquete_numerique.csv", stringsAsFactors = TRUE)
+# rownames(df) <- df$ID; df$ID <- NULL
+# str(df) ; summary(df)
+```
+
+**Q1.2** Combien d'individus ? De variables ? Combien de modalités au total
+($K = \sum_j K_j$) ? À combien estimez-vous l'**inertie totale** théorique ?
+
+## Q1.3 — Tableaux croisés
+
+Pour quelques paires de variables, construisez les tableaux croisés et
+testez l'indépendance.
+
+```{r}
+# TODO : table(df$Age, df$Internet)
+#        chisq.test(table(df$Age, df$Internet))
+#        table(df$Habitat, df$Reseaux)
+```
+
+**Q1.4** Y a-t-il des liaisons fortes entre les variables ? Lesquelles ?
+
+# Partie 2 — Tableau disjonctif et Burt
+
+## Q2.1 — Tableau disjonctif complet (TDC)
+
+Construisez le TDC à partir des 7 premières variables actives (`Sexe`, `Age`,
+`Habitat`, `Internet`, `Reseaux`, `Streaming`, `Achats`).
+
+```{r}
+# TODO : library(ade4) ; Z <- acm.disjonctif(df[, 1:7])
+#        dim(Z) ; head(Z[, 1:8])
+```
+
+**Q2.2** Combien de colonnes a le TDC ? Vérifiez que chaque ligne somme à
+**7** (nombre de variables).
+
+## Q2.3 — Tableau de Burt
+
+Calculez $\mathbf{B} = \mathbf{Z}^\top \mathbf{Z}$ et observez sa structure
+(blocs diagonaux et hors-diagonaux).
+
+```{r}
+# TODO : B <- t(as.matrix(Z)) %*% as.matrix(Z)
+#        B[1:6, 1:6]
+```
+
+# Partie 3 — Réalisation de l'ACM
+
+## Q3.1 — ACM avec FactoMineR
+
+Réalisez l'ACM des 7 premières variables actives, en mettant `Diplome` et
+`Profession` en variables qualitatives **supplémentaires**.
+
+```{r}
+# TODO : res <- MCA(df, quali.sup = 8:9, graph = FALSE)
+```
+
+## Q3.2 — Inertie totale
+
+Vérifiez que $I_{\text{totale}} = K/p - 1$.
+
+```{r}
+# TODO : sum(res$eig[, 1])  ;  K <- sum(sapply(df[, 1:7], nlevels))
+#        K / 7 - 1
+```
+
+## Q3.3 — Scree plot
+
+```{r}
+# TODO : fviz_screeplot(res, addlabels = TRUE)
+```
+
+**Q3.4** Combien d'axes faut-il retenir selon :
+
+- la part d'inertie (typiquement 40–60 % en ACM, faible en valeur absolue) ?
+- le seuil de Benzécri ($\lambda_k > 1/p$) ?
+
+```{r}
+# TODO : seuil <- 1/7  ;  sum(res$eig[, 1] > seuil)
+```
+
+# Partie 4 — Représentation des modalités
+
+## Q4.1 — Plan factoriel des modalités actives
+
+```{r}
+# TODO : fviz_mca_var(res, repel = TRUE,
+#                     col.var = "contrib",
+#                     gradient.cols = c("blue","red"))
+```
+
+## Q4.2 — Lecture des axes
+
+Pour chaque axe (1 et 2) :
+
+- Listez les modalités de **plus forte contribution** (seuil $> 100/K$).
+- Donnez une **interprétation métier** : qu'oppose chaque axe ?
+
+```{r}
+# TODO : round(res$var$contrib[, 1:2], 1)
+#        round(res$var$cos2[, 1:2], 2)
+```
+
+## Q4.3 — Modalités par variable
+
+Tracez le plan en coloriant les modalités par variable d'origine.
+
+```{r}
+# TODO : fviz_mca_var(res, choice = "var.cat", repel = TRUE)
+```
+
+# Partie 5 — Représentation des individus
+
+## Q5.1 — Plan factoriel des individus
+
+```{r}
+# TODO : fviz_mca_ind(res, label = "none",
+#                    habillage = "Age", addEllipses = TRUE)
+```
+
+**Q5.2** Le **groupe d'âge** structure-t-il visiblement le nuage ?
+Essayez d'autres habillages (`Habitat`, `Internet`).
+
+## Q5.3 — Biplot
+
+```{r}
+# TODO : fviz_mca_biplot(res, repel = TRUE, label = "var")
+```
+
+**Q5.4** Décrivez la lecture barycentrique : une modalité est au barycentre
+des individus la possédant. Vérifiez sur 1 ou 2 modalités.
+
+# Partie 6 — Variables supplémentaires
+
+## Q6.1 — Modalités supplémentaires
+
+Affichez les coordonnées et $\cos^2$ des modalités supplémentaires
+(`Diplome`, `Profession`).
+
+```{r}
+# TODO : res$quali.sup$coord[, 1:2]
+#        res$quali.sup$cos2[, 1:2]
+```
+
+**Q6.2** Tracez les modalités supplémentaires en superposition.
+
+```{r}
+# TODO : fviz_mca_var(res, repel = TRUE, choice = "quali.sup",
+#                    col.quali.sup = "darkgreen")
+```
+
+**Q6.3** Quelles modalités supplémentaires sont **proches** des extrémités
+des axes 1 et 2 ? Que cela vous apprend-il ?
+
+## Q6.4 — Description automatique des dimensions
+
+Utilisez `dimdesc()` pour identifier statistiquement les variables qui
+caractérisent chaque dimension.
+
+```{r}
+# TODO : dim_desc <- dimdesc(res, axes = 1:2, proba = 0.05)
+#        dim_desc$`Dim 1`$category
+```
+
+# Partie 7 — Classification (HCPC sur ACM)
+
+## Q7.1 — HCPC
+
+Appliquez une classification ascendante hiérarchique sur les composantes
+factorielles, avec consolidation k-means.
+
+```{r}
+# TODO : res.hcpc <- HCPC(res, nb.clust = -1, consol = TRUE, graph = FALSE)
+#        plot(res.hcpc, choice = "tree")
+#        plot(res.hcpc, choice = "map")
+```
+
+## Q7.2 — Caractérisation des classes
+
+```{r}
+# TODO : res.hcpc$desc.var$category   # modalités caractérisant chaque classe
+#        res.hcpc$desc.axes            # axes caractérisant chaque classe
+#        res.hcpc$desc.ind$para        # individus paragons (typiques)
+```
+
+**Q7.3** Combien de classes propose la coupure automatique ?
+Pour chacune, donnez un **nom métier** (ex : « Connectés urbains »,
+« Seniors ruraux ») et listez ses caractéristiques principales.
+
+# Partie 8 — Mini-projet : ACM personnalisée
+
+Reprenez l'analyse en mettant cette fois `Sexe` et `Age` en variables
+**supplémentaires** au lieu de `Diplome` et `Profession` (variables actives :
+les 5 variables d'usage numérique + Diplome + Profession).
+
+```{r}
+# TODO : new_actives <- c("Habitat","Internet","Reseaux","Streaming",
+#                         "Achats","Diplome","Profession")
+# res2 <- MCA(df[, c(new_actives, "Sexe","Age")],
+#             quali.sup = 8:9, graph = FALSE)
+```
+
+**Q8.1** Comment l'interprétation des axes change-t-elle ?
+**Q8.2** Le `Sexe` est-il bien représenté en supplémentaire ? Que cela suggère-t-il ?
+
+# Conclusion
+
+**Question finale** : en 8–10 lignes, comparez les apports de l'**AFC** (TP2) et
+de l'**ACM** (TP3) :
+
+- Champ d'application
+- Particularités de l'inertie totale en ACM
+- Pourquoi l'ACM est-elle souvent suivie d'une **classification** ?
+- Ce que la **correction de Benzécri** corrige-t-elle ?
+
+---
+
+*À rendre : un rapport HTML avec code, sorties et commentaires interprétatifs.*

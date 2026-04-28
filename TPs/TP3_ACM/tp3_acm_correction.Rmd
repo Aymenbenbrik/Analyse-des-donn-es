@@ -1,0 +1,231 @@
+---
+title: "TP3 — Analyse des Correspondances Multiples — **CORRECTION**"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Correction"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+```{r packages}
+library(FactoMineR); library(factoextra); library(dplyr); library(ade4)
+```
+
+# Partie 1 — Exploration
+
+```{r}
+df <- read.csv("enquete_numerique.csv", stringsAsFactors = TRUE)
+rownames(df) <- df$ID; df$ID <- NULL
+str(df); summary(df)
+```
+
+**Q1.2** : 300 individus × 9 variables qualitatives.
+$K = 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 5 = 35$ modalités au total
+(7 variables actives + 2 supplémentaires).
+Pour les 7 variables actives : $K = 26$, donc inertie totale théorique
+$= K/p - 1 = 26/7 - 1 \approx 2.71$.
+
+```{r}
+table(df$Age, df$Internet)
+chisq.test(table(df$Age, df$Internet))$p.value
+table(df$Habitat, df$Reseaux)
+chisq.test(table(df$Habitat, df$Reseaux))$p.value
+```
+
+**Q1.4** : Liaisons fortes : Age × Internet, Age × Réseaux, Habitat × Internet,
+Internet × Streaming. C'est cohérent : les jeunes urbains sont nettement plus
+connectés que les seniors ruraux.
+
+# Partie 2 — TDC et Burt
+
+```{r}
+Z <- acm.disjonctif(df[, 1:7])
+dim(Z); head(Z[, 1:8])
+table(rowSums(Z))   # tous = 7
+```
+
+**Q2.2** : Le TDC fait $300 \times 26$ ; chaque ligne somme à $7$ (vraie pour
+tous les individus).
+
+```{r}
+B <- t(as.matrix(Z)) %*% as.matrix(Z)
+B[1:6, 1:6]
+```
+
+Les blocs diagonaux $(j, j)$ sont diagonaux (effectifs des modalités) ;
+les blocs hors-diagonaux $(j, j')$ sont les tables de contingence
+entre $X^j$ et $X^{j'}$.
+
+# Partie 3 — Réalisation de l'ACM
+
+```{r}
+res <- MCA(df, quali.sup = 8:9, graph = FALSE)
+```
+
+```{r}
+sum(res$eig[, 1])
+K_actives <- sum(sapply(df[, 1:7], nlevels))
+K_actives / 7 - 1
+```
+
+**Q3.2** : Inertie totale empirique = inertie théorique $K/p - 1$.
+
+```{r}
+fviz_screeplot(res, addlabels = TRUE)
+res$eig[1:10, ]
+```
+
+```{r}
+seuil_benzecri <- 1 / 7
+sum(res$eig[, 1] > seuil_benzecri)
+```
+
+**Q3.4** : Selon Benzécri, on retient les axes avec $\lambda > 1/p \approx 0.143$.
+En pratique, on conserve **2 à 3 axes** pour l'interprétation.
+
+# Partie 4 — Représentation des modalités
+
+```{r}
+fviz_mca_var(res, repel = TRUE, col.var = "contrib",
+             gradient.cols = c("blue", "orange", "red"))
+```
+
+```{r}
+round(res$var$contrib[, 1:2], 1)
+round(res$var$cos2[, 1:2], 2)
+```
+
+**Q4.2 — Interprétation des axes** :
+
+- **Axe 1** (~25 % d'inertie) — principal axe de **« connectivité numérique »**.
+  À droite : Internet `Quotidien`, Réseaux `Quotidien`, Streaming `Quotidien`,
+  Achats `PlusieursParMois` ; à gauche : Internet `RareJamais`, Réseaux `Jamais`,
+  Streaming `Jamais`. C'est l'axe **digitalisé / non digitalisé**.
+- **Axe 2** (~12 % d'inertie) — axe **« âge / cycle de vie »**. Sépare le profil
+  *adolescent / étudiant* (jeune, métropolitain) des *adultes actifs* (urbain
+  modéré, usage important mais pas hyper).
+
+```{r}
+fviz_mca_var(res, choice = "var.cat", repel = TRUE)
+```
+
+# Partie 5 — Représentation des individus
+
+```{r}
+fviz_mca_ind(res, label = "none", habillage = "Age",
+             addEllipses = TRUE, ellipse.level = 0.7)
+fviz_mca_ind(res, label = "none", habillage = "Habitat",
+             addEllipses = TRUE, ellipse.level = 0.7)
+fviz_mca_ind(res, label = "none", habillage = "Internet",
+             addEllipses = TRUE, ellipse.level = 0.7)
+```
+
+**Q5.2** : `Age` et `Habitat` structurent visiblement le nuage : les ellipses
+des classes 18-29 et 65+ sont quasi-disjointes sur l'axe 1 ; idem entre
+Métropole et Rural.
+
+```{r}
+fviz_mca_biplot(res, repel = TRUE, label = "var")
+```
+
+**Q5.4 — Lecture barycentrique** : la modalité « Internet — RareJamais » est
+le **barycentre des individus rares-jamais connectés** ; sur le plan, on la
+trouve à proximité des individus seniors ruraux. C'est exactement le théorème
+de transition.
+
+# Partie 6 — Variables supplémentaires
+
+```{r}
+res$quali.sup$coord[, 1:2]
+res$quali.sup$cos2[, 1:2]
+```
+
+```{r}
+fviz_mca_var(res, repel = TRUE, choice = "quali.sup",
+             col.quali.sup = "darkgreen")
+```
+
+**Q6.3** : `BacPlus5` et `Cadre` sont à droite (forte connectivité), `Sans`
+et `Inactif` à gauche (faible). Cela confirme la liaison entre **niveau
+socio-éducatif** et **pratique numérique**.
+
+```{r}
+dim_desc <- dimdesc(res, axes = 1:2, proba = 0.05)
+head(dim_desc$`Dim 1`$category, 10)
+head(dim_desc$`Dim 2`$category, 10)
+```
+
+# Partie 7 — Classification HCPC
+
+```{r}
+res.hcpc <- HCPC(res, nb.clust = -1, consol = TRUE, graph = FALSE)
+plot(res.hcpc, choice = "tree")
+plot(res.hcpc, choice = "map")
+```
+
+```{r}
+res.hcpc$desc.var$category[[1]]   # classe 1
+res.hcpc$desc.var$category[[2]]   # classe 2
+res.hcpc$desc.var$category[[3]]   # classe 3 (s'il y en a)
+```
+
+**Q7.3 — Typologie** (les noms peuvent varier selon les classes obtenues) :
+
+- **Classe 1 — « Hyper-connectés urbains »** : modalités caractéristiques :
+  Internet/Réseaux/Streaming Quotidien, Achats fréquents, Métropole/GrandeVille,
+  18-29 ou 30-49 ans, BacPlus3+.
+- **Classe 2 — « Connectés modérés »** : usage hebdomadaire à mensuel,
+  PetiteVille, 30-49 ou 50-64, Bac/BacPlus3.
+- **Classe 3 — « Faiblement connectés »** : Internet RareJamais, Réseaux Jamais,
+  Rural, 65+, Sans diplôme, Inactifs.
+
+```{r}
+res.hcpc$desc.ind$para  # individus paragons par classe
+```
+
+# Partie 8 — Mini-projet ACM personnalisée
+
+```{r}
+new_actives <- c("Habitat","Internet","Reseaux","Streaming",
+                  "Achats","Diplome","Profession")
+df2 <- df[, c(new_actives, "Sexe","Age")]
+res2 <- MCA(df2, quali.sup = 8:9, graph = FALSE)
+
+fviz_screeplot(res2, addlabels = TRUE)
+fviz_mca_var(res2, repel = TRUE, col.var = "contrib")
+res2$quali.sup$cos2[, 1:2]
+```
+
+**Q8.1** : L'axe 1 reste l'axe « connectivité × niveau socio-éducatif », mais
+le poids des variables `Diplome` et `Profession` (maintenant actives) le
+renforce.
+
+**Q8.2** : `Sexe` (en supplémentaire) a des $\cos^2$ très faibles sur les deux
+premiers axes (~0.01) : il **ne structure pas** les pratiques numériques.
+C'est un résultat sociologique attendu : la fracture numérique passe avant
+tout par l'âge, l'habitat et le niveau socio-éducatif, pas par le genre.
+
+# Conclusion
+
+| Critère                | AFC (TP2)                          | ACM (TP3)                            |
+|------------------------|-------------------------------------|--------------------------------------|
+| Donnée d'entrée         | Tableau de contingence              | $p$ variables qualitatives           |
+| Nombre de variables     | 2                                   | $\geq 3$                             |
+| Inertie totale          | $\Phi^2 = \chi^2 / n$               | $K/p - 1$ (indépendant des liaisons !) |
+| Représentation          | Lignes + colonnes simultanées       | Modalités + individus                |
+| Suite typique           | —                                   | Classification (HCPC)                |
+
+L'ACM est centrale en analyse de **questionnaires**. Comme l'inertie totale
+ne dépend pas des liaisons mais seulement du nombre de modalités, on
+**complète toujours l'ACM par une classification** pour produire une typologie
+interprétable. La **correction de Benzécri** ($\lambda_k > 1/p$) corrige le
+biais qui sous-estime artificiellement les pourcentages d'inertie en ACM.
