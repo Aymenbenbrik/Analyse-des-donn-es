@@ -1,3 +1,400 @@
-%% Chapitre — Analyse Factorielle Discriminante (AFD)
-%% À compléter
+% ============================================================
+%  Chapitre 7 — Analyse Factorielle Discriminante (AFD)
+% ============================================================
 \section{Analyse Factorielle Discriminante (AFD)}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.1 Position du problème}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.1 — De la description à la discrimination}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Cadre} : on dispose d'un tableau $\mathbf{X} \in \R^{n \times p}$
+\alert{quantitatif} et d'une variable qualitative $Y \in \{1, \ldots, K\}$
+définissant $K$ groupes.
+
+\textbf{Deux objectifs} (versants de l'AFD)
+\begin{enumerate}
+  \item \textbf{Descriptif} : construire des combinaisons linéaires de $\mathbf{X}$
+        \alert{maximisant la séparation} des $K$ groupes.
+  \item \textbf{Décisionnel} : à partir d'une nouvelle observation,
+        \alert{prédire} son groupe (classification supervisée).
+\end{enumerate}
+
+\vspace{0.2cm}
+\textbf{Pont entre AD et ML}
+\begin{itemize}\small
+  \item Côté \alert{analyse des données} : AFD descriptive (Fisher 1936)
+  \item Côté \alert{ML supervisé} : LDA (Linear Discriminant Analysis)
+\end{itemize}
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=0.85]
+\foreach \x/\y in {0.5/0.5, 0.7/0.4, 0.6/0.7, 0.8/0.3, 0.4/0.6}
+  \fill[deepblue] (\x,\y) circle(2pt);
+\foreach \x/\y in {2.6/2.4, 2.8/2.6, 2.5/2.5, 2.7/2.3, 2.9/2.7}
+  \fill[deeporange] (\x,\y) circle(2pt);
+\foreach \x/\y in {0.6/2.4, 0.8/2.5, 0.5/2.6, 0.7/2.3, 0.4/2.5}
+  \fill[darkgreen] (\x,\y) circle(2pt);
+
+\draw[->] (-0.3,0) -- (3.3,0) node[right, font=\tiny]{$X_1$};
+\draw[->] (0,-0.3) -- (0,3.0) node[above, font=\tiny]{$X_2$};
+\draw[->, thick, deeporange] (-0.4, 1.0) -- (3.0, 1.5)
+  node[right, font=\tiny] {axe disc. 1};
+\draw[->, thick, darkgreen]  (1.0, -0.3) -- (1.5, 3.0)
+  node[above, font=\tiny] {axe disc. 2};
+\node[font=\tiny, gray] at (3.2, -0.3) {3 groupes};
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.2 Décomposition de la variance}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.2 — Décomposition de la variance (Huygens)}
+On note $n_k = |\mathcal{C}_k|$, $\mathbf{g}_k = \frac{1}{n_k}\sum_{i \in \mathcal{C}_k} \mathbf{x}_i$
+et $\mathbf{g} = \frac{1}{n}\sum_i \mathbf{x}_i$.
+
+\begin{theorem}[Décomposition de la matrice de variance-covariance]
+La matrice $\mathbf{V}$ se décompose en une partie inter-groupes (\emph{between})
+et une partie intra-groupes (\emph{within}) :
+\[
+\boxed{\;
+\mathbf{V} = \mathbf{B} + \mathbf{W}
+\;}
+\]
+avec
+\[
+\mathbf{B} = \frac{1}{n}\sum_{k=1}^K n_k (\mathbf{g}_k - \mathbf{g})(\mathbf{g}_k - \mathbf{g})^\top,
+\quad
+\mathbf{W} = \frac{1}{n}\sum_{k=1}^K \sum_{i \in \mathcal{C}_k} (\mathbf{x}_i - \mathbf{g}_k)(\mathbf{x}_i - \mathbf{g}_k)^\top.
+\]
+\end{theorem}
+
+\begin{remark}[Lien avec Huygens]
+\small Prendre la trace : $\Tr(\mathbf{V}) = \Tr(\mathbf{B}) + \Tr(\mathbf{W})$, soit
+$I_{\text{tot}} = I_{\text{inter}} + I_{\text{intra}}$.
+\end{remark}
+
+\begin{block}{Vocabulaire}
+\small $\mathbf{B}$ \emph{(between)} mesure l'écart \alert{entre groupes},
+$\mathbf{W}$ \emph{(within)} mesure la variabilité \alert{à l'intérieur} des groupes.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.3 Critère de Fisher}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.3 — Critère de Fisher}
+\begin{definition}[Critère de Fisher]
+Pour un axe $\mathbf{u} \in \R^p$, le \textbf{rapport de Fisher} est
+\[
+J(\mathbf{u}) = \frac{\mathbf{u}^\top \mathbf{B} \mathbf{u}}{\mathbf{u}^\top \mathbf{W} \mathbf{u}}
+\quad\in\R^+.
+\]
+On cherche les directions $\mathbf{u}$ maximisant $J$ : axes \alert{discriminants}.
+\end{definition}
+
+\textbf{Interprétation}
+\begin{itemize}\small
+  \item Numérateur : variance \alert{inter-groupes} sur l'axe $\mathbf{u}$
+  \item Dénominateur : variance \alert{intra-groupes} sur l'axe $\mathbf{u}$
+  \item Maximiser $J \Leftrightarrow$ groupes \emph{distants} en moyenne et
+        \emph{compacts} individuellement
+\end{itemize}
+
+\begin{block}{Fisher (1936)}
+\small \emph{« Trouver la direction qui sépare au mieux les groupes en
+écrasant la variabilité intra. »}\\
+Cette idée fonde toute la \alert{discriminance linéaire} et préfigure les SVM.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.4 Démonstration}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.4 — Maximisation : valeurs propres généralisées}
+\textbf{Maximiser} $J(\mathbf{u}) = (\mathbf{u}^\top \mathbf{B} \mathbf{u}) / (\mathbf{u}^\top \mathbf{W} \mathbf{u})$
+sous $\mathbf{W}$ inversible.
+
+\medskip
+\textbf{Lagrangien} (avec normalisation $\mathbf{u}^\top \mathbf{W} \mathbf{u} = 1$) :
+\[
+\mathcal{L}(\mathbf{u}, \mu) = \mathbf{u}^\top \mathbf{B} \mathbf{u} - \mu (\mathbf{u}^\top \mathbf{W} \mathbf{u} - 1).
+\]
+
+\textbf{Condition du premier ordre}
+\[
+\nabla_{\mathbf{u}} \mathcal{L} = 2\mathbf{B}\mathbf{u} - 2\mu \mathbf{W}\mathbf{u} = 0
+\;\Longleftrightarrow\;
+\boxed{\;\mathbf{B}\mathbf{u} = \mu\, \mathbf{W}\mathbf{u}.\;}
+\]
+
+\begin{theorem}[Solution]
+Les axes discriminants $\mathbf{u}_k$ sont les \alert{vecteurs propres généralisés}
+du couple $(\mathbf{B}, \mathbf{W})$, ou de manière équivalente les
+vecteurs propres de $\mathbf{W}^{-1}\mathbf{B}$.
+La valeur de $J$ atteint à l'optimum est $\mu = \lambda_k$.
+\end{theorem}
+
+\begin{remark}[Nombre d'axes]
+\small On a $\rang(\mathbf{B}) \leq K - 1$ : il existe au maximum $K-1$ axes
+discriminants non triviaux.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.5 Cas de deux groupes}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.5 — Cas particulier : $K = 2$ groupes}
+\begin{theorem}[Direction de Fisher pour 2 groupes]
+Lorsque $K = 2$, l'unique axe discriminant est, à un scalaire près :
+\[
+\mathbf{u}^* = \mathbf{W}^{-1}(\mathbf{g}_1 - \mathbf{g}_2).
+\]
+\end{theorem}
+
+\textbf{Démonstration (idée).}
+$\mathbf{B} = \frac{n_1 n_2}{n^2}(\mathbf{g}_1 - \mathbf{g}_2)(\mathbf{g}_1 - \mathbf{g}_2)^\top$
+est de rang 1. Tout $\mathbf{u}$ vecteur propre de $\mathbf{W}^{-1}\mathbf{B}$ associé à
+la valeur propre non nulle vérifie
+$\mathbf{W}^{-1}(\mathbf{g}_1 - \mathbf{g}_2) \cdot c = \lambda \mathbf{u}$ pour un $c$,
+donc $\mathbf{u} \propto \mathbf{W}^{-1}(\mathbf{g}_1 - \mathbf{g}_2)$.
+
+\begin{block}{Lecture}
+\small Le vecteur $(\mathbf{g}_1 - \mathbf{g}_2)$ est la direction reliant
+les centres de gravité, modifiée par $\mathbf{W}^{-1}$ qui décorrèle et standardise
+selon la dispersion intra-classes.
+\end{block}
+
+\begin{remark}
+\small C'est exactement la \emph{linear discriminant function} introduite par
+Fisher en 1936 sur les iris d'Edgar Anderson.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.6 Représentation factorielle}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.6 — Représentation des individus et des groupes}
+\textbf{Coordonnées factorielles discriminantes}
+\[
+F_k(i) = \mathbf{x}_i^\top \mathbf{u}_k, \qquad
+F_k(\mathbf{g}_l) = \mathbf{g}_l^\top \mathbf{u}_k.
+\]
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Plan factoriel discriminant}
+\begin{itemize}\small
+  \item Les individus sont colorés par leur groupe d'origine
+  \item Les centres de gravité $\mathbf{g}_k$ sont projetés
+  \item Distances dans le plan $\propto$ \emph{distinguabilité}
+        statistique
+  \item Plus les centres sont éloignés, mieux les groupes
+        sont \alert{séparables}
+\end{itemize}
+\column{0.49\textwidth}
+\textbf{Pouvoir discriminant des axes}
+\[
+\tau_k = \frac{\lambda_k}{\sum_{l=1}^{K-1} \lambda_l}
+\]
+représente la part de \emph{séparabilité} expliquée par l'axe $k$.
+
+\vspace{0.2cm}
+\begin{block}{Interprétation}
+\small Si $\tau_1 > 90\%$, un \emph{seul} axe suffit à distinguer les groupes.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.7 Règle de classement linéaire}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.7 — Règle de classement (versant décisionnel)}
+\begin{definition}[Règle de Mahalanobis]
+On affecte un nouvel individu $\mathbf{x}^*$ à la classe minimisant la
+\textbf{distance de Mahalanobis} aux centres :
+\[
+\hat{k}(\mathbf{x}^*) = \argmin_{k}
+\;(\mathbf{x}^* - \mathbf{g}_k)^\top \mathbf{W}^{-1} (\mathbf{x}^* - \mathbf{g}_k).
+\]
+\end{definition}
+
+\begin{theorem}[Forme linéaire]
+La frontière entre deux classes $k$ et $l$ est l'\textbf{hyperplan affine}
+\[
+\bigl\{\mathbf{x} : 2(\mathbf{g}_k - \mathbf{g}_l)^\top \mathbf{W}^{-1} \mathbf{x}
+= \mathbf{g}_k^\top \mathbf{W}^{-1} \mathbf{g}_k - \mathbf{g}_l^\top \mathbf{W}^{-1} \mathbf{g}_l \bigr\}.
+\]
+La règle de classement est donc \alert{linéaire} (LDA = \emph{Linear} Discriminant Analysis).
+\end{theorem}
+
+\begin{remark}
+\small Géométriquement, on projette $\mathbf{x}^*$ sur les axes discriminants
+puis on classe par la classe la plus proche : la procédure est équivalente.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.8 Règle de Bayes (cas gaussien)}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.8 — Lien probabiliste : règle de Bayes}
+\textbf{Hypothèse} : $(X | Y = k) \sim \mathcal{N}_p(\mu_k, \Sigma_k)$,
+$\mathbb{P}(Y = k) = \pi_k$.
+
+\textbf{Règle de Bayes optimale} (minimisant la probabilité d'erreur) :
+\[
+\hat{k}_B(\mathbf{x}) = \argmax_k\; \pi_k\, \phi_k(\mathbf{x}),
+\quad
+\phi_k(\mathbf{x}) = \frac{\exp\!\bigl(-\tfrac{1}{2}(\mathbf{x}-\mu_k)^\top \Sigma_k^{-1}(\mathbf{x}-\mu_k)\bigr)}
+{(2\pi)^{p/2} |\Sigma_k|^{1/2}}.
+\]
+
+\begin{theorem}[Cas $\Sigma_k = \Sigma$ (homoscédasticité)]
+Si toutes les matrices de covariance sont \alert{égales}, la règle de Bayes
+\textbf{coïncide} avec l'AFD à la pondération près des $\pi_k$ :
+\[
+\hat{k}_B(\mathbf{x}) = \argmin_k\;
+(\mathbf{x} - \mu_k)^\top \Sigma^{-1}(\mathbf{x} - \mu_k) - 2\ln \pi_k.
+\]
+\end{theorem}
+
+\begin{remark}[Lien Fisher / Bayes]
+\small L'AFD est donc \alert{optimale} (au sens de Bayes) sous deux hypothèses :
+\begin{enumerate}\small
+  \item lois \emph{conditionnelles} gaussiennes
+  \item \emph{même} matrice de covariance $\Sigma_k = \Sigma$ pour tous les groupes
+\end{enumerate}
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.9 Analyse discriminante quadratique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.9 — Analyse discriminante quadratique (ADQ / QDA)}
+\textbf{Quand abandonner l'homoscédasticité ?}\\
+Si les groupes ont des covariances très différentes, on garde la règle
+de Bayes mais avec $\Sigma_k$ propres à chaque classe.
+
+\begin{theorem}[Frontière quadratique]
+La règle de Bayes avec $\Sigma_k$ libres donne :
+\[
+\hat{k}(\mathbf{x}) = \argmax_k\;
+\Bigl[\, -\tfrac{1}{2}\ln|\Sigma_k|
+       -\tfrac{1}{2}(\mathbf{x}-\mu_k)^\top \Sigma_k^{-1}(\mathbf{x}-\mu_k)
+       + \ln \pi_k \,\Bigr].
+\]
+La frontière entre deux classes est une \alert{quadrique} (généralisation de
+l'hyperplan).
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Compromis biais / variance}
+\begin{itemize}\small
+  \item LDA : moins de paramètres, robuste à $n$ petit
+  \item QDA : plus flexible, exige $n$ \alert{grand} par classe
+  \item Test d'égalité $H_0 : \Sigma_1 = \cdots = \Sigma_K$ (test de Box)
+\end{itemize}
+\column{0.49\textwidth}
+\begin{block}{En pratique}
+\small Si $K p (p+1)/2$ paramètres dépassent $n$, préférer LDA ou des
+variantes régularisées (RDA de Friedman).
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.10 Évaluation}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.10 — Évaluation : matrice de confusion et validation croisée}
+\begin{definition}[Matrice de confusion et taux d'erreur]
+\[
+M_{kl} = |\{i : Y_i = k,\; \hat Y_i = l\}|,
+\qquad
+\text{erreur} = \frac{1}{n}\sum_{k \neq l} M_{kl}.
+\]
+\end{definition}
+
+\begin{block}{Taux d'erreur en \emph{re-substitution}}
+\small \textbf{Optimiste} : on classe les individus qui ont servi à construire les axes.
+\end{block}
+
+\textbf{Validation croisée}
+\begin{itemize}\small
+  \item \alert{Hold-out} : 70\% apprentissage / 30\% test
+  \item \alert{$k$-fold} : moyenne sur $k$ partitions
+  \item \alert{Leave-one-out} : version exacte mais coûteuse
+\end{itemize}
+
+\begin{remark}
+\small On reporte aussi : précision, rappel et F1 par classe ; parfois la
+\textbf{courbe ROC} (cas $K=2$) ou son extension multi-classes (\textit{one-vs-rest}).
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.11 Code R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{7.11 — AFD avec R}
+\begin{lstlisting}
+library(MASS); library(FactoMineR); library(caret)
+
+data(iris)
+
+# AFD (LDA) descriptive et decisionnelle
+res.lda <- lda(Species ~ ., data = iris)
+res.lda$svd^2 / sum(res.lda$svd^2)   # part discriminante par axe
+
+# Plan factoriel discriminant
+proj <- predict(res.lda)$x
+plot(proj[, 1:2], col = iris$Species, pch = 19,
+     xlab = "LD1", ylab = "LD2")
+legend("topright", legend = levels(iris$Species),
+       col = 1:3, pch = 19)
+
+# Validation croisee leave-one-out
+res.cv <- lda(Species ~ ., data = iris, CV = TRUE)
+table(iris$Species, res.cv$class)        # matrice de confusion
+mean(res.cv$class != iris$Species)        # taux d'erreur
+
+# Analyse discriminante quadratique (QDA)
+res.qda <- qda(Species ~ ., data = iris)
+qda.pred <- predict(res.qda)$class
+table(iris$Species, qda.pred)
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{7.12 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{7.12 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{À retenir}
+\begin{itemize}\small
+  \item Décomposition $\mathbf{V} = \mathbf{B} + \mathbf{W}$ (Huygens)
+  \item Critère de Fisher $J(\mathbf{u}) = \mathbf{u}^\top \mathbf{B} \mathbf{u} / \mathbf{u}^\top \mathbf{W} \mathbf{u}$
+  \item Solution : vecteurs propres généralisés $(\mathbf{B}, \mathbf{W})$
+  \item Au plus $K-1$ axes discriminants
+  \item Règle de Mahalanobis $\Leftrightarrow$ classement linéaire
+  \item Optimalité bayésienne sous gaussianité + homoscédasticité
+  \item ADQ : frontières quadratiques
+  \item Évaluation : matrice de confusion + validation croisée
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{Articulation avec le cours}
+\begin{itemize}\small
+  \item \textbf{Ch. 1} : Huygens fonde le critère
+  \item \textbf{Ch. 2} : valeurs propres généralisées
+  \item \textbf{Ch. 6} : AFD = version supervisée de la classification
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Pont vers le ML}
+\small L'AFD est une porte d'entrée vers la classification supervisée
+(LDA, QDA, naive Bayes gaussien, mélange de gaussiennes pour la génération).
+\end{alertblock}
+\end{columns}
+\end{frame}
