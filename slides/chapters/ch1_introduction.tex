@@ -1,3 +1,475 @@
-%% Chapitre — Introduction et Statistiques Descriptives Multivariées
-%% À compléter
+% ============================================================
+%  Chapitre 1 — Introduction et Statistiques Descriptives Multivariées
+% ============================================================
 \section{Introduction et Statistiques Descriptives Multivariées}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.1 Position de l'analyse des données}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.1 — Qu'est-ce que l'analyse des données ?}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{definition}
+L'\textbf{analyse des données} (\textit{data analysis}) est l'ensemble des
+techniques exploratoires \alert{descriptives}, fondées sur la
+\textbf{décomposition matricielle} et la \textbf{géométrie des nuages de points},
+visant à révéler la structure d'un tableau de données
+$\mathbf{X} \in \R^{n \times p}$ \emph{sans modèle probabiliste}.
+\end{definition}
+
+\vspace{0.3cm}
+\textbf{Tradition française} (Benzécri, années 1960) :
+\begin{itemize}\small
+  \item \alert{Géométrique} (inertie, projections orthogonales)
+  \item \alert{Descriptive} (pas d'hypothèses inférentielles)
+  \item \alert{Visuelle} (cartes factorielles)
+\end{itemize}
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=0.85, font=\scriptsize,
+  box/.style={draw=deepblue, fill=deepblue!10, rounded corners,
+              minimum width=3.3cm, minimum height=0.65cm, align=center}]
+  \node[box]                      (stat) at (0, 2.2) {Statistique\\inférentielle};
+  \node[box, fill=deeporange!10, draw=deeporange]  (ad)   at (0, 0.9) {Analyse\\des données};
+  \node[box, fill=darkgreen!10, draw=darkgreen]    (ml)   at (0,-0.4) {Machine\\Learning};
+  \node[font=\tiny, gray, align=center] at (4.4, 2.2) {modèle\\$+$ tests};
+  \node[font=\tiny, gray, align=center] at (4.4, 0.9) {description\\géométrique};
+  \node[font=\tiny, gray, align=center] at (4.4,-0.4) {prédiction\\$+$ optimisation};
+  \draw[->, thick, gray] (stat.south) -- (ad.north);
+  \draw[->, thick, gray] (ad.south)   -- (ml.north);
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.1 — Objectifs de l'analyse des données}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Trois grands objectifs}
+\begin{enumerate}
+  \item \textbf{Réduire la dimension} : remplacer $p$ variables corrélées
+        par $q \ll p$ \emph{composantes synthétiques}.
+  \item \textbf{Représenter graphiquement} les individus et les variables
+        sur des plans factoriels.
+  \item \textbf{Classifier} (typer) les individus en groupes homogènes.
+\end{enumerate}
+
+\vspace{0.3cm}
+\textbf{Méthodes selon le type de données}
+\begin{itemize}\small
+  \item Quantitatives $\to$ \alert{ACP}
+  \item Tableau de contingence $\to$ \alert{AFC}
+  \item Qualitatives $\to$ \alert{ACM}
+  \item Mixtes $\to$ AFDM, AFM
+\end{itemize}
+\column{0.49\textwidth}
+\begin{block}{Place de ce cours}
+  Articulation entre :
+  \begin{itemize}\small
+    \item \textbf{algèbre linéaire} (LMAD, théorèmes)
+    \item \textbf{statistique multivariée} (GAMMA)
+    \item \textbf{interprétation métier} (BA)
+  \end{itemize}
+\end{block}
+
+\begin{alertblock}{Différence avec le ML supervisé}
+  Pas de variable cible $y$ : on cherche à \alert{décrire} et
+  \alert{comprendre} la structure, pas à \alert{prédire}.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.2 Tableau de données}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.2 — Le tableau de données}
+\begin{definition}[Tableau de données]
+On note $\mathbf{X} \in \R^{n \times p}$ le tableau dont la ligne $i$ (individu) est
+$\mathbf{x}_i = (x_{i1}, \ldots, x_{ip})^\top \in \R^p$, et la colonne $j$
+(variable) est $\mathbf{x}^j = (x_{1j}, \ldots, x_{nj})^\top \in \R^n$.
+\end{definition}
+
+\begin{columns}[T]
+\column{0.50\textwidth}
+\textbf{Deux lectures}
+\begin{itemize}
+  \item \textbf{Ligne} : nuage des $n$ individus dans $\R^p$
+  \item \textbf{Colonne} : nuage des $p$ variables dans $\R^n$
+\end{itemize}
+\vspace{0.2cm}
+\textbf{Types de variables}
+\begin{itemize}\small
+  \item \emph{Quantitatives} (continues, discrètes) : ACP
+  \item \emph{Qualitatives nominales} : ACM
+  \item \emph{Qualitatives ordinales} : recodage prudent
+  \item \emph{Effectifs / contingence} : AFC
+\end{itemize}
+\column{0.46\textwidth}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{c|ccccc}
+  & $V_1$ & $V_2$ & $\cdots$ & $V_p$ \\
+\hline
+$i_1$    & $x_{11}$ & $x_{12}$ & $\cdots$ & $x_{1p}$ \\
+$i_2$    & $x_{21}$ & $x_{22}$ & $\cdots$ & $x_{2p}$ \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ \\
+$i_n$    & $x_{n1}$ & $x_{n2}$ & $\cdots$ & $x_{np}$ \\
+\end{tabular}
+
+\vspace{0.3cm}
+\begin{block}{\small Exemple}
+\small Tableau \texttt{decathlon} : $n=41$ athlètes,
+$p=10$ disciplines $+$ classement.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.3 Statistiques descriptives univariées}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.3 — Caractéristiques d'une variable}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\textbf{Tendance centrale}
+\begin{align*}
+\bar{x}^j &= \frac{1}{n}\sum_{i=1}^n x_{ij}
+  \quad\text{(moyenne arithmétique)}\\
+\tilde{x}^j &= \text{médiane}(\mathbf{x}^j)
+\end{align*}
+
+\textbf{Dispersion}
+\begin{align*}
+s_j^2 &= \frac{1}{n}\sum_{i=1}^n (x_{ij} - \bar{x}^j)^2
+  \quad\text{(variance empirique)}\\
+s_j   &= \sqrt{s_j^2} \quad\text{(écart-type)}
+\end{align*}
+
+\begin{remark}
+On utilise ici la variance \alert{biaisée} (divisée par $n$),
+adaptée à l'analyse géométrique.
+\end{remark}
+\column{0.46\textwidth}
+\textbf{Quantiles et étendue}
+\begin{itemize}\small
+  \item $Q_1, Q_2 = \tilde{x}, Q_3$ : quartiles
+  \item $IQR = Q_3 - Q_1$ : écart interquartile
+  \item Étendue : $\max - \min$
+\end{itemize}
+
+\textbf{Forme}
+\begin{itemize}\small
+  \item Asymétrie (skewness) : $\gamma_1 = \E[(X-\mu)^3]/\sigma^3$
+  \item Aplatissement (kurtosis) : $\gamma_2 = \E[(X-\mu)^4]/\sigma^4 - 3$
+\end{itemize}
+
+\begin{alertblock}{Présence d'outliers}
+  Préférer $\tilde{x}$ et $IQR$ à $\bar{x}$ et $s$ pour résumer une
+  variable contaminée.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.4 Statistiques descriptives bivariées}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.4 — Liaison entre deux variables}
+\begin{definition}[Covariance et corrélation empiriques]
+Pour deux variables $\mathbf{x}^j, \mathbf{x}^k \in \R^n$ :
+\[
+\Cov(\mathbf{x}^j, \mathbf{x}^k)
+= \frac{1}{n}\sum_{i=1}^n (x_{ij}-\bar{x}^j)(x_{ik}-\bar{x}^k),
+\qquad
+\Cor(\mathbf{x}^j, \mathbf{x}^k) = \frac{\Cov(\mathbf{x}^j, \mathbf{x}^k)}{s_j \, s_k}.
+\]
+\end{definition}
+
+\begin{proposition}[Propriétés de la corrélation]
+\begin{enumerate}
+  \item $\Cor(\mathbf{x}^j, \mathbf{x}^k) \in [-1, 1]$ \hfill (Cauchy-Schwarz)
+  \item $|\Cor| = 1 \iff \mathbf{x}^k$ est fonction \emph{affine} de $\mathbf{x}^j$
+  \item $\Cor$ est invariante par changement d'unités linéaire (échelle, origine)
+  \item $\Cor = 0 \not\Rightarrow$ indépendance (mesure uniquement la liaison \emph{linéaire})
+\end{enumerate}
+\end{proposition}
+
+\vspace{0.1cm}
+\begin{block}{Forme matricielle}
+$\mathbf{V} = \frac{1}{n} \mathbf{X}_c^\top \mathbf{X}_c$ : matrice de variance-covariance ($p\times p$).\\
+$\mathbf{R} = \mathbf{D}_{1/s}\, \mathbf{V}\, \mathbf{D}_{1/s}$ : matrice de corrélation, où $\mathbf{D}_{1/s} = \text{diag}(1/s_j)$.
+\end{block}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.5 Centrage et réduction}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.5 — Centrage et réduction}
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{Centrage}
+\[
+\mathbf{X}_c = \mathbf{X} - \1_n \bar{\mathbf{x}}^\top, \quad
+\bar{\mathbf{x}} = \frac{1}{n}\mathbf{X}^\top \1_n
+\]
+$\Leftrightarrow$ déplacer l'origine au centre de gravité $\mathbf{g}$.
+
+\vspace{0.3cm}
+\textbf{Réduction (standardisation)}
+\[
+\mathbf{Z} = \mathbf{X}_c \, \mathbf{D}_{1/s}, \quad z_{ij} = \frac{x_{ij} - \bar{x}^j}{s_j}
+\]
+$\Leftrightarrow$ rendre les variables \alert{adimensionnelles}.
+
+\begin{theorem}[Effet sur la variance-covariance]
+\[
+\mathbf{V}(\mathbf{X}_c) = \mathbf{V}(\mathbf{X}), \qquad
+\mathbf{V}(\mathbf{Z}) = \mathbf{R}(\mathbf{X}).
+\]
+\end{theorem}
+\column{0.44\textwidth}
+\begin{block}{Pourquoi réduire ?}
+\begin{itemize}\small
+  \item Variables d'\alert{unités différentes} (kg, \euro, années)
+  \item Variances très différentes
+  \item Sans réduction, l'ACP est dominée par la variable de plus grande variance
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Quand ne pas réduire ?}
+\small Lorsque les variables sont
+\textbf{de même nature} et de variances comparables
+(ex : températures aux mois de l'année).
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.6 Distance et métrique}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.6 — Distance entre individus}
+\begin{definition}[Métrique]
+Une \textbf{métrique} sur $\R^p$ est une matrice $\mathbf{M}$ \alert{symétrique
+définie positive}. La distance associée entre $\mathbf{x}_i$ et $\mathbf{x}_{i'}$ est :
+\[
+d_{\mathbf{M}}^2(\mathbf{x}_i, \mathbf{x}_{i'}) = (\mathbf{x}_i - \mathbf{x}_{i'})^\top \mathbf{M} (\mathbf{x}_i - \mathbf{x}_{i'}).
+\]
+\end{definition}
+
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Cas particuliers}
+\begin{itemize}\small
+  \item $\mathbf{M} = \mathbf{I}_p$ : distance \alert{euclidienne classique}\\
+        $d^2 = \sum_j (x_{ij}-x_{i'j})^2$
+  \item $\mathbf{M} = \mathbf{D}_{1/s^2}$ : distance \alert{euclidienne réduite}\\
+        $d^2 = \sum_j \frac{(x_{ij}-x_{i'j})^2}{s_j^2}$
+  \item $\mathbf{M} = \mathbf{V}^{-1}$ : \alert{Mahalanobis}
+  \item $\mathbf{M} = \mathbf{D}_{1/x_{\bullet j}}$ : $\chi^2$ (AFC)
+\end{itemize}
+\column{0.49\textwidth}
+\begin{proposition}[Choix de la métrique]
+Le choix de $\mathbf{M}$ \emph{définit} l'analyse :
+\begin{itemize}\small
+  \item ACP normée $\equiv$ ACP centrée avec $\mathbf{M} = \mathbf{D}_{1/s^2}$
+  \item AFC : tableau de profils, $\mathbf{M}_{\chi^2}$
+  \item AFD : $\mathbf{M} = \mathbf{V}_{\text{intra}}^{-1}$
+\end{itemize}
+\end{proposition}
+
+\begin{block}{Pondération des individus}
+\small Chaque individu a un poids $p_i \geq 0$ tel que
+$\sum_i p_i = 1$. Cas usuel : $p_i = 1/n$.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.7 Notion d'inertie}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.7 — Inertie : la mesure de l'analyse des données}
+\begin{definition}[Inertie totale d'un nuage]
+Soit $\mathcal{N} = \{(\mathbf{x}_i, p_i)\}_{i=1}^n$ un nuage pondéré de centre de gravité
+$\mathbf{g} = \sum_i p_i \mathbf{x}_i$. L'\textbf{inertie totale} de $\mathcal{N}$ par rapport à
+$\mathbf{g}$, dans la métrique $\mathbf{M}$, est :
+\[
+I_{\mathcal{N}} = \sum_{i=1}^n p_i \, d_{\mathbf{M}}^2(\mathbf{x}_i, \mathbf{g})
+= \sum_{i=1}^n p_i \, (\mathbf{x}_i - \mathbf{g})^\top \mathbf{M} (\mathbf{x}_i - \mathbf{g}).
+\]
+\end{definition}
+
+\begin{proposition}[Lien avec la trace]
+Soit $\mathbf{V} = \sum_i p_i (\mathbf{x}_i - \mathbf{g})(\mathbf{x}_i - \mathbf{g})^\top$
+la matrice de variance-covariance pondérée. Alors :
+\[
+\boxed{\,I_{\mathcal{N}} = \Tr(\mathbf{V} \mathbf{M}).\,}
+\]
+\end{proposition}
+
+\begin{remark}
+Pour $\mathbf{M} = \mathbf{I}_p$ et $p_i = 1/n$ : $I_{\mathcal{N}} = \Tr(\mathbf{V}) = \sum_j s_j^2$,
+soit la \textbf{somme des variances} des variables. En ACP normée :
+$I_{\mathcal{N}} = \Tr(\mathbf{R}) = p$.
+\end{remark}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.8 Théorème d'Huygens}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.8 — Théorème de Huygens (décomposition de l'inertie)}
+\begin{theorem}[Huygens]
+Soit $\mathcal{N}$ un nuage partitionné en $K$ classes $\mathcal{C}_1, \ldots, \mathcal{C}_K$
+de poids respectifs $P_k = \sum_{i \in \mathcal{C}_k} p_i$ et de barycentres
+$\mathbf{g}_k = \frac{1}{P_k}\sum_{i \in \mathcal{C}_k} p_i \mathbf{x}_i$. Alors :
+\[
+\boxed{\;
+\underbrace{\sum_{i} p_i \, d^2(\mathbf{x}_i, \mathbf{g})}_{I_{\text{totale}}}
+=
+\underbrace{\sum_{k=1}^K \sum_{i \in \mathcal{C}_k} p_i \, d^2(\mathbf{x}_i, \mathbf{g}_k)}_{I_{\text{intra}}}
+\;+\;
+\underbrace{\sum_{k=1}^K P_k \, d^2(\mathbf{g}_k, \mathbf{g})}_{I_{\text{inter}}}.
+\;}
+\]
+\end{theorem}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Conséquences fondamentales}
+\begin{itemize}\small
+  \item \alert{Clustering} : minimiser $I_{\text{intra}}$ $\Leftrightarrow$
+        maximiser $I_{\text{inter}}$ (k-means)
+  \item \alert{Réduction de dimension} : maximiser
+        l'inertie projetée $\Leftrightarrow$ minimiser
+        l'inertie résiduelle (ACP)
+  \item \alert{AFD} : critère de Fisher
+        $\max \, I_{\text{inter}} / I_{\text{intra}}$
+\end{itemize}
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=0.9]
+\fill[deepblue!10] (0.5,0.5) circle(0.5cm);
+\fill[deeporange!10] (2.5,0.7) circle(0.5cm);
+\fill[darkgreen!10] (1.7,2.0) circle(0.45cm);
+\foreach \x/\y in {0.2/0.5, 0.4/0.7, 0.7/0.4, 0.5/0.3}
+  \fill[deepblue] (\x,\y) circle(1.3pt);
+\foreach \x/\y in {2.3/0.6, 2.6/0.8, 2.7/0.5, 2.4/0.9}
+  \fill[deeporange] (\x,\y) circle(1.3pt);
+\foreach \x/\y in {1.6/2.0, 1.8/2.1, 1.7/1.8}
+  \fill[darkgreen] (\x,\y) circle(1.3pt);
+\fill[deepblue] (0.45,0.5) circle(2.5pt) node[left, font=\tiny] {$\mathbf{g}_1$};
+\fill[deeporange] (2.5,0.7) circle(2.5pt) node[right, font=\tiny] {$\mathbf{g}_2$};
+\fill[darkgreen] (1.7,2.0) circle(2.5pt) node[above, font=\tiny] {$\mathbf{g}_3$};
+\fill[black] (1.55,1.06) circle(2.5pt) node[right, font=\tiny] {$\mathbf{g}$};
+\draw[dashed, gray] (0.45,0.5) -- (1.55,1.06);
+\draw[dashed, gray] (2.5,0.7)  -- (1.55,1.06);
+\draw[dashed, gray] (1.7,2.0)  -- (1.55,1.06);
+\end{tikzpicture}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.9 Le tableau comme deux nuages}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.9 — Dualité individus / variables}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Nuage des individus $\mathcal{N}_I$ dans $\R^p$}
+\begin{itemize}\small
+  \item $n$ points $\mathbf{x}_i$
+  \item Métrique $\mathbf{M}$ sur $\R^p$
+  \item Pondération $\mathbf{D}_p = \text{diag}(p_i)$
+  \item Centre $\mathbf{g}$, inertie $\Tr(\mathbf{V}\mathbf{M})$
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Nuage des variables $\mathcal{N}_V$ dans $\R^n$}
+\begin{itemize}\small
+  \item $p$ points $\mathbf{x}^j$
+  \item Métrique $\mathbf{D}_p$ sur $\R^n$
+  \item Pondération $\mathbf{M}$ sur les variables
+  \item Produit scalaire $\langle \mathbf{x}^j, \mathbf{x}^k \rangle = \Cov(\mathbf{x}^j, \mathbf{x}^k)$
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{theorem}[Dualité]
+Les deux nuages $\mathcal{N}_I$ et $\mathcal{N}_V$ partagent les
+\alert{mêmes valeurs propres non nulles}. La même décomposition
+matricielle (SVD de $\mathbf{X}$) fournit simultanément :
+\begin{itemize}\small
+  \item les axes principaux de $\mathcal{N}_I$
+  \item les axes principaux de $\mathcal{N}_V$
+\end{itemize}
+\end{theorem}
+
+\begin{block}{Conséquence pratique}
+\small Les \textbf{individus} et les \textbf{variables} se représentent
+sur les \emph{mêmes} plans factoriels (biplot) — l'ACP est
+\alert{auto-duale}.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.10 Aperçu R}
+% ────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{1.10 — Aperçu : statistiques descriptives en R}
+\begin{lstlisting}
+library(FactoMineR)    # methodes factorielles
+library(factoextra)    # visualisation
+library(corrplot)      # matrice de correlations
+
+data(decathlon)        # 41 athletes x 13 variables
+X <- decathlon[, 1:10] # variables actives quantitatives
+
+# Statistiques univariees
+summary(X)
+sapply(X, sd)
+
+# Centrage / reduction
+Z <- scale(X)          # par defaut center=TRUE, scale=TRUE
+colMeans(Z); apply(Z, 2, sd)
+
+# Matrice de variance-covariance et de correlation
+V <- cov(X)            # divise par n-1 (correction de Bessel)
+R <- cor(X)
+corrplot(R, method = "color", type = "upper", tl.cex = 0.7)
+
+# Inertie totale (ACP normee)
+sum(diag(R))           # = nombre de variables = 10
+\end{lstlisting}
+\end{frame}
+
+% ────────────────────────────────────────────────────────────
+\subsection{1.11 Récapitulatif}
+% ────────────────────────────────────────────────────────────
+\begin{frame}{1.11 — Récapitulatif du chapitre}
+\begin{columns}[T]
+\column{0.49\textwidth}
+\textbf{Concepts à retenir}
+\begin{itemize}\small
+  \item Tableau $\mathbf{X} \in \R^{n\times p}$, deux lectures
+        (individus / variables)
+  \item Matrice de variance-covariance
+        $\mathbf{V} = \frac{1}{n}\mathbf{X}_c^\top \mathbf{X}_c$
+  \item Matrice de corrélation $\mathbf{R}$
+  \item Centrage (décalage), réduction (échelle)
+  \item Métrique $\mathbf{M}$ symétrique définie positive
+  \item Inertie $I = \Tr(\mathbf{V}\mathbf{M})$
+  \item Théorème de Huygens : $I = I_{\text{intra}} + I_{\text{inter}}$
+\end{itemize}
+
+\column{0.49\textwidth}
+\begin{block}{À venir}
+\textbf{Chapitre 2} : algèbre linéaire pour l'analyse des données
+\begin{itemize}\small
+  \item Théorème spectral
+  \item Décomposition en valeurs singulières (SVD)
+  \item Théorème d'Eckart-Young
+  \item Projections orthogonales
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{Idée directrice}
+Toute l'analyse des données est une
+\textbf{décomposition d'inertie} via la diagonalisation
+d'une matrice symétrique.
+\end{alertblock}
+\end{columns}
+\end{frame}
