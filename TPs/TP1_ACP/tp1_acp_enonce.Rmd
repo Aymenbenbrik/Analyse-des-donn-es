@@ -1,0 +1,235 @@
+---
+title: "TP1 — Analyse en Composantes Principales"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Énoncé"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+# Objectifs
+
+À la fin de ce TP, vous saurez :
+
+1. Effectuer une **ACP normée** sur un jeu de données quantitatif.
+2. **Choisir** le nombre d'axes pertinents.
+3. **Lire et interpréter** un cercle des corrélations et un plan factoriel.
+4. Utiliser les **aides à l'interprétation** ($\cos^2$, contributions).
+5. Projeter des **variables** et **individus supplémentaires**.
+6. Rédiger une **synthèse métier** des résultats.
+
+# Données
+
+Deux jeux de données :
+
+- **`decathlon`** (FactoMineR) : 41 athlètes × 13 variables (10 disciplines + Rank + Points + Competition).
+- **`vins_bordeaux.csv`** : 40 vins de Bordeaux × 8 variables œnologiques + appellation.
+
+```{r packages}
+library(FactoMineR)
+library(factoextra)
+library(corrplot)
+library(dplyr)
+```
+
+# Partie 1 — Exploration préliminaire
+
+## Q1.1 — Chargement et description
+
+Chargez le jeu de données `decathlon` et affichez sa structure.
+
+```{r}
+data(decathlon)
+# TODO : str(decathlon), summary, head
+```
+
+**Q1.2** Combien y a-t-il d'individus ? De variables ? Quels sont les types de chaque variable ?
+
+## Q1.3 — Statistiques descriptives
+
+Affichez les **statistiques descriptives** des 10 premières variables (les disciplines).
+
+```{r}
+# TODO : summary(decathlon[, 1:10]) et sapply(..., sd)
+```
+
+**Question théorique** : pourquoi la variance n'est-elle **pas** comparable directement entre disciplines ?
+
+## Q1.4 — Matrice de corrélation
+
+Calculez et visualisez la matrice de corrélation des 10 disciplines avec `corrplot()`.
+
+```{r}
+# TODO : R <- cor(decathlon[, 1:10]); corrplot(R, ...)
+```
+
+**Q1.5** Observez les corrélations :
+- Quelles disciplines sont **positivement** corrélées ?
+- Quelles sont **négativement** corrélées ? Pourquoi ?
+
+# Partie 2 — Réalisation de l'ACP
+
+## Q2.1 — ACP normée
+
+Réalisez l'ACP normée des 10 disciplines, en mettant `Rank` et `Points` en variables quantitatives **supplémentaires** et `Competition` en variable qualitative supplémentaire.
+
+```{r}
+# TODO : res <- PCA(decathlon, scale.unit = TRUE,
+#                  quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
+```
+
+**Q2.2** Pourquoi a-t-on choisi `scale.unit = TRUE` ?
+
+## Q2.3 — Inertie totale
+
+Vérifiez que l'**inertie totale** vaut $p = 10$. Justifiez théoriquement.
+
+```{r}
+# TODO : sum(res$eig[, 1])
+```
+
+# Partie 3 — Choix du nombre d'axes
+
+## Q3.1 — Tableau des valeurs propres
+
+Affichez le tableau des valeurs propres et des pourcentages d'inertie.
+
+```{r}
+# TODO : get_eigenvalue(res) ou res$eig
+```
+
+## Q3.2 — Scree plot
+
+Tracez l'éboulis (scree plot).
+
+```{r}
+# TODO : fviz_eig(res, addlabels = TRUE)
+```
+
+**Q3.3** Appliquez les trois critères vus en cours :
+
+1. **Coude** : où se situe la cassure ?
+2. **Kaiser** : combien de $\lambda_k \geq 1$ ?
+3. **KSS** ($\lambda_k > 1 + 2\sqrt{(p-1)/(n-1)}$) : combien d'axes ?
+
+**Q3.4** Quel **nombre d'axes** retenez-vous ? Justifiez par le seuil d'inertie cumulée (typiquement 70–80 %).
+
+# Partie 4 — Représentation des individus
+
+## Q4.1 — Plan factoriel des individus
+
+Tracez le premier plan factoriel des athlètes, coloré par la qualité de représentation $\cos^2$.
+
+```{r}
+# TODO : fviz_pca_ind(res, col.ind = "cos2",
+#                    gradient.cols = c("blue", "yellow", "red"),
+#                    repel = TRUE)
+```
+
+**Q4.2** Identifiez :
+
+- Les **3 athlètes** les mieux représentés sur le plan (1, 2)
+- Les **2 athlètes les moins bien** représentés
+- Les athlètes **opposés** sur l'axe 1 — qu'ont-ils de différent ?
+
+## Q4.3 — Contributions
+
+Affichez les **contributions** des athlètes aux axes 1 et 2 (top 10).
+
+```{r}
+# TODO : fviz_contrib(res, choice = "ind", axes = 1, top = 10)
+```
+
+# Partie 5 — Représentation des variables
+
+## Q5.1 — Cercle des corrélations
+
+Tracez le cercle des corrélations colorié par la contribution.
+
+```{r}
+# TODO : fviz_pca_var(res, col.var = "contrib",
+#                    gradient.cols = c("grey", "orange", "red"),
+#                    repel = TRUE)
+```
+
+## Q5.2 — Interprétation des axes
+
+Pour chaque axe (1 et 2), répondez :
+
+- Quelles variables ont la **contribution la plus forte** ?
+- Quelles variables sont **bien représentées** ($\cos^2 > 0.5$) ?
+- Donnez une **interprétation métier** (\emph{quel type d'athlète l'axe oppose-t-il ?}).
+
+```{r}
+# TODO : res$var$contrib[, 1:2]; res$var$cos2[, 1:2]
+```
+
+# Partie 6 — Variables supplémentaires
+
+## Q6.1 — Variables quantitatives supplémentaires
+
+`Rank` et `Points` ont été mises en supplémentaires. Visualisez leur position dans le cercle des corrélations.
+
+```{r}
+# TODO : fviz_pca_var(res) en incluant les variables supplémentaires
+```
+
+**Q6.2** Quelle est la corrélation entre `Points` et l'axe 1 ?
+Avec quelles disciplines `Rank` est-elle le plus corrélée ?
+
+## Q6.3 — Variable qualitative supplémentaire
+
+Tracez le plan factoriel des individus colorié par `Competition` (Decastar / OlympicG).
+
+```{r}
+# TODO : fviz_pca_ind(res, habillage = "Competition", repel = TRUE)
+```
+
+**Q6.4** Y a-t-il un **effet** de la compétition ?
+
+# Partie 7 — Mini-projet : ACP sur les vins de Bordeaux
+
+Le fichier `vins_bordeaux.csv` contient 40 vins décrits par 8 variables œnologiques quantitatives. La variable `Appellation` est qualitative (Pomerol/StÉmilion, Médoc classé, Bordeaux générique).
+
+## Q7.1 — Chargement
+
+Chargez `vins_bordeaux.csv` (variable `Vin` en \texttt{rownames}, `Appellation` en supplémentaire).
+
+```{r}
+# TODO : read.csv, rownames, summary
+```
+
+## Q7.2 — ACP normée
+
+Réalisez l'ACP normée des 8 variables actives, avec `Appellation` en supplémentaire qualitative.
+
+```{r}
+# TODO : PCA(...)
+```
+
+## Q7.3 — Analyse complète
+
+Pour cette ACP, livrez :
+
+1. **Scree plot** + nombre d'axes retenus
+2. **Plan factoriel des individus** colorié par appellation
+3. **Cercle des corrélations** avec contributions
+4. **Tableau** des cos² et contributions des variables sur les 2 premiers axes
+5. **Synthèse de 5 lignes** : que disent les axes ? Les appellations sont-elles bien séparées ?
+
+# Conclusion
+
+**Question finale** : rédigez en 6–8 lignes une synthèse comparant ce que l'ACP **vous a appris** sur les athlètes du décathlon, puis sur les vins. Mettez en évidence le rôle de la **réduction de dimension** dans l'analyse exploratoire.
+
+---
+
+*À rendre : un rapport HTML (knit) avec code, sorties et commentaires.*

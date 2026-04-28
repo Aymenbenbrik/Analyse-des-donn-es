@@ -1,0 +1,223 @@
+---
+title: "TP1 — Analyse en Composantes Principales — **CORRECTION**"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Correction"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+```{r packages}
+library(FactoMineR); library(factoextra); library(corrplot); library(dplyr)
+```
+
+# Partie 1 — Exploration préliminaire
+
+```{r}
+data(decathlon)
+dim(decathlon); str(decathlon)
+head(decathlon)
+```
+
+**Q1.2** : 41 individus × 13 variables : 12 quantitatives (10 disciplines + Rank + Points)
+et 1 qualitative (Competition).
+
+```{r}
+summary(decathlon[, 1:10])
+sapply(decathlon[, 1:10], sd) |> round(2)
+```
+
+**Question théorique** : les variables ont des **unités différentes** (secondes pour
+courses, mètres pour lancers/sauts) et des écarts-types très disparates. Comparer
+les variances brutes n'a pas de sens : il faut **standardiser** (ACP normée).
+
+```{r}
+R <- cor(decathlon[, 1:10])
+corrplot(R, method = "color", type = "upper", tl.cex = 0.8,
+         addCoef.col = "black", number.cex = 0.6)
+```
+
+**Q1.5** :
+
+- Corrélations **positives** : les courses entre elles (100m, 110mH, 400m), les sauts,
+  les lancers.
+- Corrélations **négatives** : courses (temps en secondes) vs sauts/lancers (distance
+  en m). Un athlète rapide saute aussi loin → un *bon* score en course = *petit*
+  temps mais *grande* distance. Le signe vient des unités, pas d'une vraie opposition.
+
+# Partie 2 — Réalisation de l'ACP
+
+```{r}
+res <- PCA(decathlon, scale.unit = TRUE,
+           quanti.sup = 11:12, quali.sup = 13, graph = FALSE)
+```
+
+**Q2.2** : `scale.unit = TRUE` car les unités sont hétérogènes (secondes vs mètres).
+On diagonalise alors la matrice de **corrélation** $\mathbf{R}$ et chaque variable
+contribue à part égale à l'inertie totale.
+
+```{r}
+sum(res$eig[, 1])  # = 10
+```
+
+**Q2.3** : En ACP normée, $\Tr(\mathbf{R}) = p$ car la diagonale de $\mathbf{R}$ est
+constituée de $1$.
+
+# Partie 3 — Choix du nombre d'axes
+
+```{r}
+res$eig
+fviz_eig(res, addlabels = TRUE, ylim = c(0, 50))
+```
+
+**Q3.3** :
+
+- **Coude** : net entre l'axe 4 et 5.
+- **Kaiser** ($\lambda \geq 1$) : on retient les axes 1, 2, 3, 4.
+- **KSS** : seuil = $1 + 2\sqrt{9/40} \approx 1.95$ → on retient les axes 1 et 2.
+
+```{r}
+seuil_kss <- 1 + 2 * sqrt((10 - 1) / (41 - 1))
+sum(res$eig[, 1] > seuil_kss)
+```
+
+**Q3.4** : on retient **2 axes** (cumul ≈ 50 % d'inertie). C'est un choix conservateur,
+cohérent avec le KSS et qui permet une visualisation 2D.
+
+# Partie 4 — Représentation des individus
+
+```{r}
+fviz_pca_ind(res, col.ind = "cos2",
+             gradient.cols = c("blue", "yellow", "red"),
+             repel = TRUE) +
+  ggplot2::ggtitle("Plan factoriel des athlètes")
+```
+
+**Q4.2** :
+
+- **Bien représentés** (cos² élevé) : Karpov, Sebrle, Clay (champions, à droite).
+- **Mal représentés** (cos² faible) : athlètes proches de l'origine (profils moyens).
+- **Opposition axe 1** : Karpov / Sebrle (champions polyvalents) vs Casarsa / Lorenzo
+  (profils plus modestes).
+
+```{r}
+fviz_contrib(res, choice = "ind", axes = 1, top = 10)
+fviz_contrib(res, choice = "ind", axes = 2, top = 10)
+```
+
+# Partie 5 — Représentation des variables
+
+```{r}
+fviz_pca_var(res, col.var = "contrib",
+             gradient.cols = c("grey", "orange", "red"),
+             repel = TRUE)
+```
+
+```{r}
+round(res$var$contrib[, 1:2], 1)
+round(res$var$cos2[, 1:2], 2)
+```
+
+**Q5.2 — Interprétation** :
+
+- **Axe 1** : oppose les disciplines où les *meilleurs* font de *grandes valeurs*
+  (sauts, lancers) à celles où ils font de *petites valeurs* (courses chronométrées).
+  C'est l'**axe de la performance globale** : à droite, athlètes performants partout ;
+  à gauche, performances modestes.
+- **Axe 2** : oppose typiquement les **épreuves d'endurance** (1500m, 400m) aux
+  **épreuves d'explosivité** (100m, 110mH, sauts). C'est l'axe **endurance / vitesse**.
+
+# Partie 6 — Variables supplémentaires
+
+```{r}
+fviz_pca_var(res, repel = TRUE)  # affiche actives + suppl. (en bleu)
+res$quanti.sup$cor[, 1:2]
+```
+
+**Q6.2** : `Points` est très **fortement corrélé** à l'axe 1 ($\rho \approx 0.95$),
+ce qui valide notre interprétation de l'axe 1 comme « performance globale ».
+`Rank` (le rang final) est **opposé** à `Points` (un bon rang = petit nombre).
+
+```{r}
+fviz_pca_ind(res, habillage = "Competition", repel = TRUE,
+             addEllipses = TRUE, ellipse.level = 0.95)
+```
+
+**Q6.4** : les ellipses des deux compétitions (Decastar, OlympicG) **se chevauchent
+fortement** : la compétition n'est pas un facteur structurant majeur dans l'espace
+factoriel. Les athlètes sont avant tout différenciés par leur niveau global et
+leur profil endurance / explosivité, pas par la compétition.
+
+# Partie 7 — Mini-projet vins de Bordeaux
+
+```{r}
+vins <- read.csv("vins_bordeaux.csv")
+rownames(vins) <- vins$Vin
+vins$Vin <- NULL
+str(vins); summary(vins)
+```
+
+```{r}
+res.v <- PCA(vins, scale.unit = TRUE, quali.sup = 9, graph = FALSE)
+```
+
+**Q7.3.1 — Scree plot et nombre d'axes**
+```{r}
+fviz_eig(res.v, addlabels = TRUE)
+res.v$eig
+```
+Les **2 premiers axes** captent ≈ 80 % de l'inertie : on les retient.
+
+**Q7.3.2 — Plan factoriel des individus**
+```{r}
+fviz_pca_ind(res.v, habillage = "Appellation", addEllipses = TRUE,
+             ellipse.level = 0.90, repel = TRUE)
+```
+
+**Q7.3.3 — Cercle des corrélations**
+```{r}
+fviz_pca_var(res.v, col.var = "contrib",
+             gradient.cols = c("grey", "orange", "red"), repel = TRUE)
+```
+
+**Q7.3.4 — Cos² et contributions**
+```{r}
+round(res.v$var$cos2[, 1:2], 2)
+round(res.v$var$contrib[, 1:2], 1)
+```
+
+**Q7.3.5 — Synthèse vins**
+
+- L'**axe 1** (≈ 60 %) oppose les vins **puissants** (Pomerol/StÉmilion : tannins,
+  alcool, intensité aromatique, prix élevé, note experts élevée) aux vins **légers**
+  (Bordeaux générique : acidité plus marquée, structure modeste, prix faible).
+- L'**axe 2** (≈ 20 %) sépare modestement les Médoc classés du reste, avec une
+  contribution de l'acidité et du sucre.
+- L'`Appellation` (supplémentaire) est **très bien expliquée** par l'axe 1 :
+  Pomerol/StÉmilion à droite, Bordeaux génériques à gauche, Médoc classés
+  intermédiaires.
+
+# Conclusion
+
+L'ACP a montré sa double utilité :
+
+- Sur le **décathlon**, elle a structuré 10 disciplines en deux axes interprétables
+  (performance globale / profil endurance-vitesse) et placé chaque athlète dans
+  une typologie cohérente avec son palmarès.
+- Sur les **vins**, elle a confirmé la hiérarchie des appellations à partir de
+  variables chimiques et organoleptiques, en révélant que la dimension principale
+  est essentiellement la « puissance » du vin, fortement corrélée au prix.
+
+Dans les deux cas, la **réduction de dimension** transforme un jeu de variables
+brutes en quelques **dimensions interprétables**, permettant de visualiser, comparer
+et caractériser des individus de façon synthétique. C'est l'apport central de
+l'analyse exploratoire en science des données.
