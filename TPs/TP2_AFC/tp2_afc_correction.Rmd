@@ -1,0 +1,239 @@
+---
+title: "TP2 — Analyse Factorielle des Correspondances — **CORRECTION**"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Correction"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+```{r packages}
+library(FactoMineR); library(factoextra); library(corrplot)
+```
+
+# Partie 1 — Exploration et test d'indépendance
+
+```{r}
+tab1 <- read.csv("csp_diplome.csv", row.names = 1)
+tab1 <- as.matrix(tab1)
+dim(tab1)
+sum(tab1)
+```
+
+**Q1.2** : 6 CSP × 8 niveaux de diplôme, $n \approx 25\,000$ individus.
+
+```{r}
+margin.table(tab1, 1)  # marges lignes (CSP)
+margin.table(tab1, 2)  # marges colonnes (Diplôme)
+```
+
+```{r}
+chi <- chisq.test(tab1)
+chi$statistic
+chi$p.value
+phi2 <- chi$statistic / sum(tab1)
+cat("Phi² =", round(phi2, 4), "\n")
+```
+
+**Q1.5** : $p$-value $\approx 0$ (très inférieure à 0.05) : on **rejette
+l'indépendance**. $\Phi^2 \approx$ valeur calculée — c'est l'inertie totale
+de l'AFC.
+
+# Partie 2 — Profils lignes et colonnes
+
+```{r}
+profils_L <- prop.table(tab1, margin = 1)
+round(profils_L * 100, 1)
+```
+
+**Q2.2** : Profil ligne « Cadres » dominé par **Master** (~35 %),
+**Licence** (~25 %), suivi de **Bac+2** (~15 %).
+Très peu de « Sans diplôme » et « Brevet ».
+
+```{r}
+profil_moyen_L <- margin.table(tab1, 2) / sum(tab1)
+round(profil_moyen_L * 100, 1)
+```
+
+**Q2.3** : Sous l'**hypothèse d'indépendance** $f_{ij} = f_{i\bullet} f_{\bullet j}$,
+tous les profils lignes seraient égaux à ce profil moyen colonne. La distance
+de chaque profil au profil moyen mesure l'écart à l'indépendance.
+
+```{r}
+profils_C <- prop.table(tab1, margin = 2)
+round(profils_C * 100, 1)
+```
+
+**Q2.5** :
+
+- **Doctorat** : presque exclusivement « Cadres » (~78 %).
+- **Sans_diplome** : majoritairement « Ouvriers » et « Agriculteurs »
+  (~30 % chacun) au lieu d'~21 % et 3 % attendus sous indépendance.
+
+# Partie 3 — Réalisation de l'AFC
+
+```{r}
+res <- CA(tab1, graph = FALSE)
+res$eig
+```
+
+**Q3.3** : Vérification numérique :
+
+```{r}
+sum(res$eig[, 1])  # = Phi²
+all.equal(sum(res$eig[, 1]), as.numeric(phi2))
+```
+
+```{r}
+fviz_eig(res, addlabels = TRUE)
+```
+
+**Q3.4** : L'**axe 1** capte ~95 % de l'inertie : un seul axe résume presque
+toute l'information ! On retient **2 axes** par confort de visualisation.
+
+# Partie 4 — Représentation simultanée
+
+```{r}
+fviz_ca_biplot(res, repel = TRUE) +
+  ggplot2::ggtitle("Biplot AFC : CSP × Diplôme")
+```
+
+**Q4.2 — Lecture du biplot** :
+
+- À l'**extrême droite** : Cadres ↔ Master ↔ Doctorat → forte association
+  *cadres / hauts diplômes*.
+- À l'**extrême gauche** : Ouvriers, Agriculteurs ↔ Sans_diplome, Brevet, CAP_BEP
+  → association *bas niveau de qualification*.
+- Au **centre** : Professions intermédiaires ↔ Bac+2, Licence (profil moyen).
+- L'axe 1 oppose donc clairement la **hiérarchie sociale et scolaire**.
+
+```{r}
+fviz_ca_row(res, col.row = "contrib",
+            gradient.cols = c("blue", "orange", "red"), repel = TRUE)
+fviz_ca_col(res, col.col = "contrib",
+            gradient.cols = c("blue", "orange", "red"), repel = TRUE)
+```
+
+# Partie 5 — Aides à l'interprétation
+
+```{r}
+round(res$row$contrib[, 1:2], 1)
+round(res$col$contrib[, 1:2], 1)
+```
+
+**Q5.2** :
+
+- **Axe 1** (lignes, seuil = 100/6 ≈ 17) : Cadres, Ouvriers et Agriculteurs sont
+  les principaux contributeurs.
+- **Axe 1** (colonnes, seuil = 100/8 ≈ 12.5) : Master, Doctorat, Sans_diplome,
+  CAP_BEP.
+- **Axe 2** : capte les nuances entre Artisans/Commerçants et autres CSP, ainsi
+  que des décalages dans les niveaux intermédiaires (Bac, Bac+2).
+
+```{r}
+round(res$row$cos2[, 1:2], 2)
+round(res$col$cos2[, 1:2], 2)
+```
+
+**Q5.4** : la modalité ligne avec le plus faible $\cos^2$ sur le plan (1,2) doit
+être interprétée avec précaution — souvent un profil moyen peu structuré.
+
+```{r}
+chi <- chisq.test(tab1)
+round(chi$residuals, 2)
+corrplot(chi$residuals, is.corr = FALSE,
+         tl.cex = 0.7, cl.cex = 0.7)
+```
+
+**Q5.6** : les **trois cellules les plus contributrices** au $\chi^2$ sont
+généralement :
+
+1. **Cadres × Doctorat** (résidu très positif → sur-représentation forte)
+2. **Cadres × Master** (résidu très positif)
+3. **Ouvriers × Sans_diplome** (résidu positif)
+
+Et dans l'autre sens :
+
+- **Cadres × Sans_diplome** (résidu très négatif → sous-représentation)
+
+Ces résultats confirment l'interprétation du biplot.
+
+# Partie 6 — Modalités supplémentaires
+
+```{r}
+inactifs <- c(40, 25, 20, 8, 4, 2, 1, 0)
+tab1_aug <- rbind(tab1, Inactifs = inactifs)
+res2 <- CA(tab1_aug, row.sup = nrow(tab1_aug), graph = FALSE)
+
+fviz_ca_biplot(res2, repel = TRUE,
+               col.row.sup = "darkgreen") +
+  ggplot2::ggtitle("AFC avec modalité supplémentaire (Inactifs en vert)")
+```
+
+**Q6.2** : la modalité **Inactifs** se positionne du côté gauche du biplot
+(faibles diplômes), proche d'**Ouvriers** et **Agriculteurs**. Cela reflète la
+structure d'éducation des inactifs simulés : majorité sans diplôme ou bas niveau.
+
+# Partie 7 — Mini-projet : mobilité par région
+
+```{r}
+tab2 <- read.csv("region_transport.csv", row.names = 1)
+tab2 <- as.matrix(tab2)
+chi.t <- chisq.test(tab2)
+chi.t$statistic; chi.t$p.value
+phi2.t <- chi.t$statistic / sum(tab2)
+cat("Phi² (transport) =", round(phi2.t, 4), "\n")
+```
+
+```{r}
+res.t <- CA(tab2, graph = FALSE)
+fviz_eig(res.t, addlabels = TRUE)
+fviz_ca_biplot(res.t, repel = TRUE)
+```
+
+```{r}
+round(res.t$row$contrib, 1)
+round(res.t$col$contrib, 1)
+round(res.t$row$cos2, 2)
+```
+
+**Q7.3 — Synthèse** :
+
+- L'**axe 1** sépare clairement l'**Île-de-France** (transports en commun, marche,
+  train, vélo) du reste de la France (voiture).
+- L'**axe 2** apporte des nuances secondaires : PACA se distingue par une part
+  élevée de **deux-roues motorisés** (climat méditerranéen).
+- **Régions à dominante automobile** : Bretagne, Normandie, Grand Est (peu de
+  transports en commun, voiture omniprésente).
+- **Dimension « urbain dense / périphérique-rural »** : l'Île-de-France
+  s'oppose à toutes les autres ; PACA et AURA sont en position intermédiaire
+  grâce aux pôles urbains (Marseille, Lyon).
+
+# Conclusion
+
+| Critère                | ACP                              | AFC                              |
+|------------------------|-----------------------------------|-----------------------------------|
+| Type de données         | Tableau quantitatif $n \times p$  | Tableau de contingence $I \times J$ |
+| Axes                    | Variance maximale                | Inertie $\chi^2$ maximale         |
+| Distance                | Euclidienne (norme $L^2$)         | Distance du $\chi^2$              |
+| Représentation          | Individus + cercle des corrélations | Modalités lignes + colonnes (simultanée) |
+| Équivalence             | —                                | $\Phi^2 = \chi^2/n$ = inertie totale |
+
+Face à un **nouveau tableau** :
+
+- Si les variables sont **quantitatives** → ACP.
+- Si on a un **tableau de contingence** (effectifs croisés) → AFC.
+- Si on a $p > 2$ **variables qualitatives** par individu → ACM (TP3).
+
+La distance du $\chi^2$ pondère les modalités par l'inverse de leur fréquence, ce
+qui équilibre l'influence des modalités rares mais informatives — un trait
+spécifique à l'AFC, absent de l'ACP.

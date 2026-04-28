@@ -1,0 +1,259 @@
+---
+title: "TP2 — Analyse Factorielle des Correspondances"
+subtitle: "Master GAMMA · Master BA · Licence LMAD — Esprit School of Business"
+author: "Énoncé"
+date: "Année académique 2025--2026"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+# Objectifs
+
+À l'issue de ce TP vous saurez :
+
+1. Construire un **tableau de contingence** et tester l'**indépendance**.
+2. Calculer les **profils lignes/colonnes** et la **distance du $\chi^2$**.
+3. Réaliser une **AFC** avec FactoMineR.
+4. Lire un **biplot** AFC (représentation simultanée).
+5. Utiliser les **aides à l'interprétation** (cos², contributions, χ² par cellule).
+6. Projeter des **modalités supplémentaires**.
+
+# Données
+
+- **`csp_diplome.csv`** : tableau CSP × niveau de diplôme (inspiré INSEE), $n \approx 25\,000$.
+- **`region_transport.csv`** : tableau Région × mode de transport quotidien (mini-projet).
+
+```{r packages}
+library(FactoMineR)
+library(factoextra)
+library(ca)         # alternatives ; visualisations
+library(corrplot)
+```
+
+# Partie 1 — Exploration et test d'indépendance
+
+## Q1.1 — Chargement
+
+Chargez `csp_diplome.csv` (la première colonne contient les CSP, à utiliser comme noms de lignes).
+
+```{r}
+# TODO : tab1 <- read.csv("csp_diplome.csv", row.names = 1)
+#        tab1 <- as.matrix(tab1)
+```
+
+**Q1.2** Combien de lignes ? De colonnes ? Combien d'effectifs au total ($n$) ?
+Quelles sont les **modalités** lignes et colonnes ?
+
+## Q1.3 — Marges
+
+Calculez les marges lignes ($f_{i\bullet}$) et colonnes ($f_{\bullet j}$).
+
+```{r}
+# TODO : margin.table(tab1, 1) ; margin.table(tab1, 2)
+```
+
+## Q1.4 — Test du $\chi^2$ d'indépendance
+
+Réalisez le test du $\chi^2$ d'indépendance entre CSP et diplôme.
+
+```{r}
+# TODO : chi <- chisq.test(tab1)
+#        chi$statistic; chi$p.value; chi$expected
+```
+
+**Q1.5** Conclusion sur l'indépendance ?
+Calculez $\Phi^2 = \chi^2 / n$ : c'est l'**inertie totale** de l'AFC à venir.
+
+# Partie 2 — Profils lignes et colonnes
+
+## Q2.1 — Profils lignes
+
+Calculez les profils lignes (chaque ligne divisée par sa somme).
+
+```{r}
+# TODO : profils_L <- prop.table(tab1, margin = 1)
+#        round(profils_L * 100, 1)
+```
+
+**Q2.2** Affichez le profil ligne « Cadres ». Quelle modalité de diplôme est
+la plus fréquente ? La moins ?
+
+## Q2.3 — Profil moyen ligne
+
+Calculez le **profil moyen ligne** (qui correspond à la marge colonne).
+Sous quelle hypothèse tous les profils lignes seraient-ils égaux à ce profil moyen ?
+
+## Q2.4 — Profils colonnes
+
+Calculez les profils colonnes (chaque colonne divisée par sa somme).
+
+```{r}
+# TODO : profils_C <- prop.table(tab1, margin = 2)
+```
+
+**Q2.5** Pour les modalités « Doctorat » et « Sans_diplome », quelles CSP sont
+sur-représentées ?
+
+# Partie 3 — Réalisation de l'AFC
+
+## Q3.1 — AFC avec FactoMineR
+
+Réalisez l'AFC du tableau (sans modalités supplémentaires).
+
+```{r}
+# TODO : res <- CA(tab1, graph = FALSE)
+```
+
+## Q3.2 — Inertie totale et valeurs propres
+
+```{r}
+# TODO : res$eig
+```
+
+**Q3.3** Vérifiez que la somme des valeurs propres est égale à $\Phi^2$ (calculé en Q1.5).
+
+## Q3.4 — Scree plot
+
+Tracez le scree plot et déterminez le nombre d'axes à retenir.
+
+```{r}
+# TODO : fviz_eig(res, addlabels = TRUE)
+```
+
+# Partie 4 — Représentation simultanée
+
+## Q4.1 — Biplot AFC
+
+Tracez le biplot symétrique (lignes et colonnes sur le même plan).
+
+```{r}
+# TODO : fviz_ca_biplot(res, repel = TRUE)
+```
+
+## Q4.2 — Lecture du biplot
+
+Identifiez :
+
+- **Quelles CSP** sont proches de **quels niveaux de diplôme** ?
+- Y a-t-il des **groupes** de modalités lignes ?
+- Quelles modalités sont à proximité de l'**origine** (proche du profil moyen) ?
+
+## Q4.3 — Représentation séparée
+
+Tracez les modalités lignes seules, puis les colonnes seules, coloriées par
+contribution.
+
+```{r}
+# TODO : fviz_ca_row(res, col.row = "contrib",
+#                   gradient.cols = c("blue","red"), repel = TRUE)
+#        fviz_ca_col(res, col.col = "contrib", repel = TRUE)
+```
+
+# Partie 5 — Aides à l'interprétation
+
+## Q5.1 — Contributions
+
+Pour chaque modalité ligne et colonne, affichez les contributions aux deux premiers axes.
+
+```{r}
+# TODO : round(res$row$contrib[, 1:2], 1)
+#        round(res$col$contrib[, 1:2], 1)
+```
+
+**Q5.2** Pour chaque axe, listez les modalités contribuant le plus
+(seuils : ctr > 100/I pour les lignes, > 100/J pour les colonnes).
+
+## Q5.3 — Qualité de représentation
+
+```{r}
+# TODO : round(res$row$cos2[, 1:2], 2)
+#        round(res$col$cos2[, 1:2], 2)
+```
+
+**Q5.4** Quelle modalité ligne a le **plus mauvais** $\cos^2$ sur le plan (1, 2) ?
+Faut-il l'interpréter ?
+
+## Q5.5 — Décomposition du $\chi^2$ par cellule
+
+Affichez les **résidus standardisés** du $\chi^2$ pour repérer les cellules
+les plus contributrices.
+
+```{r}
+# TODO : chi <- chisq.test(tab1); round(chi$residuals, 2)
+#        corrplot(chi$residuals, is.corr = FALSE)
+```
+
+**Q5.6** Quelles trois cellules contribuent le plus à l'écart à l'indépendance ?
+Sont-elles cohérentes avec votre lecture de l'AFC ?
+
+# Partie 6 — Modalités supplémentaires
+
+## Q6.1 — Fusion d'une modalité
+
+Imaginons une 7e CSP « Inactifs » dont le profil de diplôme serait :
+`c(40, 25, 20, 8, 4, 2, 1, 0)`.
+Ajoutez cette ligne en **modalité supplémentaire** et refaites l'AFC.
+
+```{r}
+# TODO :
+# tab1_aug <- rbind(tab1, Inactifs = c(40, 25, 20, 8, 4, 2, 1, 0))
+# res2 <- CA(tab1_aug, row.sup = 7, graph = FALSE)
+# fviz_ca_biplot(res2, repel = TRUE)
+```
+
+**Q6.2** Où se positionne « Inactifs » ? À quelle CSP active ressemble-t-elle ?
+
+# Partie 7 — Mini-projet : mobilité par région
+
+Le fichier `region_transport.csv` croise 8 régions françaises et 6 modes de
+transport quotidien.
+
+## Q7.1 — Chargement
+
+```{r}
+# TODO : tab2 <- read.csv("region_transport.csv", row.names = 1)
+#        tab2 <- as.matrix(tab2)
+```
+
+## Q7.2 — Test du $\chi^2$
+
+Quelle est la valeur de $\chi^2$ ? Le $p$-value ? L'inertie totale $\Phi^2$ ?
+
+## Q7.3 — AFC
+
+Réalisez l'AFC, tracez le biplot, et **rédigez 5 à 7 lignes** d'interprétation :
+
+- Quelle est la dimension principale qui structure les régions ?
+- Quels modes de transport caractérisent l'Île-de-France ?
+- Quelles régions sont à dominante automobile ?
+- Y a-t-il une dimension « urbain / rural » ?
+
+```{r}
+# TODO : res.t <- CA(tab2, graph = FALSE)
+#        fviz_eig(res.t, addlabels = TRUE)
+#        fviz_ca_biplot(res.t, repel = TRUE)
+#        round(res.t$row$contrib, 1); round(res.t$col$contrib, 1)
+```
+
+# Conclusion
+
+**Question finale** : en 6–8 lignes, comparez les apports de l'**ACP** (TP1) et
+de l'**AFC** (TP2) :
+
+- Quels types de données traitent-elles ?
+- Que représentent les axes dans chaque cas ?
+- Quel est le rôle de la **distance du $\chi^2$** par rapport à la distance euclidienne ?
+- Lequel choisir face à un nouveau tableau de données ?
+
+---
+
+*À rendre : un rapport HTML (knit) avec code, sorties et commentaires.*
